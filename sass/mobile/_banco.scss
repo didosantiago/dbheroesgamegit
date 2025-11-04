@@ -1,0 +1,60 @@
+@media (max-width: 1024px) {
+    body.banco{
+        .conteudo{
+            .title{
+                font-size: 20px;
+            }
+            .depositos{
+                width: 90%;
+                margin: 0 auto 20px auto;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+            .saques{
+                width: 90%;
+                margin: 0 auto 20px auto;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+            .market-itens-inventario{
+                width: 90%;
+                margin: 0 auto;
+                .market-itens-header{
+                    display: none;
+                }
+                .market-itens-body{
+                    padding: 10px;
+                    @include box-sizing(border-box);
+                    .td-market.nome{
+                        display: block;
+                        width: 100%;
+                        margin: 0 0 10px 0;
+                        text-align: left;
+                        img{
+                            margin: 0 15px 0 0;
+                        }
+                    }
+                    .td-market.preco{
+                        width: 48%;
+                        input{
+                            width: 100%;
+                            margin: 0;
+                            font-size: 20px;
+                            @include border-radius(0);
+                        }
+                    }
+                    .td-market.acoes{
+                        width: 49%;
+                        input{
+                            width: 100%;
+                            height: 50px;
+                            line-height: 50px;
+                            margin: 0;
+                            @include border-radius(0);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

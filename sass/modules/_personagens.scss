@@ -1,0 +1,628 @@
+body.criar-personagem{
+    .conteudo{
+        padding: 0;
+        background: #1B2838;
+        .title{
+            color: #FFF;
+        }
+    }
+    .valida{
+        display: block;
+        padding: 10px;
+        background: #ffccd0;
+        color: #d1404c;
+        font-size: 16px;
+        border: 1px solid #ed9a9f;
+        @include box-sizing(border-box);
+    }
+    #wizard-personagem{
+        text-align: left;
+        ul{
+            display: block;
+            width: 100%;
+            height: 68px;
+            border: 0;
+            padding: 0px;
+            border-top-right-radius: 5px;
+            list-style: none;
+            overflow: hidden;
+            background: #f5f5f5;
+            li{
+                display: inline-block;
+                vertical-align: top;
+                width: 32.9%;
+                height: 68px;
+                margin-bottom: -1px;
+                @include box-sizing(border-box);
+                &:first-child{
+                    a{
+                        padding-left: 15px;
+                    }
+                }
+                &:last-child{
+                    a{
+                        padding-right: 30px;
+                        &:before{
+                            display: none;
+                        }
+                        &:after{
+                            display: none;
+                        }
+                    }
+                }
+                &.active{
+                    a{
+                        border-color: #0ABF2A !important;
+                        color: #FFF !important;
+                        background: #0ABF2A !important;
+                        &:after{
+                            border-left: 30px solid #0ABF2A !important;
+                        }
+                        small{
+                            color: #074f11;
+                        }
+                    }
+                }
+                a{
+                    display: block;
+                    height: 68px;
+                    color: #a5a5a5;
+                    font-size: 18px;
+                    text-decoration: none;
+                    padding: 10px 0 10px 45px;
+                    position: relative;
+                    display: block;
+                    border: 0 !important;
+                    border-radius: 0;
+                    outline-style: none;
+                    background: #f5f5f5;
+                    text-align: left;
+                    @include box-sizing(border-box);
+                    &:before{
+                        content: " ";
+                        display: block;
+                        width: 0;
+                        height: 0;
+                        border-top: 50px solid transparent;
+                        border-bottom: 50px solid transparent;
+                        border-left: 30px solid #a5a5a5;
+                        position: absolute;
+                        top: 50%;
+                        margin-top: -50px;
+                        margin-left: 1px;
+                        left: 100%;
+                        z-index: 1;
+                    }
+                    &:after{
+                        content: " ";
+                        display: block;
+                        width: 0;
+                        height: 0;
+                        border-top: 50px solid transparent;
+                        border-bottom: 50px solid transparent;
+                        border-left: 30px solid #f5f5f5;
+                        position: absolute;
+                        top: 50%;
+                        margin-top: -50px;
+                        left: 100%;
+                        z-index: 2;
+                    }
+                    small{
+                        font-size: 13px;
+                    }
+                }
+            }
+        }
+        .contents-wizard{
+            position: relative;
+            #load-wizard{
+                display: none;
+                width: 100%;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 2000;
+                background-color: rgba(255, 255, 255, 0.2);
+                img{
+                    display: block;
+                    width: 150px;
+                    margin: 20% auto 0 auto;
+                }
+            }
+            #etapa-1{
+                text-align: center;
+                padding-top: 20px;
+                .item-personagem{
+                    display: inline-block;
+                    vertical-align: top;
+                    background: #000 url('bg-cards.png');
+                    padding: 10px;
+                    margin: 0 5px 10px 5px;
+                    cursor: pointer;
+                    @include box-sizing(border-box);
+                    &.active{
+                        animation: bounce 0.25s;
+                        animation-direction: alternate;
+                        animation-iteration-count: infinite;
+                    }
+                    &:hover{
+                        @include opacity(1);
+                    }
+                    input{
+                        display: none;
+                    }
+                    img{
+                        width: 227px;
+                    }
+                    h3{
+                        display: block;
+                        width: 100%;
+                        text-transform: uppercase;
+                        color: #FFF;
+                        font-size: 18px;
+                        margin: 0;
+                        border: 0;
+                        text-align: center;
+                        padding: 10px 0;
+                    }
+                    span{
+                        display: block;
+                        text-transform: uppercase;
+                        color: #FFF;
+                        font-size: 12px;
+                        margin-bottom: 10px;
+                        text-align: center;
+                    }
+                }
+                .footer-bottom{
+                    width: 100%;
+                    padding: 10px 0;
+                    .btn-step-1{
+                        display: block;
+                        height: 65px;
+                        line-height: 60px;
+                        background: #0ABF2A;
+                        font-size: 16px;
+                        margin: 20px auto;
+                        @include border-radius(0);
+                        svg{
+                            display: inline-block;
+                            vertical-align: middle;
+                            margin-left: 5px;
+                            font-size: 20px;
+                            color: #FFF;
+                        }
+                    }
+                }
+            }
+            #etapa-2{
+                display: none;
+                padding-top: 20px;
+                .area-nome{
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 50%;
+                    padding: 10px;
+                    margin-left: 4%;
+                    text-align: center;
+                    @include box-sizing(border-box);
+                    input[type="text"]{
+                        display: inline-block;
+                        vertical-align: top;
+                        width: 100%;
+                        height: 60px;
+                        padding: 0 0 0 10px;
+                        border: 0;
+                        background: #121c28;
+                        font-size: 20px;
+                        color: #FFF;
+                        text-align: center;
+                        border: 1px solid #264366;
+                        &:focus{
+                            outline: none;
+                        }
+                    }
+                }
+                .area-planeta{
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 40%;
+                    padding: 10px;
+                    @include box-sizing(border-box);
+                    text-align: center;
+                    .item-planetas{
+                        display: inline-block;
+                        vertical-align: top;
+                        width: 100px;
+                        margin: 0 5px 10px 5px;
+                        cursor: pointer;
+                        position: relative;
+                        overflow: hidden;
+                        @include box-sizing(border-box);
+                        &.active{
+                            animation: bounce 0.25s;
+                            animation-direction: alternate;
+                            animation-iteration-count: infinite;
+                        }
+                        &:hover{
+                            @include opacity(1);
+                        }
+                        input{
+                            display: none;
+                        }
+                        img{
+                            width: 100%;
+                        }
+                        h3{
+                            display: block;
+                            width: 100%;
+                            text-transform: uppercase;
+                            color: #0ABF2A;
+                            text-align: center;
+                            font-size: 16px;
+                            font-weight: normal;
+                            border: 0;
+                            padding: 10px 0;
+                            margin: 0;
+                        }
+                    }
+                }
+                .title{
+                    padding: 0;
+                    margin-bottom: 5px;
+                }
+                p{
+                    display: block;
+                    padding: 0 0 20px 0;
+                    color: #FFF200;
+                    font-size: 14px;
+                }
+                .footer-bottom{
+                    width: 100%;
+                    padding: 10px 0;
+                    .btn-step-2{
+                        display: block;
+                        height: 65px;
+                        line-height: 60px;
+                        background: #0ABF2A;
+                        font-size: 16px;
+                        margin: 20px auto;
+                        @include border-radius(0);
+                        svg{
+                            display: inline-block;
+                            vertical-align: middle;
+                            margin-left: 5px;
+                            font-size: 20px;
+                            color: #FFF;
+                        }
+                    }
+                }
+            }
+            #etapa-3{
+                display: none;
+                text-align: center;
+                padding-top: 20px;
+                .img-success{
+                    display: block;
+                    width: 200px;
+                    margin: 40px auto 20px auto;
+                }
+                h4{
+                    display: block;
+                    margin: 0 0 40px 0;
+                    text-align: center;
+                    color: #FFF;
+                    font-size: 22px;
+                }
+                #criar{
+                    display: block;
+                    height: 65px;
+                    line-height: 60px;
+                    background: #0ABF2A;
+                    font-size: 16px;
+                    margin: 20px auto;
+                    @include border-radius(0);
+                    svg{
+                        display: inline-block;
+                        vertical-align: middle;
+                        margin-left: 5px;
+                        font-size: 20px;
+                        color: #FFF;
+                    }
+                }
+            }
+        }
+    }
+    #formPersonagem{
+        text-align: left;
+        @include box-sizing(border-box);
+        .campos{
+            display: inline-block;
+            vertical-align: top;
+            width: 100%;
+            margin-bottom: 20px;
+            input[type="text"],
+            input[type="password"]{
+                width: 100%;
+                height: 75px;
+                padding: 0 0 0 10px;
+                border: 0;
+                background: #1C1A1A;
+                color: #FFF;
+                font-size: 22px;
+                text-align: center;
+                @include border-radius(10px);
+                @include box-sizing(border-box);
+                &:focus{
+                    outline: none;
+                }
+            }
+            input[type="checkbox"]{
+                display: inline-block;
+                vertical-align: middle;
+                width: 25px;
+                height: 25px;
+                margin-right: 5px;
+                cursor: pointer;
+                &:focus{
+                    outline: none;
+                }
+            }
+            ::-webkit-input-placeholder {
+                color: #FFF;
+            }
+
+            :-moz-placeholder { /* Firefox 18- */
+                color: #FFF;  
+            }
+
+            ::-moz-placeholder {  /* Firefox 19+ */
+                color: #FFF;  
+            }
+
+            :-ms-input-placeholder {  
+                color: #FFF;  
+            }
+            label{
+                display: inline-block;
+                vertical-align: middle;
+                text-transform: uppercase;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+        }
+        .bts-form{
+            background: #629607;
+        }
+    }
+}
+
+body.meus-personagens{
+    .conteudo{
+        padding: 0;
+        background: #1B2838;
+        .title{
+            color: #FFF;
+            padding-left: 0;
+            text-align: center;
+        }
+    }
+    .personagem-atual{        
+        .foto-personagem{
+            width: 40%;
+            display: inline-block;
+            vertical-align: top;
+            margin: 10px 0 0 10px;
+            
+            @media (max-width: 1024px) {
+                width: 100%;
+            }
+            
+            img{
+                display: block;
+                width: 100%;
+            }
+        }
+        .info{
+            display: inline-block;
+            vertical-align: top;
+            width: 55%;
+            color: #FFF;
+            background: #091019;
+            padding: 10px 10px 20px 10px;
+            margin: 10px 0 0 20px;
+            text-align: center;
+            @include box-sizing(border-box);
+            
+            @media (max-width: 1024px) {
+                width: 100%;
+                margin: 0;
+            }
+            
+            h3{
+                display: block;
+                text-transform: uppercase;
+                font-size: 25px;
+                margin: 10px 0 25px 0;
+                
+                @media (max-width: 1024px) {
+                    margin: 10px auto;
+                }
+            }
+            
+            .atributos{
+                display: inline-block;
+                width: 80%;
+                background: #1B2838;
+                margin-bottom: 3px;
+                padding: 5px 10px 5px 0;
+                border: 1px solid #324965;
+                text-align: left;
+                color: #00ff2e;
+                position: relative;
+                @include box-sizing(border-box);
+                
+                @media (max-width: 1024px) {
+                    width: 100%;
+                }
+                
+                &.at-meter{
+                    padding: 0;
+                    color: #FFF;
+                }
+                > strong{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 40%;
+                    padding: 10px 15px 10px 0;
+                    margin-right: 10px;
+                    text-align: right;
+                    background: #0E1721;
+                    color: #FFF;
+                }
+                &.hp, &.mana, &.energia{
+                    > strong{
+                        display: block;
+                        width: auto;
+                        background: transparent;
+                        padding: 0;
+                        margin: 0;
+                        position: absolute;
+                        top: 12px;
+                        left: 3%;
+                        z-index: 20;
+                        font-size: 16px;
+                        @include text-shadow(1px 1px #000000);
+                    }
+                }
+                .meter{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 100%;
+                    height: 45px;
+                    position: relative;
+                    background: #000205;
+                    @include border-radius(0);
+                    @include box-sizing(border-box);
+
+                    em{
+                        position: absolute;
+                        top: 12px;
+                        left: 20%;
+                        z-index: 10;
+                        color: #FFF;
+                        font-size: 16px;
+                        font-weight: 600;
+                        font-style: normal;
+                        text-transform: uppercase;
+                        @include text-shadow(1px 1px #000000);
+                    }
+                    
+                    span{
+                        @include border-radius(0);
+                    }
+                }
+            }
+            a{
+                width: 100px;
+                float: left;
+                background: #1fa51f;
+            }
+        }
+        .bt-jogar{
+            width: 220px; 
+            margin: 30px auto; 
+            background: #12a821; 
+            text-align: center; 
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 42px;
+            color: #FFF;
+            @include border-radius(0);
+            
+            @media (max-width: 1024px) {
+                display: block;
+                width: 100%;
+                margin: 0;
+                font-size: 18px;
+                line-height: 45px;
+                background: #00B50C;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+            
+            svg{
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 22px;
+                margin-left: 10px;
+            }
+        }
+    }
+    .item-personagem{
+        display: inline-block;
+        vertical-align: top;
+        background: #000 url('bg-cards.png');
+        padding: 10px;
+        margin: 0 5px 10px 5px;
+        cursor: pointer;
+        -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+        filter: grayscale(100%);
+        @include box-sizing(border-box);
+        
+        @media (max-width: 1024px) {
+            width: 46%;
+        }
+        
+        &.active-gray{
+            animation: bounce 0.25s;
+            animation-direction: alternate;
+            animation-iteration-count: infinite;
+            -webkit-filter: grayscale(0%); /* Safari 6.0 - 9.0 */
+            filter: grayscale(0%);
+        }
+        &:hover{
+            -webkit-filter: grayscale(0%); /* Safari 6.0 - 9.0 */
+            filter: grayscale(0%);
+        }
+        input{
+            display: none;
+        }
+        img{
+            width: 200px;
+            
+            @media (max-width: 1024px) {
+                width: 100%;
+            }
+        }
+        h3{
+            display: block;
+            width: 100%;
+            text-transform: uppercase;
+            color: #FFF;
+            font-size: 18px;
+            margin: 0;
+            border: 0;
+            text-align: center;
+            padding: 10px 0;
+        }
+        span{
+            display: block;
+            text-transform: uppercase;
+            color: #FFF;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-align: center;
+            strong{
+                @media (max-width: 1024px) {
+                   display: none;
+                }
+            }
+        }
+    }
+    .lista-meus-personagens{
+        text-align: center;
+    }
+}

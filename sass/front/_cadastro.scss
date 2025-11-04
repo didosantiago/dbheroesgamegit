@@ -1,0 +1,134 @@
+body.cadastro{
+    h2{
+        display: block;
+        color: #FFF;
+        text-transform: uppercase;
+        font-size: 20px;
+        font-weight: 600;
+        margin: 20px 0;
+        
+        @media (max-width: 410px) {
+            font-size: 14px;
+        }
+    }
+    #formCadastro{
+        display: block;
+        margin: 20px 0;
+        padding: 20px;
+        background-color: rgba(0,0,0,0.2);
+        text-align: center;
+        .img-form{
+            display: inline-block;
+            width: 300px;
+            height: 425px;
+            text-align: center;
+            img{
+                display: inline-block;
+                width: 300px;
+            }
+        }
+        .box-form{
+            display: inline-block;
+            vertical-align: top;
+            width: 700px;
+            text-align: center;
+            
+            @media (max-width: 1024px) {
+                width: 100%;
+                padding: 20px 0;
+            }
+            
+            .campos{
+                display: block;
+                width: 350px;
+                margin: 0 auto 20px auto;
+                
+                @media (max-width: 410px) {
+                    width: 100%;
+                    @include box-sizing(border-box);
+                }
+                
+                input[type="text"], input[type="password"], input[type="email"]{
+                    display: block;
+                    width: 100%;
+                    height: 55px;
+                    border: 0;
+                    padding: 0 0 0 10px;
+                    background: #121A24;
+                    border: 1px solid #000;
+                    color: #CCC;
+                    @include box-shadow(1px 1px 0px #45556c);
+                    @include box-sizing(border-box);
+                    &:focus{
+                        outline: none;
+                    }
+                }
+                label{
+                    color: #4f94bc;
+                }
+            }
+            .botoes-form{
+                display: block;
+                overflow: hidden;
+                width: 350px;
+                margin: 0 auto;
+                
+                @media (max-width: 410px) {
+                    width: 100%;
+                    @include box-sizing(border-box);
+                }
+                
+                .bt-login{
+                    display: inline-block;
+                    float: left;
+                    height: 51px;
+                    color: #67c1f5;
+                    background: rgba( 103, 193, 245, 0.2 );
+                    padding: 0 1em;
+                    line-height: 51px;
+                    cursor: pointer;
+                    border: 0;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    @include transition(all ease .2s);
+                    &:focus{
+                        outline: none;
+                    }
+                    &:hover{
+                        background: rgba( 103, 193, 245, 0.5 );
+                    }
+                    
+                    @media (max-width: 410px) {
+                        width: 47%;
+                        @include box-sizing(border-box);
+                    }
+                }
+                .bt-cadastrar{
+                    display: inline-block;
+                    float: right;
+                    height: 51px;
+                    background: #40b700;
+                    color: #FFF;
+                    padding: 0 1em;
+                    line-height: 51px;
+                    cursor: pointer;
+                    border: 0;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    @include transition(all ease .2s);
+                    &:focus{
+                        outline: none;
+                    }
+                    &:hover{
+                        background: #2c7f00;
+                    }
+                    
+                    @media (max-width: 410px) {
+                        width: 47%;
+                        @include box-sizing(border-box);
+                    }
+                }
+            }
+        }
+    }
+}

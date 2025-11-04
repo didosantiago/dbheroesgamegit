@@ -1,0 +1,98 @@
+body.rank{
+    .secao-ranking{
+        h2{
+            display: block;
+            color: #FFF;
+            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+        }
+        .lista-ranking{
+            display: block;
+            width: 100%;
+            margin: 20px auto;
+            background-color: rgba(0,0,0,0.2);
+            text-align: center;
+            border-collapse: collapse;
+            @include box-sizing(border-box);
+            thead{
+                tr{
+                    th{
+                        background-image: url("bg-indicadores.jpg");
+                        background-position-y: -105px;
+                        color: #FFF;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        text-align: center;
+                    }
+                }
+            }
+            tbody{
+                tr{
+                    background: #f5f5f5;
+                    &.top-player{
+                        background: #DFF0D8;
+                        color: #3c763d;
+                    }
+                    td{
+                        text-align: center;
+                        font-size: 16px;
+                        a{
+                            color: #000;
+                        }
+                        &.planeta{
+                            img{
+                                width: 50px;
+                            }
+                        }
+                        &.rank{
+                            strong{
+                                display: block;
+                                width: 50px;
+                                height: 30px;
+                                line-height: 30px;
+                                font-size: 20px;
+                                color: #FFF;
+                                background: #31aa08;
+                                text-align: center;
+                                margin: 0 25px 0 -20px;
+                                position: relative;
+                                &:before{
+                                    content: '';
+                                    display: block;
+                                    position: absolute;
+                                    top: 0;
+                                    right: -20px;
+                                    width: 0;
+                                    height: 0;
+                                    border-style: solid;
+                                    border-width: 15px 0 15px 20px;
+                                    border-color: transparent transparent transparent #31aa08;
+                                }
+                            }
+                        }
+                        img{
+                            display: block;
+                            width: 80px;
+                            margin: 0 auto;
+                        }
+                    }
+                }
+            }
+            tr:hover {background-color: #f5f5f5;}
+            tr:nth-child(even) {background-color: #f2f2f2;}
+            th{
+                padding: 3px 15px;
+                text-align: left;
+            }
+            td{
+                padding: 3px 0;
+                text-align: left;
+            }
+            th,{
+                padding: 15px;
+            }
+        }
+    }
+}

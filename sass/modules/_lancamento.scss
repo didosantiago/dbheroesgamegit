@@ -1,0 +1,45 @@
+body.lancamento{
+    background-image: url('../bg.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-size: cover;
+    .top-bar{
+        position: fixed;
+        top: 5%;
+        right: 5%;
+        z-index: 10;
+    }
+    .cont{
+        .bg{
+            display: block;
+            position: fixed;
+            z-index: 9;
+            width: 100%;
+        }
+        .redes{
+            width: 400px;
+            position: fixed;
+            top: 50%;
+            right: 35%;
+            z-index: 10;
+            text-align: center;
+
+            @media (max-width: 1300px){
+                top: 45%;
+                right: 28%;
+            }
+
+            h3{
+                display: block;
+                color: #FFF;
+                font-size: 26px;
+                margin: 0 0 20px 0;
+            }
+            li{
+                display: inline-block;
+                vertical-align: middle;
+                margin: 0 10px;
+            }
+        }
+    }
+}

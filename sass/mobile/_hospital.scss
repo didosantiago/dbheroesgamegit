@@ -1,0 +1,64 @@
+@media (max-width: 1024px) {
+    body.hospital{
+        .conteudo{
+            background: #1C1A1A;
+            h2{
+                color: #FFF;
+                margin-bottom: 30px;
+            }
+            .ficha{
+                width: 100%;
+                margin: 0 0 10px 0;
+                text-align: center;
+                .foto-principal{
+                    img{
+                        width: 240px;
+                        margin: 0 auto;
+                    }
+                }
+                li{
+                    padding: 5px 0;
+                }
+            }
+            .tratamentos{
+                width: 100%;
+                margin: 0;
+                background: #0F0F0F;
+                li{
+                    background: #1C1A1A;
+                    margin-bottom: 10px;
+                    padding: 10px;
+                    text-align: center;
+                    @include box-sizing(border-box);
+                    svg{
+                        margin: 0 5px 10px 0;
+                    }
+                    .info{
+                        display: block;
+                        width: 100%;
+                        margin: 0 0 10px 0;
+                        p{
+                            margin-bottom: 20px;
+                        }
+                        span{
+                            font-size: 18px;
+                        }
+                    }
+                    form{
+                        display: block;
+                        .bts-form{
+                            display: block;
+                            width: 100%;
+                            margin: 0;
+                            font-size: 18px;
+                            line-height: 45px;
+                            background: #00B50C;
+                            @include border-radius(0);
+                            @include box-sizing(border-box);
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

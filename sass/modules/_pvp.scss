@@ -1,0 +1,115 @@
+body.pvp{
+    .conteudo{
+        height: 1043px;
+        background: url('bg-kaio.jpg');
+        background-position: center center;
+        background-size: 186%;
+        background-repeat: no-repeat;
+    }
+    .caca-pvp{
+        display: inline-block;
+        vertical-align: middle;
+        width: 300px;
+        margin: 40px 0 0 50px;
+        img{
+            display: block;
+            width: 100%;
+        }
+    }
+    #buscaGlobal{
+        display: inline-block;
+        vertical-align: middle;
+        width: 548px;
+        min-height: 500px;
+        background: #050404;
+        padding: 20px;
+        margin: 40px 0 50px 50px;
+        position: relative;
+        @include box-sizing(border-box);
+        &:before{
+            content: '';
+            display: block;
+            position: absolute;
+            top: 300px;
+            left: -25px;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 15px 30px 15px 0;
+            border-color: transparent #1c1a1a transparent transparent;
+        }
+        form{
+            margin-bottom: 50px;
+        }
+        h3{
+            width: 100%;
+            padding-left: 0;
+            color: #E91076;
+            border-color: #E91076; 
+        }
+        .info{
+            display: block;
+            font-size: 13px;
+            color: #B5DFFF;
+            margin-bottom: 40px;
+            text-align: left;
+            strong{
+                color: #FFC600;
+            }
+        }
+        .campos{
+            display: block;
+            label{
+                color: #FFF;
+            }
+            select{
+                display: block;
+                width: 100%;
+                height: 50px;
+                padding: 0 0 0 10px;
+                border: 0;
+                background: #121c28;
+                font-size: 14px;
+                color: #FFF;
+                border: 1px solid #264366;
+                &:focus{
+                    outline: none;
+                }
+            }
+            input[type="text"]{
+                display: block;
+                width: 100%;
+                height: 50px;
+                padding: 0 0 0 10px;
+                border: 0;
+                background: #121c28;
+                font-size: 14px;
+                color: #FFF;
+                border: 1px solid #264366;
+                &:focus{
+                    outline: none;
+                }
+            }
+        }
+        .bts-form{
+            width: 220px; 
+            margin: 30px auto; 
+            background: #12a821; 
+            text-align: center; 
+            font-size: 18px;
+            font-weight: bold;
+            line-height: 42px;
+            color: #FFF;
+            @include border-radius(0);
+            
+            &.disabled{
+                cursor: none;
+                background: #b70003;
+                color: #FFF;
+                &:hover{
+                    @include opacity(1);
+                }
+            }
+        }
+    }
+}

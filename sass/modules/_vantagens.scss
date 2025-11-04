@@ -1,0 +1,83 @@
+body.vantagens{
+    .conteudo{
+        background: #1B2838;
+        padding: 0;
+        .title{
+            text-align: center;
+            padding-left: 0;
+            color: #FFF;
+            font-size: 30px;
+        }
+        table{
+            width: 98%;
+            border-collapse: collapse;
+            margin: 30px 10px 10px 10px;
+            @include box-sizing(border-box);
+            thead{
+                tr{
+                    th{
+                        background: #251A13;
+                        color: #FFF;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        text-align: center;
+                        border-top: 1px solid #413625;
+                        border-bottom: 1px solid #413625;
+                    }
+                }
+            }
+            tbody{
+                tr{
+                    background: #251A13;
+                    td{
+                        text-align: center;
+                        font-size: 14px;
+                        color: #FFF;
+                        padding: 5px 0;
+                        svg{
+                            font-size: 25px;
+                        }
+                        img{
+                            display: block;
+                            width: 20px;
+                            height: auto;
+                            margin: 0 auto;
+                        }
+                    }
+                }
+            }
+            tr:nth-child(even) {
+                background-color: #413625;
+            }
+            th{
+                padding: 3px 15px;
+                text-align: left;
+            }
+            td{
+                padding: 3px 0;
+                text-align: left;
+            }
+            th,{
+                padding: 15px;
+            }
+        }
+    }
+    .btn{
+        display: block;
+        width: 150px;
+        height: 30px;
+        margin: 10px auto;
+        line-height: 30px;
+        border: 0;
+        cursor: pointer;
+        background: #6fba00;
+        color: #FFF;
+        @include border-radius(5px);
+        &:hover{
+            @include opacity(.8);
+        }
+        &:focus{
+            outline: none;
+        }
+    }
+}

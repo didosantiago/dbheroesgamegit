@@ -1,0 +1,27 @@
+body.faq{
+    .faq-list{
+        width: 90%;
+        margin: 0 auto;
+        li{
+            margin: 0 0 30px 0;
+            background: #D9EDF7;
+            padding: 15px;
+            border: 1px solid #244F5F;
+            @include box-sizing(border-box);
+            h3{
+                display: block;
+                padding: 10px;
+                background: #244F5F;
+                color: #FFF;
+                font-size: 18px;
+                margin-bottom: 20px;
+                @include box-sizing(border-box);
+            }
+            p{
+                color: #244F5F;
+                padding: 0 0 0 20px;
+                line-height: 22px;
+            }
+        }
+    }
+}

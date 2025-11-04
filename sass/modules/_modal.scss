@@ -1,0 +1,112 @@
+.backdrop-game{
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 2000;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    text-align: center;
+}
+
+.modal-game{
+    display: none;
+    width: 500px;
+    height: 280px;
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    z-index: 2001;
+    margin-left: -250px;
+    .modal-header{
+        .close-modal{
+            display: block;
+            width: 28px;
+            height: 28px;
+            position: absolute;
+            top: -13px;
+            right: -13px;
+            z-index: 2002;
+            cursor: pointer;
+            background-color: transparent;
+            border: 0;
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2228%22%20height%3D%2228%22%20viewBox%3D%220%200%2028%2028%22%3E%0A%20%20%20%20%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%20transform%3D%22translate(2%202)%22%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2212%22%20fill%3D%22%23FFF%22%20opacity%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Ccircle%20cx%3D%2212%22%20cy%3D%2212%22%20r%3D%2212.75%22%20stroke%3D%22%23222D38%22%20stroke-width%3D%221.5%22%20opacity%3D%221%22%2F%3E%0A%20%20%20%20%20%20%20%20%3Cg%20fill%3D%22%23222D38%22%20opacity%3D%221%22%20transform%3D%22translate(6%206)%22%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20width%3D%221.611%22%20height%3D%2213.9%22%20x%3D%225.435%22%20y%3D%22-.941%22%20rx%3D%22.806%22%20transform%3D%22rotate(45%206.24%206.01)%22%2F%3E%0A%20%20%20%20%20%20%20%20%20%20%20%20%3Crect%20width%3D%221.611%22%20height%3D%2213.9%22%20x%3D%225.435%22%20y%3D%22-.941%22%20rx%3D%22.806%22%20transform%3D%22scale(-1%201)%20rotate(45%200%20-9.058)%22%2F%3E%0A%20%20%20%20%20%20%20%20%3C%2Fg%3E%0A%20%20%20%20%3C%2Fg%3E%0A%3C%2Fsvg%3E%0A");
+            &:focus{
+                outline: none;
+            }
+        }
+    }
+    .modal-body{
+        h3{
+            display: block;
+            color: #FFF;
+            font-size: 16px;
+            text-align: center;
+            padding-bottom: 10px;
+        }
+        .anuncio{
+            height: 280px;
+            background: #FFF;
+            a{
+                display: block;
+            }
+            img{
+                display: block;
+                width: 100%;
+            }
+        }
+        a{
+            display: block;
+        }
+    }
+}
+
+.nova-foto{
+    display: block;
+    width: 250px;
+    height: 310px;
+    position: fixed;
+    top: 15%;
+    left: 50%;
+    z-index: 2001;
+    margin-left: -125px;
+    img{
+        display: block;
+        width: 100%;
+        @include box-shadow(0 0 5px #000000);
+        @include transform-origin(50%, 50%);
+        @include animation(heartbeat 1300ms ease 0s infinite normal);
+    }
+    span{
+        display: block;
+        text-align: center;
+        color: #FFF;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 20px 0;
+    }
+    button{
+        display: block;
+        width: 150px;
+        background: #fff200;
+        color: #000;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center;
+        text-transform: uppercase;
+        padding: 10px 0;
+        margin: 10px auto;
+        border: 0;
+        cursor: pointer;
+        @include border-radius(10px);
+        &:focus{
+            outline: none;
+        }
+        &:hover{
+            background: #7cc103;
+            color: #FFF;
+            @include box-shadow(0 0 5px #000000);
+        }
+    }
+}

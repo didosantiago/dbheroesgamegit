@@ -1,0 +1,101 @@
+body.log{
+    .lista-logs{
+        width: 630px;
+        margin: 0 auto;
+        padding: 30px 0;
+        .line{
+            display: block;
+            margin-bottom: 10px;
+            position: relative;
+            &.atacante{
+                background: #def2e1;
+                color: #000;
+                strong:nth-child(1){
+                    color: #005400;
+                }
+                strong:nth-child(2){
+                    color: #9b0d3a;
+                }
+                .round{
+                    background: #005400;
+                }
+            }
+            &.desviou{
+                background: #0B3975;
+                color: #FFF;
+                .description{
+                    color: #FFF;
+                }
+                strong:nth-child(1){
+                    color: #6dafff;
+                }
+                strong:nth-child(2){
+                    color: #6dafff;
+                }
+                strong:nth-child(3){
+                    color: #6dafff;
+                }
+                .round{
+                    background: #031e3f;
+                    color: #FFF; 
+                }
+            }
+            &.atacado{
+                background: #f4d7e0;
+                color: #000;
+                strong:nth-child(1){
+                    color: #9b0d3a;
+                }
+                strong:nth-child(2){
+                    color: #005400;
+                }
+                .round{
+                    background: #9b0d3a;
+                }
+            }
+            .description{
+                display: inline-block;
+                vertical-align: middle;
+                width: 80%;
+                color: #555;
+                font-size: 13px;
+                line-height: 17px;
+                font-weight: normal;
+                text-align: center;
+                padding: 0 5px;
+                @include box-sizing(border-box);
+                strong:nth-child(4){
+                    color: #000;
+                    font-size: 13px;
+                    font-weight: bold;
+                    padding: 0 3px;
+                    @include border-radius(5px);
+                }
+            }
+            > strong{
+                color: #32418c;
+            }
+            .round{
+                display: inline-block;
+                vertical-align: middle;
+                width: 20%;
+                height: 55px;
+                padding: 3px 5px 0 5px;
+                color: #FFF;
+                background: #555;
+                font-size: 12px;
+                font-style: normal;
+                font-weight: bold;
+                text-transform: uppercase;
+                text-align: center;
+                line-height: 20px;
+                @include box-sizing(border-box);
+                strong{
+                    display: block;
+                    color: #FFF !important;
+                    font-size: 20px !important;
+                }
+            }
+        }
+    }
+}

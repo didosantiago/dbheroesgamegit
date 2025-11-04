@@ -1,0 +1,184 @@
+@media (max-width: 1024px) {
+    .cacada-running, .missao-running{
+        padding: 10px;
+        span{
+            width: 100%;
+            margin: 0 0 10px 0;
+            text-align: center;
+            font-size: 14px;
+            text-align: center;
+            line-height: 20px;
+        }
+        #cancelarCacada, #cancelarMissao{
+            display: block;
+            width: 100%;
+            margin: 0;
+            font-size: 18px;
+            line-height: 45px;
+            @include border-radius(0);
+            @include box-sizing(border-box);
+        }
+        .contador{
+            display: block;
+            width: 100%;
+            margin: 0;
+            font-size: 35px;
+            @include border-radius(0);
+            @include box-sizing(border-box);
+        }
+        form{
+            width: 100%;
+            margin: 0;
+            background: #15a31c;
+            font-size: 18px;
+            line-height: 45px;
+            @include border-radius(0);
+            @include box-sizing(border-box);
+            input{
+                display: block;
+                width: 100%;
+                margin: 0;
+                font-size: 18px;
+                line-height: 45px;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+        }
+    }
+    .ganhos_personagem{
+        padding: 10px;
+        .infos{
+            width: 100%;
+            margin: 0;
+            span{
+                width: 100%;
+                margin: 0 0 10px 0;
+                text-align: center;
+                font-size: 14px;
+                text-align: center;
+                line-height: 20px;
+            }
+        }
+        form{
+            width: 100%;
+            margin: 0;
+            background: #15a31c;
+            font-size: 18px;
+            line-height: 45px;
+            @include border-radius(0);
+            @include box-sizing(border-box);
+            .bts-form{
+                display: block;
+                width: 100%;
+                margin: 0;
+                font-size: 18px;
+                line-height: 45px;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+        }
+    }
+    .db-notification{
+        padding: 10px;
+        .content-notification{
+            width: 100%;
+            margin: 0;
+            p{
+                width: 100%;
+                margin: 0 0 10px 0;
+                text-align: center;
+                font-size: 14px;
+                text-align: center;
+                line-height: 20px;
+            }
+        }
+        #formNotification{
+            width: 100%;
+            margin: 0;
+            font-size: 18px;
+            line-height: 45px;
+            @include border-radius(0);
+            @include box-sizing(border-box);
+            .bts-form{
+                display: block;
+                width: 100%;
+                margin: 0;
+                font-size: 18px;
+                line-height: 45px;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+        }
+    }
+    body.portal{
+        .conteudo{
+            min-height: auto;
+            height: auto;
+        }
+        .widgets{
+            width: 100%;
+            margin: 0 0 10px 0;
+            &.widget-news{
+                width: 100%;
+                .news{
+                    height: auto;
+                    .info.img{
+                        width: 100%;
+                        margin-right: 0;
+                        .descricao{
+                            height: auto;
+                        }
+                    }
+                    img{
+                        display: none;
+                    }
+                }
+            }
+        }
+        .video-mobile{
+            background: #383F49;
+            padding: 20px 0;
+            text-align: center;
+            a{
+                display: block;
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin: 0 10px 0 0;
+                    font-size: 45px;
+                    color: #FF0000;
+                }
+                span{
+                    display: inline-block;
+                    vertical-align: middle;
+                    color: #FFF;
+                    font-size: 25px;
+                    text-transform: uppercase;
+                }
+            }
+        }
+        .anuncio-home{
+            width: 100%;
+            height: auto;
+            padding: 15px 0;
+        }
+        .lista-acesso-rapido{
+            li{
+                width: 49% !important;
+                margin: 0 0 5px 0 !important;
+                svg{
+                    font-size: 30px;
+                }
+                span{
+                    margin: 0 0 20px 0;
+                }
+                p{
+                    width: 90%;
+                    line-height: 13px;
+                    text-transform: initial;
+                    color: #00B50C;
+                }
+            }
+        }
+    }
+}

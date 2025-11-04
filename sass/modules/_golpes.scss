@@ -1,0 +1,52 @@
+body.golpes{
+    .lista-golpes{
+        width: 90%;
+        margin: 0 auto;
+        li{
+            background: #0A0909;
+            padding: 20px;
+            margin: 0 0 20px 0;
+            @include border-radius(10px);
+            &.ativo{
+                background: #244F5F;
+                p{
+                    background: #2d6477;
+                }
+            }
+            &.inativo{
+                -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+                filter: grayscale(100%);
+            }
+            img{
+                display: inline-block;
+                vertical-align: middle;
+                width: 60px;
+                margin-right: 20px;
+            }
+            span{
+                display: inline-block;
+                vertical-align: middle;
+                margin: 0 10px;
+                color: #FFF;
+                strong{
+                    color: #10B700;
+                }
+            }
+            input{
+                display: block;
+                width: 30px;
+                height: 30px;
+                float: right;
+                cursor: pointer;
+            }
+            p{
+                display: block;
+                margin: 20px 0 0 0;
+                padding: 15px;
+                background: #1C1A1A;
+                color: #FFF;
+                text-align: left;
+            }
+        }
+    }
+}

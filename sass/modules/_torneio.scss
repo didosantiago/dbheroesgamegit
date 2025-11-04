@@ -1,0 +1,99 @@
+body.torneio{
+    .conteudo{
+        padding: 0;
+        background: #1B2838;
+        .title{
+            color: #FFF;
+            font-size: 25px;
+            padding-left: 0;
+            text-align: center;
+        }
+    }
+    .guerreiros-list{
+        width: 100%;
+        margin: 0 auto;
+        li{
+            display: inline-block;
+            vertical-align: top;
+            width: 505px;
+            padding: 10px;
+            margin: 0 5px 10px 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            @include box-sizing(border-box);
+            &.guerreiro-bloqueado{
+                img, h3, .nivel, .exp{
+                    @include opacity(.5);
+                }
+                .info{
+                    .bts-form{
+                        cursor: none;
+                        color: #FFF;
+                        background: #b70003;
+                        @include opacity(.5);
+                    }
+                }
+            }
+            img{
+                display: inline-block;
+                vertical-align: middle;
+                width: 180px;
+                margin-right: 10px;
+                border: 2px solid #000;
+            }
+            .info{
+                display: inline-block;
+                vertical-align: middle;
+                width: 250px;
+                h3{
+                    display: block;
+                    width: 100%;
+                    text-transform: uppercase;
+                    color: #FFF;
+                    font-size: 14px;
+                    margin-bottom: 20px;
+                    strong{
+                        display: block;
+                        color: #ddff00;
+                        font-size: 18px;
+                        margin-bottom: 10px;
+                    }
+                }
+                .nivel{
+                    display: block;
+                    width: 100%;
+                    text-transform: uppercase;
+                    color: #FFF;
+                    font-size: 18px;
+                    margin-bottom: 10px;
+                    strong{
+                        color: #ddff00;
+                    }
+                }
+                .exp{
+                    display: block;
+                    width: 100%;
+                    text-transform: uppercase;
+                    color: #FFF;
+                    font-size: 18px;
+                    margin-right: 5px;
+                    margin-bottom: 20px;espada
+                    strong{
+                        color: #ddff00;
+                    }
+                }
+                .bts-form{
+                    display: block;
+                    width: 120px;
+                    height: 35px;
+                    line-height: 35px;
+                    margin: 0;
+                    text-align: center;
+                    color: #1B2838;
+                    background: #00c982;
+                    @include border-radius(0);
+                    @include box-sizing(border-box);
+                }
+            }
+        }
+    }
+}

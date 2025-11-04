@@ -1,0 +1,16 @@
+@media (max-width: 1024px) {
+    body.bonus-diario{
+        .conteudo{
+            .title{
+                color: #FFF;
+                font-size: 20px;
+            }
+            .dias-lista{
+                li{
+                    width: 47%;
+                    margin: 0 2.5px 5px 2.5px;
+                }
+            }
+        }
+    }
+}

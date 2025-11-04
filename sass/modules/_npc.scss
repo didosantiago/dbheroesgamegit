@@ -1,0 +1,550 @@
+body.npc{
+    background: #1B2838;
+    header, .menu-lateral, .copy{
+        display: none !important;
+    }
+    
+    .conteudo{
+        width: 100%;
+        height: 97vh;
+        margin: 10px 0;
+        padding: 0;
+        background: #1B2838;
+        @include box-sizing(border-box);
+        .title{
+            color: #FFF;
+        }
+    }
+    
+    .npc-vitoria{
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 20001;
+        padding: 15px;
+        background-color: #51750f;
+        text-align: center;
+        border-bottom: 6px solid #3e590b;
+        @include box-shadow(0 0 2px 0 rgba(0, 0, 0, 0.4));
+        @include box-sizing(border-box);
+        .dados{
+            display: inline-block;
+            vertical-align: middle;
+            width: 850px;
+            svg{
+                display: inline-block;
+                vertical-align: middle;
+                color: #f49b02;
+                font-size: 85px;
+                margin-right: 15px;
+            }
+            .info-vitoria{
+                display: inline-block;
+                vertical-align: middle;
+                width: 80%;
+                padding: 0 0 0 50px;
+            }
+            p{
+                display: block;
+                margin-bottom: 10px;
+                color: #FFF;
+                font-size: 16px;
+                text-align: left;
+                strong{
+                    color: #F49B02;
+                }
+            }
+        }
+        form{
+            display: inline-block;
+            vertical-align: middle;
+            width: 9%;
+            .bts-form{
+                margin: 0;
+                color: #FFF;
+                background: #1B2838;
+                @include border-radius(0);
+                &:hover{
+                    background: #070d14;
+                    @include opacity(1);
+                }
+            }
+        }
+    }
+    .npc-derrota{
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 20001;
+        margin: 0 auto;
+        padding: 15px;
+        background-color: #e20d0d;
+        text-align: center;
+        border-bottom: 6px solid #7c0101;
+        @include box-shadow(0 0 2px 0 rgba(0, 0, 0, 0.4));
+        @include box-sizing(border-box);
+        .dados{
+            display: inline-block;
+            vertical-align: middle;
+            width: 850px;
+            svg{
+                display: inline-block;
+                vertical-align: middle;
+                color: #7c0101;
+                font-size: 85px;
+                margin-right: 15px;
+            }
+            .info-derrota{
+                display: inline-block;
+                vertical-align: middle;
+                width: 80%;
+                padding: 0 0 0 50px;
+            }
+            p{
+                display: block;
+                margin-bottom: 10px;
+                color: #FFF;
+                font-size: 16px;
+                text-align: left;
+                strong{
+                    color: #1B2838;
+                }
+            }
+        }
+        form{
+            display: inline-block;
+            vertical-align: middle;
+            width: 9%;
+            .bts-form{
+                margin: 0;
+                color: #FFF;
+                background: #1B2838;
+                @include border-radius(0);
+                &:hover{
+                    background: #070d14;
+                    @include opacity(1);
+                }
+            }
+        }
+    }
+    .batalha{
+        text-align: center;
+        padding: 10px;
+        .versus{
+            display: inline-block;
+            vertical-align: top;
+            width: 350px;
+            height: 800px;
+            margin: 0 10px;
+            .placar{
+                overflow: hidden;
+                @include border-radius(30px);
+                .contador-batalha{
+                    padding: 20px 0;
+                    text-align: center;
+                    .cronometro{
+                        font-size: 30px;
+                        color: #FFF;
+                        font-weight: bold;
+                    }
+                }
+                img{
+                    display: block;
+                    width: 100%;
+                    border: 2px solid #000;
+                    @include box-sizing(border-box);
+                }
+                .log{
+                    width: 100%;
+                    height: 558px;
+                    background-color: rgba(0, 0, 0, 0.5);
+                    padding: 10px;
+                    position: relative;
+                    @include border-radius(0 0 30px 30px);
+                    @include box-sizing(border-box);
+                    .line{
+                        display: block;
+                        margin-bottom: 10px;
+                        position: relative;
+                        &.atacante{
+                            background: #def2e1;
+                            color: #000;
+                            strong:nth-child(1){
+                                color: #005400;
+                            }
+                            strong:nth-child(2){
+                                color: #9b0d3a;
+                            }
+                            .round{
+                                background: #005400;
+                            }
+                        }
+                        &.desviou{
+                            background: #0B3975 !important;
+                            color: #FFF !important;
+                            .description{
+                                color: #FFF !important;
+                            }
+                            strong:nth-child(1){
+                                color: #6dafff !important;
+                            }
+                            strong:nth-child(2){
+                                color: #6dafff !important;
+                            }
+                            strong:nth-child(3){
+                                color: #6dafff !important;
+                            }
+                            .round{
+                                background: #031e3f !important;
+                                color: #FFF !important; 
+                            }
+                        }
+                        &.critico{
+                            background: #d84400 !important;
+                            color: #FFF !important;
+                            .description{
+                                color: #FFF !important;
+                            }
+                            strong:nth-child(1){
+                                color: #ffd800 !important;
+                            }
+                            strong:nth-child(2){
+                                color: #ffd800 !important;
+                            }
+                            strong:nth-child(3){
+                                color: #ffd800 !important;
+                            }
+                            strong:nth-child(4){
+                                color: #ffd800 !important;
+                            }
+                            .round{
+                                background: #9b2e00 !important;
+                                color: #FFF !important; 
+                            }
+                        }
+                        &.atacado{
+                            background: #f4d7e0;
+                            color: #000;
+                            strong:nth-child(1){
+                                color: #9b0d3a;
+                            }
+                            strong:nth-child(2){
+                                color: #005400;
+                            }
+                            .round{
+                                background: #9b0d3a;
+                            }
+                        }
+                        .description{
+                            display: inline-block;
+                            vertical-align: middle;
+                            width: 80%;
+                            color: #555;
+                            font-size: 13px;
+                            line-height: 17px;
+                            font-weight: normal;
+                            text-align: center;
+                            padding: 0 5px;
+                            @include box-sizing(border-box);
+                            strong:nth-child(4){
+                                color: #000;
+                                font-size: 13px;
+                                font-weight: bold;
+                                padding: 0 3px;
+                                @include border-radius(5px);
+                            }
+                        }
+                        > strong{
+                            color: #32418c;
+                        }
+                        .round{
+                            display: inline-block;
+                            vertical-align: middle;
+                            width: 20%;
+                            height: 55px;
+                            padding: 3px 5px 0 5px;
+                            color: #FFF;
+                            background: #555;
+                            font-size: 12px;
+                            font-style: normal;
+                            font-weight: bold;
+                            text-transform: uppercase;
+                            text-align: center;
+                            line-height: 20px;
+                            @include box-sizing(border-box);
+                            strong{
+                                display: block;
+                                color: #FFF !important;
+                                font-size: 20px !important;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .guerreiro{
+        display: inline-block;
+        vertical-align: top;
+        width: 390px;
+        min-height: 800px;
+        padding: 15px;
+        background-color: rgba(0, 0, 0, 0.6);
+        .info{
+            margin: 0 auto;
+            h3{
+                display: block;
+                text-transform: uppercase;
+                font-size: 18px;
+                color: #FFF;
+                padding-bottom: 10px;
+            }
+            .foto{
+                display: inline-block;
+                vertical-align: middle;
+                width: 240px;
+                overflow: hidden;
+                border: 2px solid #000;
+                margin: 0 10px 20px 0;
+                @include border-radius(10px);
+                .ft-guerreiro{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 100%;
+                }
+            }
+            .graduacao{
+                display: inline-block;
+                vertical-align: middle;
+                width: 120px;
+                margin-top: -10px;
+                img{
+                    display: block;
+                    width: 80%;
+                    margin: 0 auto;
+                }
+                span{
+                    display: block;
+                    width: 100%;
+                    color: #ddff00;
+                    text-align: center;
+                    text-transform: uppercase;
+                    font-size: 12px;
+                    margin: 5px 0  0;
+                }
+            }
+            .status{
+                width: 95%;
+                margin: 0 auto;
+                li{
+                    margin-bottom: 10px;
+                    position: relative;
+                    &.hp, &.mana, &.energia{
+                        strong{
+                            position: absolute;
+                            top: 10px;
+                            left: 6%;
+                            z-index: 20;
+                            font-size: 12px;
+                            color: #FFF;
+                            @include text-shadow(1px 1px #000000);
+                        }
+                        .meter{
+                            em{
+                                font-size: 14px;
+                            }
+                        }
+                    }
+                    span{
+                        color: #FFF;
+                        padding-right: 5px;
+                    }
+                    strong{
+                        color: #10B700;
+                    }
+                    .meter{
+                        display: block;
+                        position: relative;
+                        width: 100%;
+                        height: 30px;
+                        background: #00040a;
+                        padding: 3px;
+                        @include border-radius(0);
+                        span{
+                            padding-right: 0;
+                            @include border-radius(0);
+                            @include box-sizing(border-box);
+                        }
+                        em{
+                            position: absolute;
+                            top: 10px;
+                            right: 6%;
+                            z-index: 10;
+                            color: #FFF;
+                            font-size: 12px;
+                            font-weight: bold;
+                            font-style: normal;
+                            @include opacity(.8);
+                            @include text-shadow(1px 1px #000000);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .equip{
+        display: inline-block;
+        vertical-align: middle;
+        width: 100%;
+        padding: 5px;
+        margin: 0 0.2%;
+        @include box-sizing(border-box);
+        .ne{
+            display: block;
+            margin: 20px 0 0 0;
+            color: #FFF;
+            line-height: 22px;
+        }
+        .equipamentos, .ataques{
+            padding-top: 5px;
+            h3{
+                display: block;
+                text-transform: uppercase;
+                color: #ddff00;
+                font-size: 16px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+            li{
+                display: inline-block;
+                vertical-align: top;
+                width: 60px;
+                height: 60px;
+                background: #00040a;
+                padding: 2px;
+                margin: 0 2.5px 5px 2.5px;
+                cursor: pointer;
+                position: relative;
+                @include box-sizing(border-box);
+                &.inativo{
+                    form{
+                        input{
+                            -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+                            filter: grayscale(100%);
+                            @include transition(all ease .2s);
+                        }
+                    }
+                }
+                &:hover{
+                    .info{
+                        display: block;
+                    }
+                }
+                img{
+                    display: block;
+                    width: 100%;
+                }
+                form{
+                    display: block;
+                    width: 100%;
+                    height: 100%;
+                    input{
+                        display: block;
+                        width: 100%;
+                        height: 100%;
+                        padding: 0;
+                        margin: 0;
+                        border: 0;
+                        cursor: pointer;
+                        background-color: transparent;
+                        @include transition(all ease .2s);
+                        &:focus{
+                            outline: none;
+                        }
+                        &:hover{
+                            @include transition(all ease .2s);
+                        }
+                    }
+                    input[type="submit"]{
+                        background-size: 90%;
+                        background-repeat: no-repeat;
+                        background-position: center center;
+                    }
+                }
+                .info{
+                    display: none;
+                    width: 200px;
+                    position: absolute;
+                    top: 15px;
+                    right: -215px;
+                    z-index: 1000;
+                    background: #244F5F;
+                    color: #FFF;
+                    padding: 10px;
+                    @include border-radius(10px);
+                    @include box-sizing(border-box);
+                    &:before{
+                        content: '';
+                        position: absolute;
+                        top: 10px;
+                        left: -14px;
+                        width: 0;
+                        height: 0;
+                        border-style: solid;
+                        border-width: 10px 20px 10px 0;
+                        border-color: transparent #244f5f transparent transparent;
+                    }
+                    h3{
+                        color: #FFF;
+                        text-align: left;
+                        font-size: 18px;
+                        text-transform: uppercase;
+                        margin: 0 0 10px 0;
+                        padding: 0;
+                    }
+                    p{
+                        display: block;
+                        font-size: 11px;
+                        margin: 0 0 10px 0;
+                        text-align: left;
+                    }
+                    span{
+                        display: block;
+                        font-size: 11px;
+                        color: #00E626;
+                        text-align: left;
+                        margin-bottom: 5px;
+                        strong{
+                            color: #FFF;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.npc-paused{
+    width: 100%;
+    margin: 20px 0 0 0;
+    padding: 10px 20px;
+    color: #31708f;
+    background-color: #d9edf7;
+    border: 1px solid #bce8f1;
+    @include box-sizing(border-box);
+    span{
+        display: inline-block;
+        vertical-align: middle;
+        width: 85%;
+        margin: 0;
+        font-size: 18px;
+        font-weight: bold;
+    }
+    .bts-form{
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0;
+    }
+}

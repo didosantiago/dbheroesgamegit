@@ -1,0 +1,321 @@
+@charset "UTF-8";
+@import "compass";
+
+@import url('https://fonts.googleapis.com/css?family=Anton|Bungee');
+@import url('https://fonts.googleapis.com/css?family=Francois+One');
+
+$heartbeat-rotation: rotate(45deg);
+
+/*@import "modules/_login";*/
+@import "modules/_header";
+@import "modules/_intro";
+@import "modules/_notify";
+@import "modules/_personagens";
+@import "modules/_controles";
+@import "modules/_footer";
+@import "modules/_profile";
+@import "modules/_treinar";
+@import "modules/_publico";
+@import "modules/_inventario";
+@import "modules/_missoes";
+@import "modules/_faq";
+@import "modules/_torneio";
+@import "modules/_bau";
+@import "modules/_doacao";
+@import "modules/_ranking";
+@import "modules/_combate";
+@import "modules/_cacadas";
+@import "modules/_home";
+@import "modules/_transacoes";
+@import "modules/_mercado";
+@import "modules/_minhas-fotos";
+@import "modules/_hospital";
+@import "modules/_pvp";
+@import "modules/_historico";
+@import "modules/_equipes";
+@import "modules/_log";
+@import "modules/_lancamento";
+@import "modules/_npc";
+@import "modules/_golpes";
+@import "modules/_administrar";
+@import "modules/_menu-mobile";
+@import "modules/_forum";
+@import "modules/_perfil";
+@import "modules/_amigos";
+@import "modules/_mensagens";
+@import "modules/_modal";
+@import "modules/_publicidade";
+@import "modules/_troca-guerreiro";
+@import "modules/_market";
+@import "modules/_bonus-diario";
+@import "modules/_vantagens";
+@import "modules/_loja";
+@import "modules/_banco";
+@import "modules/_chats";
+@import "modules/_invasao";
+@import "modules/_experiencia";
+@import "modules/_graduacoes";
+@import "modules/_sorteios";
+
+
+//ESTILOS DO FRONT
+@import "front/_header";
+@import "front/_conteudo";
+@import "front/_geral";
+@import "front/_home";
+@import "front/_assistir";
+@import "front/_cadastro";
+@import "front/_login";
+@import "front/_ranking";
+@import "front/_footer";
+@import "front/_sobre";
+
+
+//ESTILOS DO MOBILE
+@import "mobile/_portal";
+@import "mobile/_header";
+@import "mobile/_cacadas";
+@import "mobile/_missoes";
+@import "mobile/_banco";
+@import "mobile/_bonus-diario";
+@import "mobile/_troca-guerreiro";
+@import "mobile/_treinar";
+@import "mobile/_hospital";
+@import "mobile/_perfil";
+@import "mobile/_meus-guerreiros";
+@import "mobile/_loja";
+@import "mobile/_minhas-fotos";
+
+.container{
+    width: 1240px;
+    margin: 0 auto;
+    
+    @media (max-width: 1200px) {
+        width: 100%;
+    }
+    
+    @media (max-width: 1024px) {
+        padding: 0 15px;
+        @include box-sizing(border-box);
+    }
+}
+
+.mobile{
+    display: none !important;
+    
+    @media (max-width: 1024px) {
+        display: block !important;
+    }
+}
+
+.desktop{    
+    @media (max-width: 1024px) {
+        display: none !important;
+    }
+}
+
+body{
+    background: #0F0F0F;
+    margin: 0;
+    padding: 0;
+    font-family: Trebuchet MS !important;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+}
+
+ul{
+    list-style: none;
+}
+
+a{
+    text-decoration: none;
+}
+
+.conteudo{
+    width: 1032px;
+    min-height: 820px;
+    display: inline-block;
+    vertical-align: top;
+    margin: 10px 0 20px 3px;
+    padding: 10px;
+    background: #FFF; 
+    @include box-sizing(border-box);
+    
+    @media (max-width: 1200px) {
+        width: 80%;
+    }
+    
+    @media (max-width: 1024px) {
+        width: 100%;
+        min-height: auto;
+        margin: 10px auto;
+    }
+    
+    &.dark{
+        background: #383F49;
+    }
+}
+
+.bounce{
+    animation: bounce 0.5s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+}
+
+.title{
+    display: block;
+    margin: 20px 0;
+    color: #244F5F;
+    font-size: 18px;
+    text-transform: uppercase;
+    font-weight: 600;
+    padding-left: 20px;
+}
+
+.informativo{
+    display: block;
+    color: #FF0000;
+    font-size: 14px;
+    line-height: 22px;
+    margin: 0;
+    padding: 20px;
+}
+
+@keyframes bounce {
+  from { transform: translate3d(0, 0, 0);     }
+  to   { transform: translate3d(0, 10px, 0); }
+}
+
+.lista-geral{
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+    border: 1px solid #CCC;
+    thead{
+        tr{
+            th{
+                background: #07303F;
+                color: #FFF;
+                font-size: 12px;
+                text-transform: uppercase;
+                text-align: center;
+                border-top: 1px solid #031116;
+                border-bottom: 1px solid #031116;
+            }
+        }
+    }
+    tbody{
+        tr{
+            border-bottom: 1px solid #FFF;
+            &:last-child{
+                border-bottom: 1px solid #CCC;
+            }
+            &.pendente{
+                background: #f4e8b5;
+            }
+            td{
+                text-align: center;
+                font-size: 14px;
+                color: #555;
+                padding: 5px 0;
+                &.not{
+                    text-align: center;
+                    font-size: 12px;
+                    color: #555;
+                    text-transform: uppercase;
+                    padding: 10px 0;
+                }
+                &.aprovado{
+                    svg{
+                        font-size: 30px;
+                        color: #1ec96e;
+                    }
+                }
+                &.pendente{
+                    svg{
+                        font-size: 20px;
+                        color: #ef9217;
+                    }
+                }
+                &.enviado-por{
+                    a{
+                        color: #005400;
+                    }
+                }
+                svg{
+                    font-size: 25px;
+                }
+                button{
+                    cursor: pointer;
+                    &:focus{
+                        outline: none;
+                    }
+                }
+                a{
+                    color: #000;
+                    font-weight: bold;
+                    text-transform: uppercase;
+                }
+                &.planeta{
+                    img{
+                        width: 37px;
+                    }
+                }
+                img{
+                    display: block;
+                    width: 80px;
+                    margin: 0 auto;
+                }
+            }
+        }
+    }
+    tr:hover {background-color: #f5f5f5;}
+    tr:nth-child(even) {background-color: #f2f2f2;}
+    th{
+        padding: 3px 15px;
+        text-align: left;
+    }
+    td{
+        padding: 3px 0;
+        text-align: left;
+    }
+    th,{
+        padding: 15px;
+    }
+}
+
+.title{
+    .total-coins{
+        float: right;
+        color: #555;
+        font-size: 16px;
+    }
+}
+
+.v-mobile{
+    display: none;
+    @media (max-width: 1024px) {
+        display: block;
+    }
+}
+
+.h-mobile{
+    @media (max-width: 1024px) {
+        display: none !important;
+    }
+}
+
+@mixin animation($value) {
+    @include experimental(animation, $value);
+}
+
+@include keyframes(heartbeat) {
+    0%  { @include transform(scale(1));   }
+    14% { @include transform(scale(1.1)); }
+    28% { @include transform(scale(1));   }
+    42% { @include transform(scale(1.1)); }
+    70% { @include transform(scale(1));   }
+}

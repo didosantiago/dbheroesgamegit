@@ -1,0 +1,52 @@
+body.troca-guerreiro{
+    .title{
+        padding-left: 0;
+        text-align: center;
+        font-size: 28px;
+    }
+    .item-personagem{
+        display: inline-block;
+        vertical-align: top;
+        background: #000 url('bg-cards.png');
+        padding: 10px;
+        margin: 0 5px 10px 5px;
+        cursor: pointer;
+        @include box-sizing(border-box);
+        &.active{
+            animation: bounce 0.25s;
+            animation-direction: alternate;
+            animation-iteration-count: infinite;
+        }
+        &:hover{
+            @include opacity(1);
+        }
+        input{
+            display: none;
+        }
+        img{
+            width: 150px;
+        }
+        h3{
+            display: block;
+            width: 100%;
+            text-transform: uppercase;
+            color: #FFF;
+            font-size: 18px;
+            margin: 0;
+            border: 0;
+            text-align: center;
+            padding: 10px 0;
+        }
+        span{
+            display: block;
+            text-transform: uppercase;
+            color: #FFF;
+            font-size: 12px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+    }
+    .btn-confirmar{
+        background: #0bad00;
+    }
+}

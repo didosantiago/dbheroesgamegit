@@ -1,0 +1,202 @@
+body.bau{
+    .conteudo{
+        background: #262626;
+        .box-inventario{
+            width: 90%;
+            min-height: 935px;
+            margin: 50px auto;
+            position: relative;
+            .border-horizontal-top{
+                width: 100%;
+                height: 25px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                background: url('borda-horizontal-inventario.png') repeat-x;
+            }
+            .border-horizontal-bottom{
+                width: 100%;
+                height: 25px;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                z-index: 1;
+                background: url('borda-horizontal-inventario.png') repeat-x;
+            }
+            .border-vertical-left{
+                width: 25px;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 1;
+                background: url('borda-direita-inventario.png') repeat-y;
+            }
+            .border-vertical-right{
+                width: 25px;
+                height: 100%;
+                position: absolute;
+                top: 0;
+                right: 0;
+                z-index: 1;
+                background: url('borda-esquerda-inventario.png') repeat-y;
+            }
+            .border-top-left{
+                width: 86px;
+                height: 117px;
+                position: absolute;
+                top: -22px;
+                left: -22px;
+                z-index: 2;
+                background: url('borda-top-esquerda-inventario.png') no-repeat;
+            }
+            .border-top-right{
+                width: 113px;
+                height: 102px;
+                position: absolute;
+                top: -22px;
+                right: -22px;
+                z-index: 2;
+                background: url('borda-top-direita-inventario.png') no-repeat;
+            }
+            .border-bottom-left{
+                width: 115px;
+                height: 73px;
+                position: absolute;
+                bottom: -22px;
+                left: -22px;
+                z-index: 2;
+                background: url('borda-bottom-esquerda-inventario.png') no-repeat;
+            }
+            .border-bottom-right{
+                width: 71px;
+                height: 74px;
+                position: absolute;
+                bottom: -22px;
+                right: -22px;
+                z-index: 2;
+                background: url('borda-bottom-direita-inventario.png') no-repeat;
+            }
+            .content-inventory{
+                width: 90%;
+                height: 90%;
+                position: absolute;
+                top: 5%;
+                left: 5%;
+                .itens{
+                    min-height: 320px;
+                    padding: 20px;
+                    @include box-sizing(border-box);
+                    .imagem-bau{
+                        text-align: center;
+                        margin: 0 0 60px 0;
+                        img{
+                            display: inline-block;
+                            vertical-align: middle;
+                            margin-right: 10px;
+                            width: 200px;
+                        }
+                        h2{
+                            display: inline-block;
+                            vertical-align: middle;
+                            width: auto;
+                            margin: 0;
+                            color: #4f4e4e;
+                            text-transform: uppercase;
+                            text-align: center;
+                            font-weight: 500;
+                            letter-spacing: 2px;
+                        }
+                    }
+                    ul{
+                        text-align: center;
+                        li{
+                            display: inline-block;
+                            vertical-align: top;
+                            width: 71px;
+                            height: 71px;
+                            margin: 19px;
+                            cursor: pointer;
+                            position: relative;
+                            background: url('slot-item.png') no-repeat;
+                            &.slot-vazio{
+                                cursor: initial;
+                                background: url('slot-vazio.png') no-repeat;
+                            }
+                            span{
+                                display: block;
+                                padding: 5px 0 0 0;
+                                img{
+                                    display: block;
+                                    width: 55px;
+                                    height: 55px;
+                                    margin: 0 auto;
+                                }
+                            }
+                            .bau{
+                                display: block;
+                                height: 71px;
+                                background: url('slot-bau.png') no-repeat;
+                                &:hover{
+                                    background: url('slot-bau-hover.png') no-repeat;
+                                }
+                            }
+                            .informacoes{
+                                display: none;
+                                width: 200px;
+                                background: #161515;
+                                position: absolute;
+                                top: 29px;
+                                right: -234px;
+                                z-index: 15;
+                                padding: 10px;
+                                @include border-radius(10px);
+                                h3{
+                                    display: block;
+                                    margin: 0 0 10px 0;
+                                    color: #F6C52F;
+                                    font-size: 13px;
+                                    text-transform: uppercase;
+                                    font-weight: 600;
+                                    text-align: left;
+                                }
+                                p{
+                                    display: block;
+                                    margin: 0 0 10px 0;
+                                    color: #7DC501;
+                                    font-size: 11px;
+                                    text-transform: uppercase;
+                                    font-weight: 600;
+                                    text-align: left;
+                                    strong{
+                                        color: #FFF;
+                                        font-size: 13px;
+                                        padding-right: 10px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                .separador{
+                    width: 60%;
+                    margin: 0 auto;
+                    border-top: 2px solid #1a1a1a;
+                    border-bottom: 2px solid #2a2a2a;
+                }
+                form{
+                    .bts-form{
+                        background: #0AAA12;
+                        svg{
+                            display: inline-block;
+                            vertical-align: middle;
+                            font-size: 25px;
+                            margin-right: 10px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

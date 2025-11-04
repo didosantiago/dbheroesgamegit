@@ -1,0 +1,107 @@
+body.ranking{
+    #formRanking{
+        width: 100%;
+        margin: 20px auto;
+        text-align: center;
+        .campos-form{
+            display: inline-block;
+            vertical-align: middle;
+            width: 100%;
+            margin-bottom: 10px;
+            input[type="text"], 
+            input[type="email"],
+            input[type="password"],
+            select{
+                width: 100%;
+                height: 45px;
+                padding: 0 0 0 10px;
+                border: 1px solid #CCC;
+                @include box-sizing(border-box);
+                &:focus{
+                    outline: none;
+                }
+            }
+            input[type="checkbox"]{
+                display: inline-block;
+                vertical-align: middle;
+                width: 20px;
+                height: 20px;
+                margin-right: 5px;
+                cursor: pointer;
+                &:focus{
+                    outline: none;
+                }
+            }
+            label{
+                display: block;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+                font-size: 11px;
+                font-weight: 600;
+                cursor: pointer;
+                text-align: left;
+            }
+        }
+        .bts-form{
+            display: inline-block;
+            vertical-align: middle;
+            margin-top: 26px;
+        }
+    }
+    table, th, td {
+        border: 1px solid #FFF;
+    }
+    .lista-ranking{
+        width: 100%;
+        border-collapse: collapse;
+        thead{
+            tr{
+                th{
+                    background: #07303F;
+                    color: #FFF;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    text-align: center;
+                }
+            }
+        }
+        tbody{
+            tr{
+                &.top-player{
+                    background: #DFF0D8;
+                    color: #3c763d;
+                }
+                td{
+                    text-align: center;
+                    font-size: 14px;
+                    a{
+                        color: #000;
+                    }
+                    &.planeta{
+                        img{
+                            width: 37px;
+                        }
+                    }
+                    img{
+                        display: block;
+                        width: 80px;
+                        margin: 0 auto;
+                    }
+                }
+            }
+        }
+        tr:hover {background-color: #f5f5f5;}
+        tr:nth-child(even) {background-color: #f2f2f2;}
+        th{
+            padding: 3px 15px;
+            text-align: left;
+        }
+        td{
+            padding: 3px 0;
+            text-align: left;
+        }
+        th,{
+            padding: 15px;
+        }
+    }
+}

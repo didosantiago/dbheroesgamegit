@@ -1,0 +1,489 @@
+body.forum{
+    .title{
+        padding-left: 0;
+        strong{
+            color: #E94A1B;
+        }
+    }
+    .menu-forum{
+        width: 100%;
+        margin: 0 0 10px 0;
+        li{
+            display: inline-block;
+            vertical-align: top;
+            height: 30px;
+            line-height: 30px;
+            padding: 0 10px;
+            margin: 0 10px 10px 0;
+            background: #555;
+            @include transition(all ease .2s);
+            @include border-radius(10px);
+            &:hover{
+                @include transition(all ease .2s);
+                background: #1479bc;
+            }
+            a{
+                display: block;
+                vertical-align: middle;
+                text-align: center;
+                color: #FFF;
+                font-size: 12px;
+                text-transform: uppercase;
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: 14px;
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+    .menu-categorias{
+        width: 100%;
+        margin: 0 0 10px 0;
+        > li{
+            display: inline-block;
+            vertical-align: top;
+            height: 40px;
+            line-height: 40px;
+            padding: 0 10px;
+            margin: 0 10px 10px 0;
+            background: #555;
+            @include transition(all ease .2s);
+            &.discussao{
+                background: #6A147E;
+            }
+            &.melhorias{
+                background: #094883;
+            }
+            &.suporte{
+                background: #005400;
+            }
+            &.tutoriais{
+                background: #DB3D1A;
+            }
+            &.forum-subcategoria{
+                background: #0f8ea8;
+            }
+            &:hover{
+                @include transition(all ease .2s);
+                @include opacity(.8);
+            }
+            > a{
+                display: block;
+                vertical-align: middle;
+                text-align: center;
+                color: #FFF;
+                font-size: 14px;
+                text-transform: uppercase;
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: 16px;
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+    .nenhum-registro{
+        background: none !important;
+        padding: 0 !important;
+        color: #555;
+        border: 0 !important;
+    }
+    .lista-posts{
+        width: 100%;
+        margin: 0 0 10px 0;
+        li{
+            width: 100%;
+            margin-bottom: 10px;
+            background: #dbdbdb;
+            padding: 15px;
+            border: 1px solid #999595;
+            @include box-sizing(border-box);
+            img{
+                display: inline-block;
+                vertical-align: middle;
+                width: 15%;
+                margin-right: 2%;
+                border: 1px solid #999595;
+            }
+            .informacoes{
+                display: inline-block;
+                vertical-align: middle;
+                width: 82%;
+                h3{
+                    display: block;
+                    margin: 0 1% 15px 0;
+                    color: #555;
+                    font-size: 18px;
+                    text-transform: uppercase;
+                }
+                p{
+                    display: block;
+                    color: #555;
+                    font-size: 16px;
+                    line-height: 20px;
+                    margin-bottom: 20px;
+                    word-break: break-word;
+                }
+                .tags{
+                    display: block;
+                    .categoria{
+                        display: inline-block;
+                        vertical-align: middle;
+                        height: 30px;
+                        line-height: 30px;
+                        padding: 0 10px;
+                        margin: 0 10px 0 0;
+                        background: #555;
+                        @include transition(all ease .2s);
+                        @include border-radius(10px);
+                        &:hover{
+                            @include transition(all ease .2s);
+                            @include opacity(.8);
+                        }
+                        &.discussao{
+                            background: #6A147E;
+                        }
+                        &.melhorias{
+                            background: #094883;
+                        }
+                        &.suporte{
+                            background: #005400;
+                        }
+                        &.tutoriais{
+                            background: #DB3D1A;
+                        }
+                        a{
+                            display: block;
+                            text-align: center;
+                            color: #FFF;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            svg{
+                                display: inline-block;
+                                vertical-align: middle;
+                                font-size: 16px;
+                                margin-right: 5px;
+                            }
+                        }
+                    }
+                    .sub-categoria{
+                        display: inline-block;
+                        vertical-align: middle;
+                        height: 30px;
+                        line-height: 30px;
+                        padding: 0 10px;
+                        margin: 0 10px 0 0;
+                        background: #0f8ea8;
+                        @include transition(all ease .2s);
+                        @include border-radius(10px);
+                        &:hover{
+                            @include transition(all ease .2s);
+                            @include opacity(.8);
+                        }
+                        a{
+                            display: block;
+                            text-align: center;
+                            color: #FFF;
+                            font-size: 12px;
+                            text-transform: uppercase;
+                            svg{
+                                display: inline-block;
+                                vertical-align: middle;
+                                font-size: 16px;
+                                margin-right: 5px;
+                            }
+                        }
+                    }
+                    .postado-por, .data{
+                        display: inline-block;
+                        vertical-align: middle;
+                        text-transform: uppercase;
+                        color: #555;
+                        font-size: 13px;
+                        strong{
+                            color: #DB3D1A;
+                        }
+                    }
+                    .postado-por{
+                        margin-left: 20px;
+                    }
+                    .data{
+                        margin: 0 20px;
+                    }
+                    .ver-mais{
+                        display: inline-block;
+                        vertical-align: middle;
+                        float: right;
+                        height: 30px;
+                        line-height: 30px;
+                        padding: 0 10px;
+                        margin: 0 10px 0 0;
+                        background: #af0000;
+                        @include transition(all ease .2s);
+                        @include border-radius(10px);
+                        text-align: center;
+                        color: #FFF;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        svg{
+                            display: inline-block;
+                            vertical-align: middle;
+                            font-size: 16px;
+                            margin-left: 5px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .lista-comentarios{
+        width: 100%;
+        margin: 0 0 10px 0;
+        li{
+            width: 100%;
+            margin-bottom: 10px;
+            background: #dbdbdb;
+            padding: 15px;
+            border: 1px solid #999595;
+            @include box-sizing(border-box);
+            img{
+                display: inline-block;
+                vertical-align: middle;
+                width: 15%;
+                margin-right: 2%;
+                border: 1px solid #999595;
+            }
+            .informacoes{
+                display: inline-block;
+                vertical-align: middle;
+                width: 82%;
+                h3{
+                    display: block;
+                    margin: 0 1% 15px 0;
+                    color: #555;
+                    font-size: 18px;
+                    text-transform: uppercase;
+                }
+                p{
+                    display: block;
+                    color: #555;
+                    font-size: 16px;
+                    line-height: 20px;
+                    margin-bottom: 20px;
+                    word-break: break-word;
+                }
+                .tags{
+                    display: block;
+                    .postado-por, .data{
+                        display: inline-block;
+                        vertical-align: middle;
+                        text-transform: uppercase;
+                        color: #555;
+                        font-size: 13px;
+                        strong{
+                            color: #DB3D1A;
+                        }
+                    }
+                    .data{
+                        margin: 0 20px;
+                    }
+                    .ver-mais{
+                        display: inline-block;
+                        vertical-align: middle;
+                        float: right;
+                        height: 30px;
+                        line-height: 30px;
+                        padding: 0 10px;
+                        margin: 0 10px 0 0;
+                        background: #af0000;
+                        @include transition(all ease .2s);
+                        @include border-radius(10px);
+                        text-align: center;
+                        color: #FFF;
+                        font-size: 12px;
+                        text-transform: uppercase;
+                        svg{
+                            display: inline-block;
+                            vertical-align: middle;
+                            font-size: 16px;
+                            margin-left: 5px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .postagem-view{
+        max-height: auto;
+        background: #f4f4f4;
+        border: 1px solid #CCC;
+        @include box-sizing(border-box);
+        .section-user{
+            display: inline-block;
+            vertical-align: top;
+            width: 20%;
+            height: 100%;
+            margin-right: 1%;
+            border-right: 1px solid #CCC;
+            padding: 15px;
+            position: relative;
+            @include box-sizing(border-box);
+            .foto-user{
+                display: block;
+                width: 100%;
+                margin-bottom: 10px;
+                border: 1px solid #CCC;
+            }
+            .nome-user{
+                display: block;
+                margin: 0 0 20px 0;
+                color: #555;
+                font-size: 13px;
+                text-align: center;
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-right: 5px;
+                    font-size: 12px;
+                    color: #3b8c0c;
+                }
+            }
+            .escudo{
+                display: block;
+                position: absolute;
+                top: 3px;
+                right: 0;
+                img{
+                    display: block;
+                    width: 90px;
+                }
+            }
+            h3{
+                display: block;
+                margin: 0 0 10px 0;
+                padding: 0 0 20px 0;
+                color: #555;
+                font-size: 16px;
+                text-transform: uppercase;
+                border-bottom: 1px solid #CCC;
+            }
+            span{
+                display: block;
+                margin: 0 0 10px 0;
+                text-align: center;
+                color: #555;
+                font-size: 12px;
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: 13px;
+                    color: #3b8c0c;
+                }
+            }
+        }
+        .section-post{
+            display: inline-block;
+            vertical-align: top;
+            width: 78%;
+            padding: 15px;
+            position: relative;
+            @include box-sizing(border-box);
+            .bt-aprovar{
+                display: block;
+                position: absolute;
+                top: -20px;
+                right: 5px;
+                width: 130px;
+                margin: 30px auto 30px auto;
+                padding: 10px;
+                border: 0;
+                background: #0aaf26;
+                color: #FFF;
+                font-size: 14px;
+                text-align: center;
+                cursor: pointer;
+                @include transition(all ease .2s);
+                @include border-radius(10px);
+                &:hover{
+                    @include opacity(.9);
+                }
+                &:focus{
+                    outline: none;
+                }
+                svg{
+                    display: inline-block;
+                    vertical-align: middle;
+                    font-size: 20px;
+                    color: #FFF;
+                }
+            }
+            .title{
+                margin: 0 0 20px 0;
+            }
+            .descricao{
+                display: block;
+                color: #555;
+                line-height: 25px;
+                font-size: 14px;
+                word-break: break-word;
+            }
+            .comentarios{
+                margin-top: 50px;
+                ul{
+                    li{
+                        padding-bottom: 20px;
+                        margin-bottom: 20px;
+                        border-bottom: 1px solid #CCC;
+                        .section-user{
+                            width: 25%;
+                        }
+                        .section-comentario{
+                            display: inline-block;
+                            vertical-align: top;
+                            width: 73%;
+                            padding: 15px;
+                            @include box-sizing(border-box);
+                            .descricao{
+                                display: block;
+                                color: #555;
+                                line-height: 25px;
+                                font-size: 14px;
+                                word-break: break-word;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    #btnComentar{
+        display: block;
+        width: 100px;
+        margin: 30px auto 30px auto;
+        padding: 15px;
+        border: 0;
+        background: #0ca7ce;
+        color: #FFF;
+        font-size: 14px;
+        text-align: center;
+        cursor: pointer;
+        @include transition(all ease .2s);
+        @include border-radius(10px);
+        &:hover{
+            background: #0aaf26;
+            @include transition(all ease .2s);
+        }
+        &:focus{
+            outline: none;
+        }
+        svg{
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 20px;
+            color: #FFF;
+        }
+    }
+}

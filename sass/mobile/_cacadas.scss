@@ -1,0 +1,27 @@
+@media (max-width: 1024px) {
+    body.cacadas{
+        .conteudo{
+            background: #1C1A1A;
+            .title{
+                color: #FFF;
+            }
+            .forms-cacadas{
+                width: 100%;
+                #formCacada{
+                    .tempo-cacada{
+                        width: 100%;
+                    }
+                }
+                .campos{
+                    width: 48% !important;
+                    text-align: center;
+                    
+                    .bts-form{
+                        padding: 0 15px;
+                        @include border-radius(0);
+                    }
+                }
+            }
+        }
+    }
+}

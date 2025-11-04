@@ -1,0 +1,115 @@
+body.assistir{
+    .secao-videos{
+        padding: 20px 0;
+        h2{
+            display: block;
+            color: #FFF;
+            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+        }
+        .slider-videos{
+            display: none;
+            .slick-list{
+                height: 700px;
+                overflow: hidden;
+            }
+            .slick-slide{
+                width: 100%;
+                height: 700px;
+            }
+            .slick-prev{
+                display: block;
+                position: absolute;
+                top: 50%;
+                left: -46px;
+                padding: 36px 11px;
+                margin-top: -98.5px;
+                cursor: pointer;
+                border: 0;
+                z-index: 3;
+                background: -webkit-linear-gradient( left, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+                background: linear-gradient( to right, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+                &:focus{
+                    outline: none;
+                }
+                svg{
+                    color: #FFF;
+                    font-size: 45px;
+                }
+            }
+            .slick-next{
+                display: block;
+                position: absolute;
+                top: 50%;
+                right: -46px;
+                padding: 36px 11px;
+                margin-top: -98.5px;
+                cursor: pointer;
+                border: 0;
+                z-index: 3;
+                background: -webkit-linear-gradient( left, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+                background: linear-gradient( to right, rgba( 0, 0, 0, 0.3) 5%,rgba( 0, 0, 0, 0) 95%);
+                &:focus{
+                    outline: none;
+                }
+                svg{
+                    color: #FFF;
+                    font-size: 45px;
+                }
+            }
+            .slick-dots{
+                display: block;
+                width: 100%;
+                height: 30px;
+                clear: both;
+                text-align: center;
+                margin: 0 auto;
+                li{
+                    display: inline-block;
+                    vertical-align: top;
+                    margin: 12px 2px;
+                    &.slick-active{
+                        button{
+                            background-color: hsla(202,60%,100%,0.4);
+                        }
+                    }
+                    button{
+                        display: block;
+                        width: 15px;
+                        height: 9px;
+                        border-radius: 2px;
+                        transition: background-color 0.2s;
+                        background-color: hsla(202,60%,100%,0.2);
+                        cursor: pointer;
+                        border: 0;
+                        font-size: 0;
+                        &:focus{
+                            outline: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    .all-videos{
+        padding: 20px 0;
+        h2{
+            display: block;
+            color: #FFF;
+            text-transform: uppercase;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0 0 20px 0;
+        }
+        .todos-videos{
+            li{
+                display: inline-block;
+                vertical-align: top;
+                margin: 0 5px 20px 5px;
+            }
+        }
+    }
+}

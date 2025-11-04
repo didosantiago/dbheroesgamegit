@@ -1,0 +1,125 @@
+body.minhas-fotos{
+    .conteudo{
+        background: #1B2838;
+        padding: 0;
+        .title{
+            text-align: center;
+            padding-left: 0;
+            color: #FFF;
+            font-size: 30px;
+        }
+    }
+    .legenda{
+        text-align: center;
+        padding: 20px 0 20px 30px;
+        p{
+            display: block;
+            margin-bottom: 20px;
+            color: #FFF;
+            &.free{
+                svg{
+                    color: #10A811;
+                }
+            }
+            svg{
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 10px;
+                font-size: 25px;
+            }
+        }
+    }
+    .fotos-personagem{
+        text-align: center;
+        li{
+            display: inline-block;
+            vertical-align: top;
+            width: 232px;
+            height: 232px;
+            padding: 5px;
+            margin: 0 5px 10px 5px;
+            background: #555;
+            cursor: pointer;
+            position: relative;
+            @include box-shadow(0 0 5px #000000);
+            @include box-sizing(border-box);
+            &.verde{
+                background: #009a37;
+            }
+            &.laranja{
+                background: #ed9700;
+            }
+            &.roxo{
+                background: #7100AA;
+            }
+            &.azul{
+                background: #007ad0;
+            }
+            &.vip{
+                .imagem-bloqueada{
+                    svg{
+                        color: #F80406;
+                    }
+                }
+            }
+            &:hover{
+                @include opacity(.8);
+            }
+            a{
+                display: block;
+                color: #FFF;
+                font-size: 14px;
+                text-align: center; 
+            }
+            .imagem-bloqueada{
+                width: 232px;
+                height: 232px;
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: 20;
+                background-color:rgba(0, 0, 0, 0.8);
+                svg{
+                    display: block;
+                    margin: 60px auto 20px auto;
+                    position: initial;
+                    color: #10A811;
+                    font-size: 45px;
+                }
+                span{
+                    display: block;
+                    color: #FFF;
+                    font-size: 16px;
+                    text-align: center;
+                }
+                .txt-graduacao{
+                    font-size: 14px;
+                    color: #F6C52F;
+                }
+            }
+            svg{
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                z-index: 21;
+                font-size: 45px;
+                color: #78BF00;
+            }
+            img{
+                display: block;
+                width: 100%;
+            }
+        }
+    }
+    
+    .nova-foto-popup{
+        position: absolute;
+        top: 10%;
+        left: 50%;
+        width: 250px;
+        margin-left: -125px;
+        @include transform($heartbeat-rotation scale(1));
+        @include transform-origin(50%, 50%);
+        @include animation(heartbeat 1300ms ease 0s infinite normal);
+    }
+}

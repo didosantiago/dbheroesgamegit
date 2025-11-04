@@ -1,0 +1,42 @@
+.copy{
+    display: block;
+    padding: 20px 0;
+    text-align: center;
+    
+    @media (max-width: 1024px) {
+        padding: 20px;
+        margin: 0 auto;
+    }
+    
+    p{
+        display: block;
+        color: #FFF;
+        text-transform: uppercase;
+        font-size: 12px;
+        
+        a{
+            color: #FDBC01;
+            font-weight: bold;
+            @include transition(all ease .2s);
+            &:hover{
+                color: #DC4B02;
+            }
+        }
+    }
+}
+
+body.login{
+    .copy{
+        margin-top: 50px;
+        background-color:rgba(0, 0, 0, 0.7);
+        
+        @media (max-width: 1024px) {
+            display: none;
+        }
+        
+        p{
+            font-size: 14px;
+            line-height: 22px;
+        }
+    }
+}

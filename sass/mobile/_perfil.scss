@@ -1,0 +1,38 @@
+@media (max-width: 1024px) {
+    body.perfil, body.trocar-senha{
+        .conteudo{
+            .campos{
+                width: 100% !important;
+                margin: 0 0 20px 0;
+                @include box-sizing(border-box);
+                &.check{
+                    label{
+                        display: block;
+                        text-align: center;
+                        input{
+                            display: block;
+                            width: 30px;
+                            height: 30px;
+                            margin: 0 auto 20px auto;
+                        }
+                    }
+                }
+                input{
+                    background: #dbd6d6;
+                    @include border-radius(0);
+                    @include box-sizing(border-box);
+                }
+            }
+            .bts-form{
+                display: block;
+                width: 100%;
+                margin: 0;
+                font-size: 18px;
+                line-height: 45px;
+                background: #00B50C;
+                @include border-radius(0);
+                @include box-sizing(border-box);
+            }
+        }
+    }
+}

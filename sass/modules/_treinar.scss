@@ -1,0 +1,270 @@
+body.treinar{
+    .conteudo{
+        border-color: #444;
+        background: #444;
+        .informativo{
+            color: #7FC900;
+        }
+    }
+    .pontuar{
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 15px;
+        background: #3D3B3B;
+        li{
+            display: inline-block;
+            vertical-align: top;
+            width: 100px;
+            padding: 10px;
+            background: #244F5F;
+            margin: 0 2.5px 0 2.5px;
+            @include border-radius(10px);
+            form{
+                label{
+                    display: block;
+                    text-transform: uppercase;
+                    color: #FFF;
+                    font-size: 14px;
+                    margin-bottom: 10px;
+                }
+                .valores{
+                    margin: 0 0 10px 0;
+                    a{
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 20px;
+                        color: #FFF;
+                        font-size: 30px;
+                        font-weight: bold;
+                        text-align: center;
+                        @include transition(all ease .2s);
+                        &:hover{
+                            color: #F6C52F;
+                        }
+                    }
+                    input[type="text"]{
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 39px;
+                        height: 35px;
+                        margin: 0 5px;
+                        line-height: 35px;
+                        color: #555;
+                        font-size: 14px;
+                        font-weight: 600;
+                        text-align: center;
+                        border: 0;
+                        @include border-radius(10px);
+                        &:focus{
+                            outline: none;
+                        }
+                    }
+                }
+                input[type="submit"]{
+                    display: block;
+                    height: 45px;
+                    margin: 0 auto;
+                    line-height: 45px;
+                    padding: 0 20px;
+                    background: #55E65E;
+                    color: #244F5F;
+                    text-transform: uppercase;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    border: 0;
+                    @include border-radius(10px);
+                    @include transition(all ease .2s);
+                    &:focus{
+                        outline: none;
+                    }
+                    &:hover{
+                        @include opacity(.8);
+                    }
+                }
+            }
+        }
+    }
+    .status{
+        margin: 0 auto;
+        li{
+            display: block;
+            margin-bottom: 20px;
+            p{
+                display: inline-block;
+                vertical-align: middle;
+                width: 60%;
+                padding-right: 30px;
+                text-align: right;
+                color: #FFF;
+            }
+            .meter{
+                display: inline-block;
+                vertical-align: middle;
+                width: 27%;
+                position: relative;
+                background: #262626;
+                em{
+                    position: absolute;
+                    top: 9px;
+                    left: 5%;
+                    z-index: 10;
+                    color: #FFF;
+                    font-size: 13px;
+                    font-weight: 600;
+                    font-style: normal;
+                    text-transform: uppercase;
+                    @include opacity(.8);
+                }
+            }
+            em{
+                color: #10B700;
+            }
+        }
+    }
+    .pontos-extras{
+        padding: 10px 0;
+        text-align: center;
+        font-size: 16px;
+        background: #262626;
+        color: #FFF;
+        strong{
+            font-size: 22px;
+            color: #7EC800;
+        }
+    }
+    .info-gold{
+        padding: 30px 0;
+        text-align: center;
+        font-size: 16px;
+        background: #262626;
+        color: #FFF;
+        strong{
+            font-size: 22px;
+            color: #7EC800;
+        }
+    }
+    .treinar-itens{
+        margin: 0 auto;
+        li{
+            display: block;
+            background: #262626;
+            padding: 5px;
+            @include box-sizing(border-box);
+            &.agilidade{
+                background: #3D3B3B;
+            }
+            &.sorte{
+                background: #3D3B3B;
+            }
+            span{
+                display: inline-block;
+                vertical-align: middle;
+                width: 29%;
+                padding: 10px;
+                text-align: center;
+                @include box-sizing(border-box);
+                &.titulo{
+                    width: 9%;
+                    background: #7FC900;
+                    color: #000;
+                    font-size: 11px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    padding: 10px 0;
+                    margin-left: 5px;
+                    @include border-radius(20px);
+                }
+                &.descricao{
+                    width: 48%;
+                    color: #FFF;
+                    font-size: 13px;
+                }
+            }
+            form{
+                display: inline-block;
+                vertical-align: middle;
+                width: 40%;
+                .valores-treino{
+                    display: inline-block;
+                    vertical-align: middle;
+                    a{
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 20px;
+                        color: #7FC900;
+                        font-size: 30px;
+                        font-weight: bold;
+                        text-align: center;
+                        cursor: pointer;
+                        @include transition(all ease .2s);
+                        &:hover{
+                            color: #FFF;
+                        }
+                        svg{
+                            color: #7FC900;
+                            font-size: 20px; 
+                        }
+                    }
+                    input[type="text"]{
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 69px;
+                        height: 35px;
+                        margin: 0 5px;
+                        line-height: 35px;
+                        color: #555;
+                        font-size: 14px;
+                        font-weight: 600;
+                        text-align: center;
+                        border: 1px solid #555;
+                        @include border-radius(10px);
+                        &:focus{
+                            outline: none;
+                        }
+                    }
+                    em{
+                        display: inline-block;
+                        vertical-align: middle;
+                        font-style: normal;
+                        padding-right: 5px;
+                        font-size: 12px;
+                        color: #FFF;
+                    }
+                }
+                input[type="submit"]{
+                    display: inline-block;
+                    vertical-align: middle;
+                    height: 45px;
+                    margin: 0 0 0 10px;
+                    line-height: 40px;
+                    padding: 0 20px;
+                    background: #55E65E;
+                    color: #262626;
+                    text-transform: uppercase;
+                    font-size: 14px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    border: 0;
+                    @include border-radius(10px);
+                    @include transition(all ease .2s);
+                    &:focus{
+                        outline: none;
+                    }
+                    &:hover{
+                        @include opacity(.8);
+                    }
+                }
+                .qtd-unidades{
+                    display: inline-block;
+                    vertical-align: middle;
+                    em{
+                        font-style: italic;
+                        font-size: 12px;
+                        color: #7FC900;
+                    }
+                }
+            }
+        }
+    }
+}

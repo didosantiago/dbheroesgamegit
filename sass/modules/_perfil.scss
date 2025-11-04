@@ -1,0 +1,33 @@
+body.perfil{
+    .nao-validado{
+        display: block;
+        width: 95%;
+        padding: 10px;
+        background: #f7e5a5;
+        border: 1px solid #eace70;
+        margin: 0 auto 20px auto;
+        @include border-radius(5px);
+        p{
+            display: block;
+            font-size: 15px;
+            color: #967300;
+            text-align: center;
+            margin-bottom: 5px;
+            a{
+                color: #3b7705;
+                font-weight: 600;
+            }
+        }
+    }
+    .foto-user{
+        width: 250px;
+        display: block;
+        margin: 0 auto 20px auto;
+        border: 1px solid #CCC;
+        padding: 10px;
+        img{
+           display: block;
+           width: 100%;
+        }
+    }
+}

@@ -1,0 +1,155 @@
+body.hospital{
+    .conteudo{
+        padding: 0;
+        background: #1B2838;
+        .title{
+            font-size: 22px;
+            color: #FFF;
+            text-align: center;
+            padding-left: 0;
+            margin-top: 30px;
+        }
+    }
+    .ficha{
+        display: inline-block;
+        vertical-align: top;
+        width: 300px;
+        background-color: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        margin: 50px 0 0 50px;
+        @include box-sizing(border-box);
+        h3{
+            display: block;
+            color: #FFF;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            margin: 0 0 20px 0;
+        }
+        .foto-principal{
+            margin-bottom: 10px;
+            border: 2px solid #000;
+            img{
+                display: block;
+                width: 100%;
+            }
+        }
+        li{
+            margin-bottom: 10px;
+            position: relative;
+            &.hp, &.mana, &.energia{
+                strong{
+                    position: absolute;
+                    top: 12px;
+                    left: 8%;
+                    z-index: 20;
+                    font-size: 11px;
+                    color: #FFF;
+                }
+                .meter{
+                    em{
+                        font-size: 14px;
+                    }
+                }
+            }
+            span{
+                color: #FFF;
+                padding-right: 5px;
+            }
+            strong{
+                color: #ddff00;
+                font-weight: 500;
+            }
+            .meter{
+                display: block;
+                position: relative;
+                width: 97%;
+                background: #0a0909;
+                em{
+                    position: absolute;
+                    top: 7px;
+                    left: 43%;
+                    z-index: 10;
+                    color: #FFF;
+                    font-size: 16px;
+                    font-weight: bold;
+                    font-style: normal;
+                    @include opacity(.8);
+                }
+            }
+        }
+    }
+    .tratamentos{
+        display: inline-block;
+        vertical-align: top;
+        width: 550px;
+        padding: 15px;
+        margin: 50px 0 0 30px;
+        @include box-sizing(border-box);
+        h3{
+            display: block;
+            color: #ddff00;
+            text-align: center;
+            text-transform: uppercase;
+            font-size: 16px;
+            margin: 0 0 60px 0;
+        }
+        li{
+            margin-bottom: 30px;
+            &.vida{
+                svg{
+                    color: #E74451;
+                }
+            }
+            &.energia{
+                svg{
+                    color: #8DDFA3;
+                }
+            }
+            &.vida_energia{
+                svg{
+                    color: #FF5810;
+                }
+            }
+            &.ki{
+               svg{
+                    color: #2E8DF8;
+                } 
+            }
+            svg{
+                display: inline-block;
+                vertical-align: middle;
+                font-size: 40px;
+                color: #86D3FC;
+                margin-left: 30px;
+            }
+            .info{
+                display: inline-block;
+                vertical-align: top;
+                width: 315px;
+                margin: 0 0 0 15px;
+                p{
+                    display: block;
+                    color: #FFF;
+                    margin-bottom: 10px;
+                }
+                span{
+                    display: block;
+                    color: #ddff00;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                }
+            }
+            form{
+                display: inline-block;
+                vertical-align: top;
+                .bts-form{
+                    margin: 0;
+                    color: #1B2838;
+                    background: #ddff00;
+                    @include border-radius(0);
+                }
+            }
+        }
+    }
+}

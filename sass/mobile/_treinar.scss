@@ -1,0 +1,123 @@
+@media (max-width: 1024px) {
+    body.treinar{
+        .conteudo{
+            .title{
+                color: #FFF;
+                font-size: 20px;
+            }
+            .pontos-extras{
+                padding: 10px;
+                @include box-sizing(border-box);
+            }
+            .pontuar{
+                padding: 10px;
+                li{
+                    width: 47%;
+                    margin: 0 2.5px 10px 2.5px;
+                    background: #262626;
+                    @include border-radius(0);
+                    @include box-sizing(border-box);
+                }
+            }
+            .status{
+                li{
+                    p{
+                        display: block;
+                        width: 100%;
+                        margin: 0 0 10px 0;
+                        text-align: center;
+                        padding: 5px 10px;
+                        @include box-sizing(border-box);
+                    }
+                    .meter{
+                        display: block;
+                        width: 90%;
+                        height: 40px;
+                        margin: 0 auto 10px auto;
+                        @include box-sizing(border-box);
+                        em{
+                            top: 13px;
+                        }
+                    }
+                    > em{
+                        display: none;
+                    }
+                }
+            }
+            .treinar-itens{
+                @include box-sizing(border-box);
+                li{
+                    background: #262626 !important;
+                    padding: 10px;
+                    margin-bottom: 10px;
+                    @include box-sizing(border-box);
+                    .titulo{
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        margin: 0 0 10px 0;
+                        font-size: 18px;
+                        background: #3a3737;
+                        color: #FFF;
+                        @include border-radius(0);
+                        @include box-sizing(border-box);
+                    }
+                    .descricao{
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        margin: 0 0 10px 0;
+                        font-size: 14px;
+                        text-align: center;
+                        @include box-sizing(border-box);
+                    }
+                    form{
+                        display: block;
+                        width: 100%;
+                        .valores-treino{
+                            width: 60%;
+                            margin: 0 0 10px 0;
+                            #menos{
+                                display: none;
+                            }
+                            em{
+                                width: 30%;
+                                height: 45px;
+                                line-height: 45px;
+                                font-size: 16px;
+                                text-transform: uppercase;
+                            }
+                            input[type="text"]{
+                                width: 60%;
+                                height: 45px;
+                                border: 0;
+                                @include border-radius(0);
+                                @include box-sizing(border-box);
+                            }
+                        }
+                        input[type="submit"]{
+                            display: inline-block;
+                            vertical-align: top;
+                            width: 38%;
+                            margin: 0;
+                            font-size: 18px;
+                            line-height: 45px;
+                            background: #7FC900;
+                            @include border-radius(0);
+                            @include box-sizing(border-box);
+                        }
+                        .qtd-unidades{
+                            display: block;
+                            padding: 10px 0;
+                            margin: 0;
+                            text-align: center;
+                            em{
+                                font-size: 18px;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

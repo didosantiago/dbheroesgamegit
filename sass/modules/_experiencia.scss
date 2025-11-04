@@ -1,0 +1,148 @@
+body.experiencia{
+    .conteudo{
+        background: #1B2838;
+        .title{
+            color: #FFF;
+        }
+    }
+    .tableList{
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+        border: 1px solid #4e76a0;
+        thead{
+            tr{
+                th{
+                    background: #4e76a0;
+                    color: #FFF;
+                    font-size: 14px;
+                    text-transform: uppercase;
+                    text-align: center;
+                    border-top: 1px solid #4e76a0;
+                    border-left: 1px solid #264366;
+                    border-right: 1px solid #264366;
+                    border-top: 1px solid #4e76a0;
+                    &:first-child{
+                        border-left: 0;
+                    }
+                    &:last-child{
+                        border-right: 0;
+                    }
+                }
+            }
+        }
+        tbody{
+            tr{
+                background: #1B2838;
+                border-bottom: 1px solid #4e76a0;
+                &.tr-equipes{
+                    td{
+                        font-size: 16px;
+                        img{
+                            width: 80px;
+                            border: 2px solid #000;
+                            @include border-radius(10px);
+                        }
+                    }
+                }
+                td{
+                    text-align: center;
+                    font-size: 14px;
+                    color: #FFF;
+                    padding: 10px 0;
+                    border-top: 1px solid #4e76a0;
+                    border-left: 1px solid #264366;
+                    border-right: 1px solid #264366;
+                    border-top: 1px solid #4e76a0;
+                    &:first-child{
+                        border-left: 0;
+                    }
+                    &:last-child{
+                        border-right: 0;
+                    }
+                    &.level{
+                        font-family: 'Bungee', cursive;
+                        font-size: 25px;
+                        color: #F6C52F;
+                    }
+
+                    svg{
+                        font-size: 25px;
+                    }
+                    
+                    .bt-aceitar{
+                        margin-right: 10px;
+                        svg{
+                            color: #08dd9a;
+                        }
+                    }
+                    
+                    .bt-recusar{
+                        svg{
+                            color: #db3232;
+                        }
+                    }
+                    
+                    button{
+                        cursor: pointer;
+                        &:focus{
+                            outline: none;
+                        }
+                    }
+                    a{
+                        color: #FCC500;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                    }
+                    img{
+                        display: inline-block;
+                        vertical-align: middle;
+                        width: 60px;
+                        margin: 0 10px;
+                    }
+                    strong{
+                        font-weight: bold;
+                    }
+                }
+            }
+        }
+        tr:nth-child(even) {
+            background-color: #264366;
+            td{
+                border-top: 1px solid #4e76a0;
+                border-left: 1px solid #1B2838;
+                border-right: 1px solid #1B2838;
+                border-top: 1px solid #4e76a0;
+                &:first-child{
+                    border-left: 0;
+                }
+                &:last-child{
+                    border-right: 0;
+                }
+            }
+        }
+        th{
+            padding: 3px 15px;
+            text-align: left;
+        }
+        td{
+            padding: 3px 0;
+            text-align: left;
+        }
+        th,{
+            padding: 15px;
+        }
+        .paginator{
+            margin: 0;
+            li.current{
+                a{
+                    background: #FCC500;
+                    color: #000 !important;
+                }
+            }
+            a{
+                background: #0B1521;
+            }
+        }
+    }
+}

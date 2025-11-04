@@ -1,0 +1,42 @@
+body.cacadas{
+    .informativo{
+        display: inline-block;
+        vertical-align: top;
+        width: 50%;
+    }
+    .forms-cacadas{
+        display: inline-block;
+        vertical-align: top;
+        width: 45%;
+        #formCacada{
+            width: 100%;
+            margin: 0 auto;
+            background: #262626;
+            &.alter{
+                background: #3D3B3B;
+            }
+            .tempo-cacada{
+                display: block;
+                vertical-align: middle;
+                width: 250px;
+                color: #7FC900;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+            }
+            .bts-form{
+                display: inline-block;
+                vertical-align: middle;
+                background: #1291e5;
+                font-size: 12px;
+                font-weight: normal;
+            }
+            .campos{
+                display: inline-block;
+                vertical-align: middle;
+                width: 50%;
+                margin: 0;
+            }
+        }
+    }
+}

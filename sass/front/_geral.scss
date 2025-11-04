@@ -1,0 +1,14 @@
+body.login, body.cadastro, body.home, body.assistir, body.rank, body.sobre{
+    background: #1b2838 url("body_top.png") center top no-repeat;
+    
+    .stm-container{
+        width: 1240px;
+        padding: 0 15px;
+        margin: 0 auto;
+        @include box-sizing(border-box);
+        
+        @media (max-width: 1024px) {
+            width: 100%;
+        }
+    }
+}

@@ -1,0 +1,150 @@
+body.missoes{
+    .conteudo{
+        background: #1B2838;
+        .title{
+            color: #FFF;
+        }
+    }
+    .missoes-list{
+        li{
+            padding: 15px;
+            margin: 0 0 30px 0;
+            background: #060a0f;
+            @include border-radius(10px);
+            @include box-sizing(border-box);
+            .box-img{
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: 20px;
+                .content-img{
+                    width: 320px;
+                    border: 2px solid #000;
+                    overflow: hidden;
+                    @include border-radius(20px);
+                }
+                img{
+                    display: block;
+                    width: 100%;
+                }
+                h3{
+                    display: block;
+                    text-transform: uppercase;
+                    color: #FFF;
+                    font-size: 18px;
+                    text-align: center;
+                    padding: 10px 0;
+                }
+            }
+            .golds{
+                display: inline-block;
+                vertical-align: middle;
+                width: 220px;
+                text-transform: uppercase;
+                color: #ffcd07;
+                font-size: 20px;
+                font-weight: bold;
+                text-align: center;
+            }
+            form{
+                display: inline-block;
+                vertical-align: middle;
+                width: 400px;
+                select{
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 240px;
+                    height: 50px;
+                    border: 0;
+                    background: #1B2838;
+                    color: #FFF;
+                    border: 1px solid #264366;
+                    text-align: center;
+                    font-size: 14px;
+                    font-weight: normal;
+                    padding: 0 0 0 10px;
+                    @include box-sizing(border-box);
+                    &:focus{
+                        outline: none;
+                    }
+                }
+                .bts-form{
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin: 0 0 0 10px;
+                    background: #0aaa3f;
+                    @include border-radius(0);
+                }
+                input[disabled]{
+                    cursor: none;
+                    background: #b70003;
+                    &:hover{
+                        @include opacity(1);
+                    }
+                }
+            }
+            .especificacoes{
+                padding: 20px;
+                margin: 20px 0 0 0;
+                background: #262626;
+                color: #FFF;
+                text-align: center;
+                @include box-sizing(border-box);
+                h4{
+                    display: block;
+                    text-align: center;
+                    padding: 0 0 10px 0;
+                    margin: 0 0 10px 0;
+                    color: #FFF;
+                    text-transform: uppercase;
+                    font-weight: 600;
+                    border-bottom: 1px solid #111010;
+                }
+                .indicador{
+                    width: 167px;
+                    height: 89px;
+                    display: inline-block;
+                    vertical-align: top;
+                    text-align: center;
+                    background: #111010;
+                    padding: 10px;
+                    position: relative;
+                    margin: 0 2.5px 5px 2.5px;
+                    @include box-sizing(border-box);
+                    @include opacity(.6);
+                    &.completed{
+                        @include opacity(1);
+                        strong{
+                            color: #4ace2f;
+                        }
+                        svg{
+                            color: #4ace2f;
+                        }
+                    }
+                    strong{
+                        display: block;
+                        font-size: 22px;
+                        margin-bottom: 10px;
+                        em{
+                            font-style: normal;
+                            font-size: 15px;
+                            color: #4ace2f;
+                        }
+                    }
+                    span{
+                        display: block;
+                        font-size: 10px;
+                        text-transform: uppercase;
+                        line-height: 15px;
+                    }
+                    svg{
+                        position: absolute;
+                        top: 5px;
+                        right: 5px;
+                        font-size: 20px;
+                        color: #262626;
+                    }
+                }
+            }
+        }
+    }
+}

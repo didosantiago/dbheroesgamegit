@@ -1,0 +1,360 @@
+body.profile{
+    .conteudo{
+        padding: 0;
+        background: #1B2838;
+        .title{
+            color: #FFF;
+        }
+    }
+    .inf-right{
+        display: inline-block;
+        vertical-align: top;
+        width: 36%;
+        height: 287px;
+        background: #091019;
+        padding: 15px;
+        margin: 10px 0 20px 1%;
+        @include box-sizing(border-box);
+        
+        @media (max-width: 1024px) {
+            width: 95%;
+            margin: 10px;
+        }
+        
+        h2{
+            display: block;
+            margin: 0 0 10px 0;
+            padding-bottom: 10px;
+            color: #FFF;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .dados{
+            width: 100%;
+            margin: 0 auto;
+            li{
+                display: block;
+                background: #1B2838;
+                margin-bottom: 3px;
+                border: 1px solid #324965;
+                &.alter{
+                    color: #FFF;
+                }
+                span{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 40%;
+                    padding: 10px 15px 10px 0;
+                    text-align: right;
+                    background: #0E1721;
+                    color: #FFF;
+                }
+                strong{
+                    display: inline-block;
+                    vertical-align: middle;
+                    width: 50%;
+                    text-align: right;
+                    color: #7FC900;
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+    
+    .inf-left{
+        display: inline-block;
+        vertical-align: top;
+        width: 60%;
+        height: 287px;
+        background: #050404;
+        padding: 15px;
+        margin: 10px 1% 20px 0.5%;
+        @include box-sizing(border-box);
+        
+        @media (max-width: 1024px) {
+            width: 95%;
+            height: auto;
+            margin: 10px;
+        }
+        
+        .informativo{
+            color: #FFF;
+            strong{
+                color: #2aaa23;
+            }
+        }
+        #userInvite{
+            display: block;
+            width: 95%;
+            height: 45px;
+            text-align: center;
+            background: #383F49;
+            color: #FFF;
+            font-size: 15px;
+            margin: 0 auto;
+            border: 0;
+            cursor: pointer;
+            @include border-radius(10px);
+            &:focus{
+                outline: none;
+            }
+        }
+        .bt-indicados{
+            width: 154px;
+            margin: 10px auto 0 auto;
+            padding: 0 10px;
+            text-align: center;
+            background: #0cb55b;
+            line-height: 45px;
+            font-weight: 600;
+        }
+    }
+    .indicadores{
+        text-align: center;
+        padding: 15px;
+        @include box-sizing(border-box);
+        h2{
+            display: block;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            color: #FFF;
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        li{
+            display: inline-block;
+            vertical-align: top;
+            width: 200px;
+            height: 120px;
+            background: #091019;
+            padding: 10px;
+            margin: 0 2.5px 10px 2.5px;
+            @include box-sizing(border-box);
+            
+            @media (max-width: 1024px) {
+                width: 31%;
+                @include box-sizing(border-box);
+            }
+            
+            strong{
+                display: block;
+                text-align: center;
+                font-size: 35px;
+                font-weight: bold;
+                margin: 15px 0 5px 0;
+                color: #0ABF2A;
+            }
+            
+            span{
+                display: block;
+                text-align: center;
+                font-size: 12px;
+                text-transform: uppercase;
+                color: #FFF;
+            }
+        }
+    }
+    .modulos-usuario{
+        background: #091019;
+        padding: 15px;
+        margin: 0 10px 10px 10px;
+        @include box-sizing(border-box);
+        h2{
+            display: block;
+            margin: 0 0 10px 0;
+            padding: 0 0 10px 0;
+            color: #FFF;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+        .bloco-item{
+            width: 100%;
+            padding: 20px;
+            margin: 0 0 10px 0;
+            background: #1B2838;
+            border: 1px solid #324965;
+            @include box-sizing(border-box);
+            h3{
+                display: block;
+                color: #FFF;
+                font-size: 16px;
+                text-transform: uppercase;
+                margin: 0 0 10px 0;
+            }
+            p{
+                display: block;
+                font-size: 15px;
+                color: #08C52B;
+                margin: 0 0 20px 0;
+            }
+            form{
+                input[type="text"]{
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 300px;
+                    height: 50px;
+                    padding: 0 0 0 10px;
+                    border: 0;
+                    background: #121c28;
+                    font-size: 20px;
+                    color: #FFF;
+                    text-align: center;
+                    border: 1px solid #264366;
+                    &:focus{
+                        outline: none;
+                    }
+                    
+                    @media (max-width: 1024px) {
+                        width: 100%;
+                        margin-bottom: 10px;
+                        @include box-sizing(border-box);
+                    }
+                    
+                }
+                input[type="submit"]{
+                    display: inline-block;
+                    vertical-align: top;
+                    width: 150px;
+                    height: 50px;
+                    line-height: 50px;
+                    background: #0066FF;
+                    color: #FFF;
+                    font-size: 16px;
+                    text-transform: uppercase;
+                    text-align: center;
+                    border: 0;
+                    margin: 0;
+                    cursor: pointer;
+                    outline: none;
+                    @include transition(all .2s ease);
+                    &:focus{
+                        outline: none;
+                    }
+                    &:hover{
+                        background: #004cbf;
+                    }
+                    
+                    @media (max-width: 1024px) {
+                        width: 100%;
+                        @include box-sizing(border-box);
+                    }
+                }
+            }
+        }
+    }
+    .status{
+        margin: 0 auto;
+        padding: 20px 0;
+        
+        @media (max-width: 1024px) {
+            display: none !important;
+        }
+        
+        li{
+            display: block;
+            margin-bottom: 20px;
+            
+            p{
+                display: inline-block;
+                vertical-align: middle;
+                width: 60%;
+                padding-right: 30px;
+                text-align: right;
+                color: #FFF;
+            }
+            
+            .meter{
+                display: inline-block;
+                vertical-align: middle;
+                width: 27%;
+                position: relative;
+                background: #06131e;
+                
+                em{
+                    position: absolute;
+                    top: 9px;
+                    left: 5%;
+                    z-index: 10;
+                    color: #FFF;
+                    font-size: 13px;
+                    font-weight: 600;
+                    font-style: normal;
+                    text-transform: uppercase;
+                    @include opacity(.8);
+                }
+            }
+            em{
+                color: #10B700;
+            }
+        }
+    }
+    .estatisticas{
+        text-align: center;
+        padding: 15px;
+        @include box-sizing(border-box);
+        
+        h2{
+            display: block;
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            color: #FFF;
+            font-size: 22px;
+            font-weight: bold;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        
+        li{
+            display: inline-block;
+            vertical-align: top;
+            width: 200px;
+            height: 120px;
+            background: #091019;
+            padding: 10px;
+            margin: 0 2.5px 10px 2.5px;
+            @include box-sizing(border-box);
+            
+            @media (max-width: 1024px) {
+                width: 31%;
+                @include box-sizing(border-box);
+            }
+            
+            strong{
+                display: block;
+                text-align: center;
+                font-size: 30px;
+                font-weight: bold;
+                margin: 15px 0 5px 0;
+                color: #0ABF2A;
+            }
+            
+            span{
+                display: block;
+                text-align: center;
+                font-size: 14px;
+                text-transform: uppercase;
+                color: #FFF;
+            }
+        }
+    }
+    
+    .bt-treinar{
+        width: 220px; 
+        margin: 30px auto; 
+        background: #12a821; 
+        text-align: center; 
+        font-size: 16px;
+        font-weight: 500;
+        line-height: 42px;
+        color: #FFF;
+        @include border-radius(0);
+        svg{
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 22px;
+            margin-right: 10px;
+        }
+    }
+}

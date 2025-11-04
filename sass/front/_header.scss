@@ -1,0 +1,118 @@
+.stm-main{
+    .stm-top-bar{
+        display: block;
+        width: 100%;
+        height: 51px;
+        background: linear-gradient(135deg, rgba(97,100,101,0.3) 0%,rgba(226,244,255,0.3) 100%);
+        position: relative;
+        .logo{
+            display: inline-block;
+            vertical-align: top;
+            width: 142px;
+            margin: 0 100px 0 20px;
+            height: 100%;
+            a{
+                display: block;
+                &:hover{
+                    @include opacity(.8);
+                }
+                svg{
+                    display: block;
+                    width: 142px;
+                    height: 51px;
+                }
+            }
+        }
+        .stm-menu{
+            display: inline-block;
+            vertical-align: top;
+            height: 100%;
+            li{
+                display: inline-block;
+                position: relative;
+                height: 100%;
+                padding-right: 0;
+                @include transform(translateZ(0));
+                &:hover{
+                    &:before{
+                        height: 5px;
+                        background: #ff0;
+                    }
+                }
+                &:before{
+                    content: "";
+                    display: block;
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 0;
+                    z-index: -1;
+                    @include transition(height .2s ease-in-out);
+                }
+                a{
+                    display: block;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    padding: 0 1em;
+                    height: 100%;
+                    max-height: 44px;
+                    color: #ccc;
+                    &:hover{
+                        color: #fff;
+                    }
+                    p{
+                        position: relative;
+                        top: 50%;
+                        font-size: 13px;
+                        @include transform(translateY(-50%));
+                    }
+                }
+            }
+        }
+        
+        .right-menu{
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 6;
+            list-style: none;
+            padding: 0 0 0 1em;
+            height: 3.7em;
+            width: auto;
+            li{
+                &.iniciar-sessao{
+                    display: inline-block;
+                    height: 100%;
+                    max-height: 51px;
+                    background: #40b700;
+                    color: #FFF;
+                    padding: 0 1em;
+                    line-height: 51px;
+                    cursor: pointer;
+                    @include transition(all ease .2s);
+                    &:hover{
+                        background: #2c7f00;
+                    }
+                    svg{
+                        display: inline-block;
+                        vertical-align: middle;
+                        font-size: 25px;
+                        color: #FFF;
+                        margin-right: 10px;
+                    }
+                    p{
+                        display: inline-block;
+                        vertical-align: middle;
+                        font-size: 14px;
+                        text-transform: uppercase;
+                    }
+                }
+                a{
+                    display: block;
+                    color: #FFF;
+                }
+            }
+        }
+    }
+}

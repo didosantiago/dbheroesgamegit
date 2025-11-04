@@ -1,0 +1,24 @@
+@media (max-width: 1024px) {
+    body.meus-personagens{
+        .conteudo{
+            .title{
+                color: #FFF;
+            }
+            .personagem-atual{
+                .foto-personagem{
+                    margin-bottom: 20px;
+                    img{
+                        width: 240px;
+                        margin: 0 auto;
+                    }
+                }
+                .info{
+                    h3{
+                        color: #FFF;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+    }
+}

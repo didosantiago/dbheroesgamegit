@@ -1,0 +1,14 @@
+@media (max-width: 1024px) {
+    body.minhas-fotos{
+        .legenda{
+            padding: 10px;
+            @include box-sizing(border-box);
+        }
+        .fotos-personagem{
+            li{
+                width: 48%;
+                margin: 0 2.5px 5px 2.5px;
+            }
+        }
+    }
+}

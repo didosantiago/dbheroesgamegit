@@ -1,0 +1,52 @@
+body.historico{
+    table, th, td {
+        border: 1px solid #FFF;
+    }
+    .lista-batalhas{
+        width: 100%;
+        border-collapse: collapse;
+        thead{
+            tr{
+                th{
+                    background: #07303F;
+                    color: #FFF;
+                    font-size: 12px;
+                    text-transform: uppercase;
+                    text-align: center;
+                }
+            }
+        }
+        tbody{
+            tr{
+                &.vitoria{
+                    background: #DFF0D8;
+                    color: #3c763d;
+                }
+                &.derrota{
+                    background: #f2dede;
+                    color: #a94442;
+                }
+                td{
+                    text-align: center;
+                    font-size: 14px;
+                    a{
+                        color: #000;
+                    }
+                }
+            }
+        }
+        tr:hover {background-color: #f5f5f5;}
+        tr:nth-child(even) {background-color: #f2f2f2;}
+        th{
+            padding: 3px 15px;
+            text-align: left;
+        }
+        td{
+            padding: 10px 0;
+            text-align: left;
+        }
+        th,{
+            padding: 15px;
+        }
+    }
+}
