@@ -1,7 +1,6 @@
 <?php 
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
-        exit;
     }
     
     if(isset($_SESSION['npc_finalizado'])){
@@ -38,87 +37,16 @@
         $habilitado = 1;
 
         $idPersonagem = $_SESSION['PERSONAGEMID'];
+
         $parametro_1 = Url::getURL(1);
 
-        // Get opponent data
         if($parametro_1 != null){
             $oponente = $npc->getOponenteNPC($parametro_1);
-            if(!$oponente){
-                header('Location: '.BASE.'torneio');
-                exit;
-            }
-        } else {
-            header('Location: '.BASE.'torneio');
-            exit;
         }
 
         $personagem->getGuerreiro($idPersonagem);
 
-        // Check if battle already exists
-        $battleExists = $npc->npcRun($idPersonagem, $parametro_1);
-
-        // VALIDATION CHECKS (before creating or clearing anything)
-        if(!$battleExists){
-            // Only validate if trying to create new battle
-            if($personagem->hp <= 0){
-                $core->msg('error', 'Seu HP é insuficiente para a luta.');
-                header('Location: '.BASE.'hospital');
-                exit;
-            }
-            
-            if($personagem->nivel < $oponente->nivel){
-                $core->msg('error', 'Você não pode atacar um adversário com level maior');
-                header('Location: '.BASE.'torneio');
-                exit;
-            }
-            
-            if($core->proccessInNotNPC()){
-                header('Location: '.BASE.'profile');
-                exit;
-            }
-
-            if($personagem->gold < 20){
-                $core->msg('error', 'Gold insuficiente para a Batalha, realize caçadas ou missões para conseguir o gold necessário!');
-                header('Location: '.BASE.'ranking');
-                exit;
-            }
-            
-            $energia_restante = intval($personagem->energia) - intval($personagem->energia_usada);
-            
-            if($energia_restante < 10){
-                $core->msg('error', 'Energia insuficiente para a Batalha.');
-                header('Location: '.BASE.'torneio');
-                exit;
-            }
-
-            // All validation passed - CREATE THE BATTLE NOW
-            $npc->saveBatalhaNPC($idPersonagem, $parametro_1);
-
-            $comeca = 1;
-
-            if($comeca == 1){
-                $_SESSION['npc_desafiador'] = 1;
-                $time_atacar = time() + 30; 
-            } else {
-                $_SESSION['npc_desafiador'] = 0;
-            }
-
-            if($npc->getGuerreiroNPCAtacado($_SESSION['npc_id'])){
-                $_SESSION['npc_desafiador'] = 1;
-            }
-
-            if($_SESSION['npc_desafiador'] == 0){
-                $npc->atack(4, $parametro_1, $idPersonagem, 0);
-                $_SESSION['npc_desafiador'] = 1;
-            }
-            
-            // Refresh to load the battle properly
-            header('Location: '.BASE.'npc/'.$parametro_1);
-            exit;
-        }
-
-        // Battle exists - handle it
-        if($battleExists){
+        if($npc->npcRun($idPersonagem, $parametro_1)){
             $sql = "SELECT * FROM npc WHERE id = ".$_SESSION['npc_id'];
             $stmt = DB::prepare($sql);
             $stmt->execute();
@@ -133,6 +61,7 @@
                     );
 
                     $where = 'id="'.$_SESSION['npc_id'].'"';
+
                     $core->update('npc', $campos, $where);
                 }
 
@@ -142,7 +71,9 @@
                     );
 
                     $where = 'id="'.$_SESSION['npc_id'].'"';
+
                     $core->update('npc', $campos, $where);
+
                     $npc->atack(4, $parametro_1, $idPersonagem, 0);
                 }
             }
@@ -156,6 +87,77 @@
             }
 
             $habilitado = 0;
+        } else {
+            unset($_SESSION['npc']);
+            unset($_SESSION['npc_id']);
+            unset($_SESSION['npc_vitoria']);
+            unset($_SESSION['npc_derrota']);
+            unset($_SESSION['npc_atacado']);
+            unset($_SESSION['npc_desafiador']);
+            unset($_SESSION['npc_finalizado']);
+            unset($_SESSION['npc_life']);
+            unset($_SESSION['npc_life_oponente']);
+            unset($_SESSION['npc_ki_oponente']);
+            unset($_SESSION['npc_final']);
+        }
+
+        // Validation checks - only run if battle doesn't exist yet
+        if(!isset($_SESSION['npc'])){
+            if($personagem->hp <= 0){
+                $habilitado = 0;
+                $core->msg('error', 'Seu HP é insuficiente para a luta.');
+                header('Location: '.BASE.'hospital');
+                exit();
+            }
+            
+            if(isset($oponente) && $personagem->nivel < $oponente->nivel){
+                $habilitado = 0;
+                $core->msg('error', 'Você não pode atacar um adversário com level maior');
+                header('Location: '.BASE.'torneio');
+                exit();
+            }
+        
+            if($personagem->gold < 20){
+                $habilitado = 0;
+                $core->msg('error', 'Gold insuficiente para a Batalha, realize caçadas ou missões para conseguir o gold necessário!');
+                header('Location: '.BASE.'ranking');
+                exit();
+            }
+            
+            $energia_restante = intval($personagem->energia) - intval($personagem->energia_usada);
+            
+            if($energia_restante < 10){
+                $habilitado = 0;
+                $core->msg('error', 'Energia insuficiente para a Batalha.');
+                header('Location: '.BASE.'torneio');
+                exit();
+            }
+        }
+
+        if(!isset($_SESSION['npc'])){
+            if($habilitado == 1){
+                $npc->saveBatalhaNPC($idPersonagem, $parametro_1);
+
+                $comeca = 1;
+
+                if($comeca == 1){
+                    $_SESSION['npc_desafiador'] = 1;
+
+                    $time_atacar = time() + 30; 
+                } else {
+                    $_SESSION['npc_desafiador'] = 0;
+                }
+
+                if($npc->getGuerreiroNPCAtacado($_SESSION['npc_id'])){
+                    $_SESSION['npc_desafiador'] = 1;
+                }
+
+                if($_SESSION['npc_desafiador'] == 0){
+                    $npc->atack(4, $parametro_1, $idPersonagem, 0);
+
+                    $_SESSION['npc_desafiador'] = 1;
+                }
+            }
         }
 
         if(isset($_POST['concluir'])){
@@ -164,7 +166,6 @@
             } else {
                 $vitoria = 0;
             }
-            
             if($vitoria == 1){
                 $exp_recebido = $oponente->exp;
                 
@@ -187,11 +188,12 @@
                 );
 
                 $where_usuario = 'id = "'.$idPersonagem.'"';
+
                 $core->update('usuarios_personagens', $campos_usuario, $where_usuario);
 
-                $oponente_id = $parametro_1;
+                $oponente = $parametro_1;
 
-                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente_id AND concluido = 0";
+                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente AND concluido = 0";
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
                 $dados_npc = $stmt->fetch();
@@ -202,14 +204,16 @@
                 );
 
                 $where_npc = 'id = "'.$dados_npc->id.'"';
+
                 $core->update('npc', $campos_npc, $where_npc);
                 
                 $personagem->getGuerreiro($idPersonagem);
+                
                 $treino->viewNewLevel($personagem->id, $personagem->nivel, $personagem->exp);
             } else {
-                $oponente_id = $parametro_1;
+                $oponente = $parametro_1;
 
-                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente_id AND concluido = 0";
+                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente AND concluido = 0";
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
                 $dados_npc = $stmt->fetch();
@@ -220,6 +224,7 @@
                 );
 
                 $where_npc = 'id = "'.$dados_npc->id.'"';
+
                 $core->update('npc', $campos_npc, $where_npc);
             }
 
@@ -230,6 +235,7 @@
                 );
 
                 $where = 'id = "'.$idPersonagem.'"';
+
                 $core->update('usuarios_personagens', $campos, $where);
             }
 
@@ -245,7 +251,6 @@
             unset($_SESSION['npc_final']);
 
             header('Location: '.BASE.'torneio');
-            exit;
         }
 
         if(isset($_POST['atacar'])){
@@ -254,7 +259,7 @@
                    $_SESSION['npc_final'] = 1;
                 }
 
-                if(!isset($_SESSION['npc_vitoria']) && !isset($_SESSION['npc_derrota'])){
+                if(!isset($_SESSION['npc_vitoria']) || isset($_SESSION['npc_derrota'])){
                     if(isset($_SESSION['npc_final'])){
                         $npc_final = $_SESSION['npc_final'];
                     } else {
@@ -323,7 +328,6 @@
     } else {
         $core->msg('error', 'Você está em uma batalha PVP no momento.');
         header('Location: '.BASE.'portal');
-        exit;
     }
 ?>
 

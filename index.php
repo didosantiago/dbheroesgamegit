@@ -167,12 +167,23 @@
                 <?php 
                     // Show NPC battle notification if active
                     if(isset($_SESSION['npc']) && isset($_SESSION['npc_id'])){
+                        // Get the opponent ID from the database instead of using the battle ID
+                        $sql_npc_battle = "SELECT idDesafiado FROM npc WHERE id = ".$_SESSION['npc_id']." AND concluido = 0";
+                        $stmt_npc_battle = DB::prepare($sql_npc_battle);
+                        $stmt_npc_battle->execute();
+                        
+                        if($stmt_npc_battle->rowCount() > 0){
+                            $npc_battle_data = $stmt_npc_battle->fetch();
+                            $opponent_id = $npc_battle_data->idDesafiado;
                 ?>
                         <div class="npc-paused">
                             <span>Você está em uma batalha do Torneio de Artes Marciais NPC, volte para o combate para finalizar.</span>
-                            <a href="<?php echo BASE; ?>npc/<?php echo $_SESSION['npc_id']; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
+                            <a href="<?php echo BASE; ?>npc/<?php echo $opponent_id; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
                         </div>
-                <?php } ?>
+                <?php 
+                        }
+                    } 
+                ?>
 
                 <?php 
                 // Show mission notification if active - CHECK DATABASE!
