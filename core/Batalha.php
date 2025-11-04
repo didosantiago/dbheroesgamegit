@@ -26,6 +26,16 @@ class Batalha {
         
         $row = '';
         
+        // ✅ FIX: Check if player has any attacks before querying
+        if(empty($lista_ataques)){
+            return '<li class="inativo">
+                        <div class="info">
+                            <h3>Nenhum ataque disponível</h3>
+                            <p>Você precisa aprender ataques primeiro em Golpes.</p>
+                        </div>
+                    </li>';
+        }
+        
         $sql = "SELECT * FROM ataques WHERE graduacao <= $graduacao AND id in(".implode(",", array_map('intval', $lista_ataques)).") ORDER BY ki ASC";
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -69,7 +79,7 @@ class Batalha {
                             <span class="level"><strong>Level Necesário: </strong> '.$value2->level.'</span>
                             <span class="consome"><strong>Consome </strong> '.$value2->ki.' <strong>de KI</strong></span>
                         </div>
-                     </li>';
+                    </li>';
         }
         
         return $row;

@@ -53,7 +53,7 @@ class Equipes {
     
     public function existsEquipe($idPersonagem){
         if($idPersonagem != ''){
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idPersonagem AND status = 1";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem AND status = 1";
             $stmt = DB::prepare($sql);
             $stmt->execute();
 
@@ -84,7 +84,7 @@ class Equipes {
     public function dadosEquipeAtual($idMembro, $idEquipe = ''){
         
         if($idEquipe == ''){
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idMembro AND status = 1";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
             $stmt = DB::prepare($sql);
             $stmt->execute();
             $equipeMembros = $stmt->fetch();
@@ -120,7 +120,7 @@ class Equipes {
     }
     
     public function existsInEquipe($idMembro){
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idMembro AND status = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -140,7 +140,7 @@ class Equipes {
     }
     
     public function existsInEquipeAtual($id, $idMembro){
-        $sql = "SELECT * FROM equipes_membros WHERE idEquipe = $id AND idMembro = $idMembro AND status = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idEquipe = $id AND idPersonagem = $idMembro AND status = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -176,7 +176,7 @@ class Equipes {
              . "FROM equipes as e "
              . "INNER JOIN equipes_bandeiras as b ON b.id = e.idBandeira "
              . "INNER JOIN equipes_membros as m ON m.idEquipe = e.id "
-             . "INNER JOIN usuarios_personagens as u ON u.id = m.idMembro "
+             . "INNER JOIN usuarios_personagens as u ON u.id = m.idPersonagem "
              . "WHERE e.id = $idEquipe";
         
         $stmt = DB::prepare($sql);
@@ -225,7 +225,7 @@ class Equipes {
         $lista_membros = array();
         
         foreach ($membros as $chave => $d_membro) {
-            array_push($lista_membros, $d_membro->idMembro);
+            array_push($lista_membros, $d_membro->idPersonagem);
         }
         
         $sql = "SELECT sum(vitorias_pvp) as total FROM usuarios_personagens WHERE id in (".implode(",", array_map('intval', $lista_membros)).") ";
@@ -245,7 +245,7 @@ class Equipes {
         $lista_membros = array();
         
         foreach ($membros as $chave => $d_membro) {
-            array_push($lista_membros, $d_membro->idMembro);
+            array_push($lista_membros, $d_membro->idPersonagem);
         }
         
         $sql = "SELECT sum(tam) as total FROM usuarios_personagens WHERE id in (".implode(",", array_map('intval', $lista_membros)).") ";
@@ -281,7 +281,7 @@ class Equipes {
         $lista_membros = array();
         
         foreach ($membros as $chave => $d_membro) {
-            array_push($lista_membros, $d_membro->idMembro);
+            array_push($lista_membros, $d_membro->idPersonagem);
         }
         
         $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC ";
@@ -358,7 +358,7 @@ class Equipes {
         
         $sql = "SELECT d.*, up.id as idP, up.nome as nome_guerreiro, up.nivel, up.gold_total, up.foto "
              . "FROM equipes_membros as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "WHERE d.idEquipe = $idEquipe "
              . "AND d.status = 0 "
              . "ORDER BY id DESC "
@@ -424,7 +424,7 @@ class Equipes {
         
         $sql = "SELECT d.*, up.id as idP, up.nome as nome_guerreiro, up.nivel, up.gold_total, up.foto "
              . "FROM equipes_membros as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "WHERE d.idEquipe = $idEquipe "
              . "AND d.status = 1 "
              . "ORDER BY id DESC "
@@ -490,7 +490,7 @@ class Equipes {
         
         $sql = "SELECT d.*, up.id as idP, up.nome as nome_guerreiro, up.nivel, up.foto, e.idCriador "
              . "FROM equipes_membros as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "INNER JOIN equipes as e ON e.id = d.idEquipe "
              . "WHERE d.idEquipe = $idEquipe "
              . "AND d.status = 1 "
@@ -506,7 +506,7 @@ class Equipes {
             $item = $stmt->fetchAll();
 
             foreach ($item as $key => $value) {
-                if($value->idMembro != $value->idCriador){
+                if($value->idPersonagem != $value->idCriador){
                     $row .= '<tr>
                                 <td>
                                     <a href="'.BASE.'publico/'.$value->idP.'">
@@ -519,9 +519,9 @@ class Equipes {
                                     </a>
                                 </td>
                                 <td>'.$value->nivel.'</td>
-                                <td>'.$this->isViceLider($value->idMembro).'</td>
+                                <td>'.$this->isViceLider($value->idPersonagem).'</td>
                                 <td>';
-                                    if($this->isViceLider($value->idMembro) == 'Não'){
+                                    if($this->isViceLider($value->idPersonagem) == 'Não'){
                                         $row .= '<a href="'.BASE.'equipes/add_lider/'.$value->id.'" class="bt-aceitar" title="Adicionar como Vice Líder" style="margin-right: 0;">
                                                     <i class="fas fa-check"></i>
                                                  </a>';
@@ -549,7 +549,7 @@ class Equipes {
     }
     
     public function isViceLider($idMembro){        
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idMembro AND status = 1 AND vice_lider = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1 AND vice_lider = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -574,7 +574,7 @@ class Equipes {
         $lista_membros = array();
         
         foreach ($membros as $chave => $d_membro) {
-            array_push($lista_membros, $d_membro->idMembro);
+            array_push($lista_membros, $d_membro->idPersonagem);
         }
         
         $sql = "SELECT * FROM usuarios_personagens WHERE id in(".implode(",", array_map('intval', $lista_membros)).") ";
@@ -623,7 +623,7 @@ class Equipes {
         
         $sql = "SELECT d.*, up.nome "
              . "FROM equipes_doacoes as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "WHERE d.idEquipe = $idEquipe "
              . "ORDER BY id DESC "
              . "LIMIT " . $inicio . ',' . $qtd_resultados;
@@ -640,7 +640,7 @@ class Equipes {
 
                 $row .= '<tr>
                             <td>
-                                <a href="'.BASE.'publico/'.$value->idMembro.'">
+                                <a href="'.BASE.'publico/'.$value->idPersonagem.'">
                                     '.$value->nome.'
                                 </a>
                             </td>
@@ -666,11 +666,11 @@ class Equipes {
     
     public function isMembro($id, $idEquipe = ''){
         if($idEquipe == ''){
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $id AND status = 1";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND status = 1";
             $stmt = DB::prepare($sql);
             $stmt->execute();
         } else {
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $id AND idEquipe = $idEquipe AND status = 1";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe AND status = 1";
             $stmt = DB::prepare($sql);
             $stmt->execute();
         }
@@ -683,7 +683,7 @@ class Equipes {
     }
     
     public function existsMembro($id, $idEquipe){
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $id AND idEquipe = $idEquipe";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -695,7 +695,7 @@ class Equipes {
     }
     
     public function isLider($id, $idEquipe){
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $id AND idEquipe = $idEquipe AND (lider = 1 OR vice_lider = 1) AND status = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe AND (lider = 1 OR vice_lider = 1) AND status = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $membro = $stmt->fetch();
@@ -754,22 +754,33 @@ class Equipes {
     }
     
     public function getStatusExtra($idPersonagem){
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idPersonagem AND status = 1";
+        // Check if character is team creator/leader
+        $sql = "SELECT e.level FROM equipes as e WHERE e.idCriador = $idPersonagem LIMIT 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
         if($stmt->rowCount() > 0){
-            $membro = $stmt->fetch();
-            
-            $sql = "SELECT * FROM equipes WHERE id = $membro->idEquipe";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
             $equipe = $stmt->fetch();
-            
             return $equipe->level * 3;
-        } else {
-            return 0;
         }
+        
+        // Check if character is team member
+        $sql = "SELECT e.level 
+                FROM equipes_membros as em 
+                INNER JOIN equipes as e ON e.id = em.idEquipe 
+                WHERE em.idPersonagem = $idPersonagem 
+                AND em.status = 1 
+                LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        
+        if($stmt->rowCount() > 0){
+            $equipe = $stmt->fetch();
+            return $equipe->level * 3;
+        }
+        
+        // Not in any team
+        return 0;
     }
     
     public function printEquipe($idMembro){
@@ -781,7 +792,7 @@ class Equipes {
             $equipe_dados = $stmt->fetch();
             $id_equipe = $equipe_dados->id;
         } else {
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idMembro AND status = 1";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
             $stmt = DB::prepare($sql);
             $stmt->execute();
             
@@ -853,7 +864,7 @@ class Equipes {
     }
     
     public function getCountConvites($idMembro){
-        $sql = "SELECT count(*) as total FROM equipes_membros WHERE idMembro = $idMembro AND status = 0";
+        $sql = "SELECT count(*) as total FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 0";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetch();
@@ -866,22 +877,22 @@ class Equipes {
         $core = new Core();
         $personagem = new Personagens();
         
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idMembro AND status = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $membro_em_equipe = $stmt->rowCount();
         
         //Paginando os Resultados
-        $counter = $core->counterRegisters("equipes_membros", "WHERE idMembro = $idMembro AND status = 0");
+        $counter = $core->counterRegisters("equipes_membros", "WHERE idPersonagem = $idMembro AND status = 0");
         $pager = new Paginator();
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
         $sql = "SELECT e.*, d.id as idAceite "
              . "FROM equipes_membros as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "INNER JOIN equipes as e ON e.id = d.idEquipe "
-             . "WHERE d.idMembro = $idMembro "
+             . "WHERE d.idPersonagem = $idMembro "
              . "AND d.status = 0 "
              . "ORDER BY id DESC "
              . "LIMIT " . $inicio . ',' . $qtd_resultados;
@@ -935,13 +946,13 @@ class Equipes {
     }
     
     public function verificaMembrosEquipe($idPersonagem, $idAtacado){
-        $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idPersonagem";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $minha_equipe = $stmt->fetch();
         
         if(!empty($minha_equipe)){
-            $sql = "SELECT * FROM equipes_membros WHERE idMembro = $idAtacado";
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idAtacado";
             $stmt = DB::prepare($sql);
             $stmt->execute();
             $equipe_adversario = $stmt->fetch();
@@ -1060,7 +1071,7 @@ class Equipes {
             $membros = $stmt->fetchAll();
             
             foreach ($membros as $key2 => $value2) {
-                $sql = "SELECT sum(vitorias_pvp) as total FROM usuarios_personagens WHERE id = $value2->idMembro";
+                $sql = "SELECT sum(vitorias_pvp) as total FROM usuarios_personagens WHERE id = $value2->idPersonagem";
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
                 $pvps = $stmt->fetch();
@@ -1105,7 +1116,7 @@ class Equipes {
         $core = new Core();
         
         $sql = "SELECT em.*, 
-                (SELECT SUM(ed.valor) FROM equipes_doacoes AS ed WHERE ed.idMembro = em.idMembro) AS total 
+                (SELECT SUM(ed.valor) FROM equipes_doacoes AS ed WHERE ed.idPersonagem = em.idPersonagem) AS total 
                 FROM equipes_membros as em 
                 WHERE em.status = 1 
                 AND em.idEquipe = $idEquipe 
@@ -1120,9 +1131,9 @@ class Equipes {
         foreach ($itens as $key => $value) {
             $sql = 'SELECT ed.*, sum(valor) as total, up.nome, up.foto 
                     FROM equipes_doacoes as ed 
-                    INNER JOIN usuarios_personagens as up ON up.id = ed.idMembro 
+                    INNER JOIN usuarios_personagens as up ON up.id = ed.idPersonagem 
                     WHERE ed.idEquipe = '.$idEquipe.'  
-                    AND ed.idMembro = '.$value->idMembro;
+                    AND ed.idPersonagem = '.$value->idPersonagem;
             
             $stmt = DB::prepare($sql);
             $stmt->execute();
@@ -1150,10 +1161,10 @@ class Equipes {
     public function getDoacoesSemanal($idEquipe){
         $core = new Core();
         
-        $sql = "SELECT DISTINCT d.id, d.idMembro, d.idEquipe, d.data, up.nome, up.foto, "
-             . "(SELECT SUM(ed.valor) FROM equipes_doacoes AS ed WHERE ed.idMembro = d.idMembro AND YEARWEEK(ed.data, 1) = YEARWEEK(CURDATE(), 1)) AS total "
+        $sql = "SELECT DISTINCT d.id, d.idPersonagem, d.idEquipe, d.data, up.nome, up.foto, "
+             . "(SELECT SUM(ed.valor) FROM equipes_doacoes AS ed WHERE ed.idPersonagem = d.idPersonagem AND YEARWEEK(ed.data, 1) = YEARWEEK(CURDATE(), 1)) AS total "
              . "FROM equipes_doacoes as d "
-             . "INNER JOIN usuarios_personagens as up ON up.id = d.idMembro "
+             . "INNER JOIN usuarios_personagens as up ON up.id = d.idPersonagem "
              . "WHERE d.idEquipe = $idEquipe "
              . "AND YEARWEEK(d.data, 1) = YEARWEEK(CURDATE(), 1) "
              . "GROUP BY total "
@@ -1184,7 +1195,7 @@ class Equipes {
                                 <img src="'.BASE.'assets/cards/'.$value->foto.'" alt="'.$value->nome.'" />
                             </td>
                             <td>
-                                <a href="'.BASE.'publico/'.$value->idMembro.'">
+                                <a href="'.BASE.'publico/'.$value->idPersonagem.'">
                                     '.$value->nome.'
                                 </a>
                             </td>
