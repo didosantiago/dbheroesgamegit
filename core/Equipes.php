@@ -754,33 +754,32 @@ class Equipes {
     }
     
     public function getStatusExtra($idPersonagem){
-        // Check if character is team creator/leader
-        $sql = "SELECT e.level FROM equipes as e WHERE e.idCriador = $idPersonagem LIMIT 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem AND aceitou = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
         if($stmt->rowCount() > 0){
-            $equipe = $stmt->fetch();
-            return $equipe->level * 3;
+            $membro = $stmt->fetch();
+            
+            $sql = "SELECT * FROM equipes WHERE id = $membro->idEquipe";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            
+            if($stmt->rowCount() > 0){
+                $equipe = $stmt->fetch();
+                
+                // Check if level column exists, otherwise return 0
+                if(isset($equipe->level)){
+                    return $equipe->level * 3;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
         }
-        
-        // Check if character is team member
-        $sql = "SELECT e.level 
-                FROM equipes_membros as em 
-                INNER JOIN equipes as e ON e.id = em.idEquipe 
-                WHERE em.idPersonagem = $idPersonagem 
-                AND em.status = 1 
-                LIMIT 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        if($stmt->rowCount() > 0){
-            $equipe = $stmt->fetch();
-            return $equipe->level * 3;
-        }
-        
-        // Not in any team
-        return 0;
     }
     
     public function printEquipe($idMembro){

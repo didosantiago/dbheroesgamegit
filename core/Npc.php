@@ -591,7 +591,13 @@ class Npc {
             if($item->time_final > time()){
                 $restante = $item->time_final - time();
                 echo $restante;
+            } else {
+                // Time expired, return 0
+                echo 0;
             }
+        } else {
+            // No battle found, return 0
+            echo 0;
         }
     }
     
