@@ -90,6 +90,6 @@
     //header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://pagead2.googlesyndication.com; img-src 'self' data: https://*; connect-src 'self' https://apis.google.com; frame-src https://www.youtube.com;");
     header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
 
-
+        // Content Security Policy - Complete version with Font Awesome support
 
 ?>

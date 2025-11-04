@@ -1964,6 +1964,7 @@ public function getCacadaRunning($idPersonagem, $idCacada){
                     // Update character level and reset EXP
                     $campos = array(
                         'nivel' => $novo_nivel,
+                        'exp' => $char->exp - $next_level->exp,  // ADD THIS LINE - carry over remaining exp
                         'hp' => intval($char->hp) + 50,
                         'mana' => intval($char->mana) + 50,
                         'forca' => intval($char->forca) + 1,

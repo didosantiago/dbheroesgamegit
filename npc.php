@@ -208,8 +208,8 @@
                 $core->update('npc', $campos_npc, $where_npc);
                 
                 $personagem->getGuerreiro($idPersonagem);
-                
-                $treino->viewNewLevel($personagem->id, $personagem->nivel, $personagem->exp);
+
+                $personagem->checkLevelUp($idPersonagem);
             } else {
                 $oponente = $parametro_1;
 

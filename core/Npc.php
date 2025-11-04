@@ -604,16 +604,20 @@ class Npc {
     public function contadorBatalhaNPC($idPersonagem){
         $core = new Core();
         
-        $sql = "SELECT * FROM usuarios_personagens WHERE idPersonagem = $idPersonagem";
+        $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND concluido = 0";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetch();
         
         if($stmt->rowCount() > 0){
-            if($item->time_ataque > time()){
-                $restante = $item->time_ataque - time();
+            if($item->time_final > time()){
+                $restante = $item->time_final - time();
                 echo $restante;
+            } else {
+                echo 0;
             }
+        } else {
+            echo 0;
         }
     }
     
