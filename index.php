@@ -48,8 +48,6 @@
     <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
     <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
-    
-
 </head>
 <body class="<?php echo $modulo; ?>">
         <div class="top-bar">
@@ -130,28 +128,84 @@
                 <?php } ?>
 
                 <?php 
-                    // Show hunt notification if active - CHECK DATABASE!
+                    // ============ UNIFIED ACTIVITY NOTIFICATION SYSTEM ============
+                    // Check for active activities in priority order: Mission > Hunt
+                    $atividade = null;
+                    $tempoRestante = 0;
+                    $idAtividade = 0;
+                    $rotuloCancelar = '';
+                    $texto = '';
+                    $ativaMethod = '';
+
                     if(isset($_SESSION['PERSONAGEMID'])){
-                        $sql_cacada = "SELECT * FROM cacadas 
-                                    WHERE idPersonagem = ".$_SESSION['PERSONAGEMID']." 
-                                    AND concluida = 0 
-                                    AND cancelada = 0";
-                        $stmt_cacada = DB::prepare($sql_cacada);
-                        $stmt_cacada->execute();
+                        // Priority 1: Check for active mission (using correct table)
+                        $missao = $core->getDados('missoes', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND status = "ativa" AND tempo_final > '.time());
                         
-                        if($stmt_cacada->rowCount() > 0 && method_exists($personagem, 'getCacadaRunning')){
-                            $cacada_ativa = $stmt_cacada->fetch();
+                        if($missao){
+                            $atividade = 'missao';
+                            $tempoRestante = max(0, intval($missao->tempo_final) - time());
+                            $idAtividade = $missao->id;
+                            $rotuloCancelar = 'CANCELAR A MISSÃO';
+                            $texto = 'Você está em uma missão, aguarde o tempo terminar para iniciar outras missões, arena e caçadas.';
+                            $ativaMethod = 'getMissaoRunning';
                             
-                            // Set session variables for this character's hunt
-                            $_SESSION['cacada'] = true;
-                            $_SESSION['cacada_id'] = $cacada_ativa->id;
+                            // Set session for consistency
+                            $_SESSION['missao'] = true;
+                            $_SESSION['missao_id'] = $missao->id;
                             
-                            // This will auto-process rewards if hunt finished
-                            echo $personagem->getCacadaRunning($_SESSION['PERSONAGEMID'], $cacada_ativa->id);
-                        } else {
-                            // No active hunt - clear sessions
+                            // Clear hunt session to prevent conflicts
                             unset($_SESSION['cacada']);
                             unset($_SESSION['cacada_id']);
+                            
+                        } else {
+                            // Priority 2: Check for active hunt only if no mission
+                            $cacada = $core->getDados('cacadas', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND concluida = 0 AND cancelada = 0 AND tempo_final > '.time());
+                            
+                            if($cacada){
+                                $atividade = 'cacada';
+                                $tempoRestante = max(0, intval($cacada->tempo_final) - time());
+                                $idAtividade = $cacada->id;
+                                $rotuloCancelar = 'CANCELAR';
+                                $texto = 'Você está em uma caçada, aguarde o tempo terminar para iniciar missões, arena e caçadas.';
+                                $ativaMethod = 'getCacadaRunning';
+                                
+                                // Set session for consistency
+                                $_SESSION['cacada'] = true;
+                                $_SESSION['cacada_id'] = $cacada->id;
+                                
+                                // Clear mission session to prevent conflicts
+                                unset($_SESSION['missao']);
+                                unset($_SESSION['missao_id']);
+                                
+                            } else {
+                                // No active activities - clear all sessions
+                                unset($_SESSION['missao']);
+                                unset($_SESSION['missao_id']);
+                                unset($_SESSION['cacada']);
+                                unset($_SESSION['cacada_id']);
+                            }
+                        }
+                    }
+
+                    // Display unified notification if any activity is active
+                    if($atividade && $tempoRestante > 0){
+                        // Call the appropriate method to handle rewards/completion
+                        if($ativaMethod == 'getMissaoRunning' && method_exists($personagem, 'getMissaoRunning')){
+                            echo $personagem->getMissaoRunning($_SESSION['PERSONAGEMID'], $idAtividade);
+                        } elseif($ativaMethod == 'getCacadaRunning' && method_exists($personagem, 'getCacadaRunning')){
+                            echo $personagem->getCacadaRunning($_SESSION['PERSONAGEMID'], $idAtividade);
+                        } else {
+                            // Fallback: show manual notification with same layout as cacadas
+                ?>
+                            <div class="<?php echo $atividade; ?>-running" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 1px solid #2196f3; color: #1565c0; padding: 12px 16px; border-radius: 6px; margin: 10px 0; display: flex; align-items: center; justify-content: space-between;">
+                                <span style="flex: 1;"><?php echo $texto; ?></span>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="contador" style="background: #2196f3; color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; min-width: 90px; text-align: center;">00:00:00</div>
+                                    <input type="hidden" id="id<?php echo ucfirst($atividade); ?>" value="<?php echo $idAtividade; ?>" />
+                                    <button id="cancelar<?php echo ucfirst($atividade); ?>" style="background: #f44336; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;"><?php echo $rotuloCancelar; ?></button>
+                                </div>
+                            </div>
+                <?php
                         }
                     }
                 ?>
@@ -175,33 +229,6 @@
                             <a href="<?php echo BASE; ?>npc/<?php echo $_SESSION['npc_id']; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
                         </div>
                 <?php } ?>
-
-                <?php 
-                // Show mission notification if active - CHECK DATABASE!
-                if(isset($_SESSION['PERSONAGEMID'])){
-                    $sql_missao = "SELECT * FROM personagens_missoes 
-                                WHERE idPersonagem = ".$_SESSION['PERSONAGEMID']." 
-                                AND concluida = 0 
-                                AND cancelada = 0 
-                                AND tempo_final > ".time();
-                    $stmt_missao = DB::prepare($sql_missao);
-                    $stmt_missao->execute();
-                    
-                    if($stmt_missao->rowCount() > 0 && method_exists($personagem, 'getMissaoRunning')){
-                        $missao_ativa = $stmt_missao->fetch();
-                        
-                        // Set session variables for this character's mission
-                        $_SESSION['missao'] = true;
-                        $_SESSION['missao_id'] = $missao_ativa->id;
-                        
-                        echo $personagem->getMissaoRunning($_SESSION['PERSONAGEMID'], $missao_ativa->id);
-                    } else {
-                        // Clear mission session if no active mission
-                        unset($_SESSION['missao']);
-                        unset($_SESSION['missao_id']);
-                    }
-                }
-            ?>
 
                 <?php 
                     // Show PVP penalty notification if active
@@ -240,7 +267,7 @@
         </div>
     </div>
 
-    <?php if(!$isPublicPage){ ?>
+<?php if(!$isPublicPage){ ?>
         <?php
             // Show rewards popup if there are new gains
             if(isset($_SESSION['PERSONAGEMID']) && method_exists($personagem, 'getNewValores')){
@@ -251,58 +278,120 @@
                     $stmt = DB::prepare($sql);
                     $stmt->execute();
                     $rewards = $stmt->fetchAll();
+                    
+                    // Check if this is a mission reward (purple theme) or hunt reward (blue theme)
+                    $isMission = false;
+                    foreach($rewards as $reward) {
+                        if(isset($reward->tipo) && $reward->tipo === 'missao') {
+                            $isMission = true;
+                            break;
+                        }
+                    }
         ?>
                     <div class="backdrop-game" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99998;"></div>
-                    <div class="ganhos-game" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #01579b 100%); padding: 40px 50px; border-radius: 20px; z-index: 99999; min-width: 500px; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,193,7,0.3); color: white; text-align: center; border: 3px solid #ffc107;">
-                        
-                        <div style="margin-bottom: 30px;">
-                            <h3 style="margin: 0; color: #ffc107; font-size: 32px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px rgba(255,193,7,0.4);">
-                                🎉 PARABÉNS! 🎉
-                            </h3>
+                    
+                    <?php if($isMission) { ?>
+                        <!-- MISSION POPUP - Purple Theme -->
+                        <div class="ganhos-game" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #6a1b9a 0%, #4a148c 50%, #3f006c 100%); padding: 40px 50px; border-radius: 20px; z-index: 99999; min-width: 500px; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 3px rgba(156,39,176,0.4); color: white; text-align: center; border: 3px solid #9c27b0;">
+                            
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="margin: 0; color: #e1bee7; font-size: 32px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px rgba(156,39,176,0.4);">
+                                    ⭐ MISSÃO CONCLUÍDA! ⭐
+                                </h3>
+                            </div>
+                            
+                            <div class="infos" style="background: rgba(0,0,0,0.3); padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(156,39,176,0.3);">
+                                <?php foreach($rewards as $reward){ ?>
+                                    <?php if($reward->gold > 0){ ?>
+                                        <div style="margin: 20px 0;">
+                                            <div style="background: linear-gradient(90deg, rgba(156,39,176,0.2) 0%, rgba(156,39,176,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #9c27b0; display: inline-block; min-width: 80%;">
+                                                <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                    <span style="font-size: 28px;">💰</span>
+                                                    <span>Você ganhou</span>
+                                                    <strong style="color: #e1bee7; font-size: 28px; text-shadow: 0 0 10px rgba(225,190,231,0.5);">+<?php echo number_format($reward->gold, 0, ',', '.'); ?></strong>
+                                                    <span>de Gold!</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                    <?php if($reward->exp > 0){ ?>
+                                        <div style="margin: 20px 0;">
+                                            <div style="background: linear-gradient(90deg, rgba(186,104,200,0.2) 0%, rgba(186,104,200,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #ba68c8; display: inline-block; min-width: 80%;">
+                                                <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                    <span style="font-size: 28px;">⭐</span>
+                                                    <span>Você ganhou</span>
+                                                    <strong style="color: #ce93d8; font-size: 28px; text-shadow: 0 0 10px rgba(206,147,216,0.5);">+<?php echo number_format($reward->exp, 0, ',', '.'); ?></strong>
+                                                    <span>de Experiência!</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                <?php } ?>
+                            </div>
+                            
+                            <form id="confirmarGanho" method="post" action="" style="text-align: center;">
+                                <input type="hidden" name="confirmar_ganho" value="1" />
+                                <button type="submit" class="bts-form" style="background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%); color: white; padding: 18px 60px; border: none; border-radius: 50px; cursor: pointer; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(156,39,176,0.4), inset 0 1px 0 rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 10px; margin: 0 auto;" onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(156,39,176,0.6), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 8px 20px rgba(156,39,176,0.4), inset 0 1px 0 rgba(255,255,255,0.3)';">
+                                    <span style="font-size: 24px;">✓</span>
+                                    CONFIRMAR
+                                </button>
+                            </form>
                         </div>
                         
-                        <div class="infos" style="background: rgba(0,0,0,0.3); padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255,193,7,0.2);">
-                            <?php foreach($rewards as $reward){ ?>
-                                <?php if($reward->gold > 0){ ?>
-                                    <div style="margin: 20px 0;">
-                                        <div style="background: linear-gradient(90deg, rgba(255,193,7,0.2) 0%, rgba(255,193,7,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #ffc107; display: inline-block; min-width: 80%;">
-                                            <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                                <span style="font-size: 28px;">💰</span>
-                                                <span>Você ganhou</span>
-                                                <strong style="color: #ffc107; font-size: 28px; text-shadow: 0 0 10px rgba(255,193,7,0.5);">+<?php echo number_format($reward->gold, 0, ',', '.'); ?></strong>
-                                                <span>de Gold!</span>
-                                            </span>
+                    <?php } else { ?>
+                        <!-- HUNT POPUP - Blue Theme (Original) -->
+                        <div class="ganhos-game" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #01579b 100%); padding: 40px 50px; border-radius: 20px; z-index: 99999; min-width: 500px; max-width: 600px; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,193,7,0.3); color: white; text-align: center; border: 3px solid #ffc107;">
+                            
+                            <div style="margin-bottom: 30px;">
+                                <h3 style="margin: 0; color: #ffc107; font-size: 32px; font-weight: bold; text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px rgba(255,193,7,0.4);">
+                                    🎉 PARABÉNS! 🎉
+                                </h3>
+                            </div>
+                            
+                            <div class="infos" style="background: rgba(0,0,0,0.3); padding: 30px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255,193,7,0.2);">
+                                <?php foreach($rewards as $reward){ ?>
+                                    <?php if($reward->gold > 0){ ?>
+                                        <div style="margin: 20px 0;">
+                                            <div style="background: linear-gradient(90deg, rgba(255,193,7,0.2) 0%, rgba(255,193,7,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #ffc107; display: inline-block; min-width: 80%;">
+                                                <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                    <span style="font-size: 28px;">💰</span>
+                                                    <span>Você ganhou</span>
+                                                    <strong style="color: #ffc107; font-size: 28px; text-shadow: 0 0 10px rgba(255,193,7,0.5);">+<?php echo number_format($reward->gold, 0, ',', '.'); ?></strong>
+                                                    <span>de Gold!</span>
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
-                                <?php } ?>
-                                <?php if($reward->exp > 0){ ?>
-                                    <div style="margin: 20px 0;">
-                                        <div style="background: linear-gradient(90deg, rgba(76,175,80,0.2) 0%, rgba(76,175,80,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #4caf50; display: inline-block; min-width: 80%;">
-                                            <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                                                <span style="font-size: 28px;">⭐</span>
-                                                <span>Você ganhou</span>
-                                                <strong style="color: #4caf50; font-size: 28px; text-shadow: 0 0 10px rgba(76,175,80,0.5);">+<?php echo number_format($reward->exp, 0, ',', '.'); ?></strong>
-                                                <span>de Experiência!</span>
-                                            </span>
+                                    <?php } ?>
+                                    <?php if($reward->exp > 0){ ?>
+                                        <div style="margin: 20px 0;">
+                                            <div style="background: linear-gradient(90deg, rgba(76,175,80,0.2) 0%, rgba(76,175,80,0.05) 100%); padding: 18px 25px; border-radius: 12px; border-left: 5px solid #4caf50; display: inline-block; min-width: 80%;">
+                                                <span style="font-size: 20px; color: #fff; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                                                    <span style="font-size: 28px;">⭐</span>
+                                                    <span>Você ganhou</span>
+                                                    <strong style="color: #4caf50; font-size: 28px; text-shadow: 0 0 10px rgba(76,175,80,0.5);">+<?php echo number_format($reward->exp, 0, ',', '.'); ?></strong>
+                                                    <span>de Experiência!</span>
+                                                </span>
+                                            </div>
                                         </div>
-                                    </div>
+                                    <?php } ?>
                                 <?php } ?>
-                            <?php } ?>
+                            </div>
+                            
+                            <form id="confirmarGanho" method="post" action="" style="text-align: center;">
+                                <input type="hidden" name="confirmar_ganho" value="1" />
+                                <button type="submit" class="bts-form" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #1a237e; padding: 18px 60px; border: none; border-radius: 50px; cursor: pointer; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(255,193,7,0.4), inset 0 1px 0 rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 10px; margin: 0 auto;" onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(255,193,7,0.6), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 8px 20px rgba(255,193,7,0.4), inset 0 1px 0 rgba(255,255,255,0.3)';">
+                                    <span style="font-size: 24px;">✓</span>
+                                    CONFIRMAR
+                                </button>
+                            </form>
                         </div>
-                        
-                        <form id="confirmarGanho" method="post" action="" style="text-align: center;">
-                            <input type="hidden" name="confirmar_ganho" value="1" />
-                            <button type="submit" class="bts-form" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #1a237e; padding: 18px 60px; border: none; border-radius: 50px; cursor: pointer; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(255,193,7,0.4), inset 0 1px 0 rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 10px; margin: 0 auto;" onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(255,193,7,0.6), inset 0 1px 0 rgba(255,255,255,0.3)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 8px 20px rgba(255,193,7,0.4), inset 0 1px 0 rgba(255,255,255,0.3)';">
-                                <span style="font-size: 24px;">✓</span>
-                                CONFIRMAR
-                            </button>
-                        </form>
-                    </div>
+                    <?php } ?>
         <?php
                 }
             }
         ?>
     <?php } ?>
+
             
     <input type="hidden" id="baseSite" value="<?php echo BASE; ?>" />
     <input type="hidden" id="personagemLogged" value="<?php echo isset($_SESSION['PERSONAGEMID']) ? $_SESSION['PERSONAGEMID'] : ''; ?>" />
@@ -326,14 +415,15 @@
     var id = $('#personagemLogged').val();
     var data_string = 'id=' + id;
     var huntTimerRunning = false;
+    var missionTimerRunning = false;
 
-    // Hunt countdown timer
+    // Hunt countdown timer (EXISTING CODE)
     if($('.cacada-running').length > 0 && $('.cacada-running .contador').length > 0){
         console.log("🎮 Hunt notification detected for character: " + id);
         
         function checkHuntStatus(){
             if(huntTimerRunning){
-                console.warn("⚠️ Timer already running, skipping...");
+                console.warn("⚠️ Hunt timer already running, skipping...");
                 return;
             }
             
@@ -364,12 +454,15 @@
                         setTimeout(checkHuntStatus, 1000);
                         
                     } else if(seconds == 0){
-                        console.log("🎉 Hunt completed! Reloading page...");
+                        console.log("🎉 Hunt completed! Hiding notification...");
                         $(".cacada-running .contador").html('00:00:00');
                         
+                        // Hide the hunt notification instead of reloading
                         setTimeout(function(){
-                            location.reload(true);
+                            $(".cacada-running").fadeOut(500);
                         }, 1000);
+                        
+                        huntTimerRunning = false;
                     } else {
                         console.error("❌ Invalid response from AJAX: " + res);
                         huntTimerRunning = false;
@@ -377,7 +470,7 @@
                     }
                 },
                 error: function(xhr, status, error) {
-                    console.error("🚨 AJAX Error: " + error);
+                    console.error("🚨 Hunt AJAX Error: " + error);
                     huntTimerRunning = false;
                     setTimeout(checkHuntStatus, 2000);
                 }
@@ -387,57 +480,82 @@
         checkHuntStatus();
     }
 
-    // Mission countdown timer
-    if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0){
+// Mission countdown timer (FIXED VERSION)
+if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0){
+    console.log("🎯 Mission notification detected for character: " + id);
+    
+    function checkMissionStatus(){
+        if(missionTimerRunning){
+            console.warn("⚠️ Mission timer already running, skipping...");
+            return;
+        }
+        
+        missionTimerRunning = true;
+        
         $.ajax({
             type: "POST",
             url: "<?php echo BASE; ?>ajax/ajaxMissao.php",
             data: data_string,
             success: function (res) {
-                if(res && parseInt(res) > 0){
-                    startCountdownMissao(parseInt(res));
+                console.log("📥 Mission status: " + res);
+                
+                var seconds = parseInt(res);
+                
+                if(seconds > 0){
+                    var horas = Math.floor(seconds / 3600);
+                    var minutos = Math.floor((seconds % 3600) / 60);
+                    var segs = seconds % 60;
+                    
+                    if(horas < 10) horas = "0" + horas;
+                    if(minutos < 10) minutos = "0" + minutos;
+                    if(segs < 10) segs = "0" + segs;
+                    
+                    var horaImprimivel = horas + ':' + minutos + ':' + segs;
+                    $(".missao-running .contador").html(horaImprimivel);
+                    
+                    missionTimerRunning = false;
+                    setTimeout(checkMissionStatus, 1000);
+                    
+                } else if(seconds == 0){
+                    console.log("🎉 Mission completed! Processing rewards...");
+                    $(".missao-running .contador").html('CONCLUÍDO');
+                    
+                    // Mission is complete - ajaxMissao.php already handled rewards
+                    // Just fade out and reload to show the purple static popup
+                    setTimeout(function(){
+                        $(".missao-running").fadeOut(500, function(){
+                            // Reload immediately to show purple reward popup
+
+                        });
+                    }, 1000);
+                    
+                    missionTimerRunning = false;
+                    
+                } else {
+                    console.error("❌ Invalid mission response: " + res);
+                    missionTimerRunning = false;
+                    // Don't reload immediately, just try again
+                    setTimeout(checkMissionStatus, 5000);
                 }
+            },
+            error: function(xhr, status, error) {
+                console.error("🚨 Mission AJAX Error: " + error);
+                missionTimerRunning = false;
+                setTimeout(checkMissionStatus, 2000);
             }
         });
     }
-        
-    function startCountdownMissao(tempo){
-        if(tempo > 0){
-            var min = parseInt(tempo/60);
-            var horas = parseInt(min/60);
-            min = min % 60;
-            var seg = tempo%60;
+    
+    checkMissionStatus();
+}
 
-            if(min < 10){
-                min = "0"+min;
-                min = min.substr(0, 2);
-            }
-            if(seg <=9){
-                seg = "0"+seg;
-            }
-            if(horas <=9){
-                horas = "0"+horas;
-            }
-
-            var horaImprimivel = horas + ':' + min + ':' + seg;
-            $(".missao-running .contador").html(horaImprimivel);
-
-            setTimeout(function(){ 
-                startCountdownMissao(tempo - 1);
-            }, 1000);
-        } else {
-            $(".missao-running .contador").html('00:00:00');
-            setTimeout(function(){
-                location.reload(true);
-            }, 1000);
-        }
-    }
-        
+    
+    // Hunt cancel button (EXISTING)
     $(document).on('click', '#cancelarCacada', function(e){
         e.preventDefault();
         
         var idCacada = $('#idCacada').val();
-        console.log("🔴 Cancel button clicked! Hunt ID: " + idCacada);
+        console.log("🔴 Cancel hunt button clicked! Hunt ID: " + idCacada);
         
         if(!idCacada || idCacada == '' || idCacada == '0'){
             console.error("❌ No hunt ID found!");
@@ -456,7 +574,7 @@
             cancelButtonText: 'Não'
         }).then((result) => {
             if (result.value) {
-                console.log("✅ User confirmed cancellation");
+                console.log("✅ User confirmed hunt cancellation");
                 
                 huntTimerRunning = true;
                 $('.cacada-running .contador').html('CANCELANDO...');
@@ -468,33 +586,21 @@
                     url: "<?php echo BASE; ?>ajax/ajaxCancelarCacada.php",
                     data: cancel_data,
                     success: function (res) {
-                        console.log("📥 Response: [" + res + "]");
+                        console.log("📥 Hunt cancel response: [" + res + "]");
                         
                         if(res.trim() == "success"){
-                            swal(
-                                'Cancelado!',
-                                'Caçada cancelada com sucesso.',
-                                'success'
-                            );
+                            swal('Cancelado!', 'Caçada cancelada com sucesso.', 'success');
                             setTimeout(function(){
                                 window.location.href = "<?php echo BASE; ?>cacadas";
                             }, 1500);
                         } else {
-                            swal(
-                                'Erro!',
-                                'Erro ao cancelar: ' + res,
-                                'error'
-                            );
+                            swal('Erro!', 'Erro ao cancelar: ' + res, 'error');
                             huntTimerRunning = false;
                         }
                     },
                     error: function(xhr, status, error) {
-                        console.error("❌ AJAX Error: " + error);
-                        swal(
-                            'Erro!',
-                            'Erro ao conectar: ' + error,
-                            'error'
-                        );
+                        console.error("❌ Hunt cancel AJAX Error: " + error);
+                        swal('Erro!', 'Erro ao conectar: ' + error, 'error');
                         huntTimerRunning = false;
                     }
                 });
@@ -504,7 +610,19 @@
         return false;
     });
     
-    $('#cancelarMissao').on('click', function(){
+    // Mission cancel button (NEW - SAME PATTERN AS HUNT)
+    $(document).on('click', '#cancelarMissao', function(e){
+        e.preventDefault();
+        
+        var idMissao = $('#idMissao').val();
+        console.log("🔴 Cancel mission button clicked! Mission ID: " + idMissao);
+        
+        if(!idMissao || idMissao == '' || idMissao == '0'){
+            console.error("❌ No mission ID found!");
+            swal('Erro!', 'ID da missão não encontrado.', 'error');
+            return false;
+        }
+        
         swal({
             title: 'Confirmar Cancelamento?',
             text: "Cancelando você não irá receber os prêmios!",
@@ -512,34 +630,22 @@
             showCancelButton: true,
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, cancelar'
+            confirmButtonText: 'Sim, cancelar',
+            cancelButtonText: 'Não'
         }).then((result) => {
             if (result.value) {
-                var id = $('#idMissao').val();
-                var data_string = 'id=' + id;
-
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo BASE; ?>ajax/ajaxCancelarMissao.php",
-                    data: data_string,
-                    success: function (res) {
-                        swal(
-                            'Cancelado!',
-                            'Missão cancelada com sucesso.',
-                            'success'
-                        );
-                        location.reload(true);
-                    }
-                });
+                console.log("✅ User confirmed mission cancellation");
+                
+                missionTimerRunning = true;
+                $('.missao-running .contador').html('CANCELANDO...');
+                
+                window.location.href = "<?php echo BASE; ?>cancel-activity.php";
             }
         });
+        
+        return false;
     });
 
-    // NOTE: We DON'T need JavaScript for confirmarGanho
-    // The form POST from Personagens.php->getListaNewValores() handles it
-</script>
-
-<script>
 // Initialize JOGAR button immediately on page load
 $(document).ready(function(){
     // Attach jogar button handler
@@ -577,82 +683,6 @@ $(document).ready(function(){
     console.log('✅ JOGAR button handler initialized');
 });
 
-
 </script>
-<?php 
-// Get active mission data
-$missaoAtiva = null;
-if(isset($_SESSION['PERSONAGEMID']) && isset($_SESSION['missao'])) {
-    $missaoAtiva = $missoes->getMissaoAtiva($_SESSION['PERSONAGEMID']);
-}
-?>
-
-<?php if($missaoAtiva && intval($missaoAtiva->tempo_final) > 0): ?>
-<div class="missao-ativa">
-    <p>Você está em uma caçada, aguarde o tempo terminar para iniciar missões, arena e caçadas.</p>
-    
-    <div class="mission-timer-container">
-        <div id="missionTimer" class="timer-display">00:00:00</div>
-        <span class="timer-label">Tempo Restante</span>
-    </div>
-    
-    <button class="btn-cancel" onclick="cancelarMissao()">CANCELAR MISSÃO</button>
-</div>
-
-<script type="text/javascript">
-    // Mission auto-complete system (SAME AS CACADAS)
-    (function() {
-        var missionId = <?php echo intval($missaoAtiva->id); ?>;
-        var missionEnd = <?php echo intval($missaoAtiva->tempo_final); ?>; // Unix timestamp
-        var timerInterval;
-        
-        function formatTime(seconds) {
-            var h = Math.floor(seconds / 3600);
-            var m = Math.floor((seconds % 3600) / 60);
-            var s = seconds % 60;
-            
-            return (h < 10 ? '0' : '') + h + ':' +
-                   (m < 10 ? '0' : '') + m + ':' +
-                   (s < 10 ? '0' : '') + s;
-        }
-        
-        function updateMissionTimer() {
-            var now = Math.floor(Date.now() / 1000);
-            var remaining = missionEnd - now;
-            
-            if(remaining <= 0) {
-                document.getElementById('missionTimer').innerText = '00:00:00';
-                clearInterval(timerInterval);
-                
-                $.ajax({
-                    url: '<?php echo BASE; ?>missoes',
-                    type: 'POST',
-                    data: {
-                        completarMissao: 1,
-                        idMissao: missionId
-                    },
-                    success: function() {
-                        setTimeout(function() {
-                            location.reload();
-                        }, 1000);
-                    },
-                    error: function() {
-                        location.reload();
-                    }
-                });
-                return;
-            }
-            
-            document.getElementById('missionTimer').innerText = formatTime(remaining);
-        }
-        
-        updateMissionTimer();
-        timerInterval = setInterval(updateMissionTimer, 1000);
-        
-        window.addEventListener('beforeunload', function() {
-            if(timerInterval) clearInterval(timerInterval);
-        });
-    })();
-</script>
-
-<?php endif; ?>
+</body>
+</html>

@@ -6,42 +6,6 @@
         exit;
     }
 
-    // ============ MISSION/HUNTING TIMER ============
-    $tempoMissao = 0;
-    $tempoTotal = 0; // Total time for display
-    $idMissao = 0;
-    $missaoAtiva = null;
-    $tipoBusca = 'missao'; // 'missao' or 'cacada'
-    
-    // Check for active mission
-    if(isset($_SESSION['missao'])) {
-        $dadosMissao = $core->getDados('personagens_missoes', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND concluida = 0 AND cancelada = 0');
-        if($dadosMissao) {
-            $idMissao = $dadosMissao->id;
-            $missaoAtiva = $dadosMissao;
-            $tipoBusca = 'missao';
-            
-            if($dadosMissao->tempo_final && $dadosMissao->tempo_final > time()) {
-                $tempoMissao = $dadosMissao->tempo_final - time();
-                $tempoTotal = $tempoMissao;
-            }
-        }
-    }
-    
-    // If no mission, check for active hunting
-    if(!$missaoAtiva && isset($_SESSION['cacada'])) {
-        $dadosCacada = $core->getDados('personagens_cacadas', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND ativa = 1');
-        if($dadosCacada) {
-            $missaoAtiva = $dadosCacada;
-            $tipoBusca = 'cacada';
-            
-            if($dadosCacada->tempo_final && $dadosCacada->tempo_final > time()) {
-                $tempoMissao = $dadosCacada->tempo_final - time();
-                $tempoTotal = $tempoMissao;
-            }
-        }
-    }
-
     // Get Double EXP data
     $tempoRestanteDouble = 0;
     $dadosDouble = null;
@@ -137,16 +101,7 @@
     </a>
 </div>
 
-<ul class="ultimos-acontecimentos">
-    <!-- Mission/Hunting Timer (if active) -->
-    <?php if($missaoAtiva && $tempoMissao > 0): ?>
-    <li class="double-exp">
-        <h4><?php echo strtoupper($tipoBusca); ?> ATIVA</h4>
-        <div class="contador-double-exp cont timer-missao" id="timer-missao" data-tempo="<?php echo $tempoTotal; ?>">00:00:00</div>
-        <span>Tempo Restante</span>
-    </li>
-    <?php endif; ?>
-    
+<ul class="ultimos-acontecimentos">    
     <!-- Double EXP Timer -->
     <li class="double-exp">
         <img src="<?php echo BASE; ?>assets/bg-double-exp.jpg" />
@@ -275,41 +230,7 @@
     </div>
 </div>
 
-<!-- ============ JAVASCRIPT TIMERS ============ -->
 <script type="text/javascript">
-    // ============ MISSION/HUNTING TIMER (WORKS!) ============
-    <?php if($missaoAtiva && $tempoMissao > 0): ?>
-    (function() {
-        let tempoRestante = <?php echo $tempoMissao; ?>;
-        const timerElement = document.getElementById('timer-missao');
-        
-        if (!timerElement) return;
-        
-        function updateTimer() {
-            if (tempoRestante > 0) {
-                let horas = Math.floor(tempoRestante / 3600);
-                let minutos = Math.floor((tempoRestante % 3600) / 60);
-                let segundos = tempoRestante % 60;
-                
-                let display = 
-                    String(horas).padStart(2, '0') + ':' +
-                    String(minutos).padStart(2, '0') + ':' +
-                    String(segundos).padStart(2, '0');
-                
-                timerElement.textContent = display;
-                tempoRestante--;
-            } else {
-                timerElement.textContent = '00:00:00';
-                clearInterval(timerInterval);
-                setTimeout(() => location.reload(), 1000);
-            }
-        }
-        
-        updateTimer(); // Update immediately
-        const timerInterval = setInterval(updateTimer, 1000); // Update every second
-    })();
-    <?php endif; ?>
-    
     // ============ DOUBLE EXP TIMER ============
     (function() {
         var tempoRestante = <?php echo $tempoRestanteDouble; ?>;

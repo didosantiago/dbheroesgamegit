@@ -61,7 +61,14 @@ class Missoes {
             $row .= '<li class="missao missao-'.$core->slug($value->titulo).'" >
                         <div class="box-img">
                             <div class="content-img">
-                                <img src="'.BASE.'assets/missoes/'.$value->foto.'" alt="'.$value->titulo.'" />
+                                <img src="'.BASE.'assets/missoes/'.$value->foto.'" 
+                                    alt="'.$value->titulo.'" 
+                                    class="enhanced-tooltip"
+                                    title="📋 MISSÃO: '.$value->titulo.' | ✨ DESCRIÇÃO: '.htmlspecialchars($value->descricao).' | 🏆 RECOMPENSA: '.$value->recompensa_ouro.' Golds" 
+                                    style="cursor: help; transition: transform 0.2s ease;" 
+                                    onmouseover="this.style.transform=\'scale(1.05)\'" 
+                                    onmouseout="this.style.transform=\'scale(1)\'" />
+
                             </div>
                             <h3>'.$value->titulo.'</h3>
                         </div>
@@ -162,7 +169,7 @@ class Missoes {
             $validado = true;
         } else {
             foreach ($missao as $key => $value) {
-                $sql = "SELECT count(*) as total FROM personagens_missoes WHERE idPersonagem = $idPersonagem AND idMissao = $value->id AND concluida = 1 AND cancelada = 0";
+                $sql = "SELECT count(*) as total FROM missoes WHERE idPersonagem = $idPersonagem AND idMissao = $value->id AND (status = 'concluida' OR status = 'cancelada')";
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
                 $personagens_missoes = $stmt->fetch();
@@ -195,7 +202,23 @@ class Missoes {
 
     public function iniciaMissao($idUsuario, $dados, $idPersonagem, $vip){
         $core = new Core();
+    
+        // FIRST: Cancel any existing active missions for this character
+        $sql = "UPDATE missoes SET status = 'cancelada', data_conclusao = NOW() 
+                WHERE idPersonagem = " . intval($idPersonagem) . " 
+                AND status = 'ativa'";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
         
+        // Clear any existing mission sessions
+        unset($_SESSION['missao']);
+        unset($_SESSION['missao_id']);
+        
+        // Rest of your existing iniciaMissao code continues here...
+        // Sanitize and cast inputs
+        $tempo = intval($dados['tempo']);
+        $missao = intval($dados['idMissao']);
+            
         // Sanitize and cast inputs
         $tempo = intval($dados['tempo']);
         $missao = intval($dados['idMissao']);
@@ -243,12 +266,17 @@ class Missoes {
         
         $config = $core->getConfiguracoes();
         
-        // Calculate mission duration in seconds
-        if($config->teste == 1){
-            // TEST MODE: 3 seconds
-            $segundos = intval(3);
+        // Calculate mission duration in seconds iniciaMissao
+
+        // TEMPORARY: Force 1 minute for all missions during testing
+        // FLEXIBLE TESTING: Easy to switch between testing and production
+        $TESTING_MODE = true; // ✅ Change this to false for production
+
+        if($TESTING_MODE) {
+            // TEST MODE: 1 minute missions
+            $segundos = 60;
         } else {
-            // NORMAL MODE: Calculate based on VIP status
+            // PRODUCTION MODE: Normal timing with VIP benefits
             if($vip == 1){
                 // VIP gets 50% time reduction
                 $time_vip = (50 / 100) * intval($tempo);
@@ -260,6 +288,9 @@ class Missoes {
             // Convert hours to seconds
             $segundos = $time_vip * 60 * 60;
         }
+
+
+
         
         // Calculate end time (Unix timestamp)
         $tempo_agora = time();
@@ -269,23 +300,27 @@ class Missoes {
         $calculo_golds = intval($tempo) * intval($golds);
         
         // Prepare fields for database insert - ONLY FIELDS THAT EXIST
+        // Prepare fields for database insert - ONLY FIELDS THAT EXIST
         $campos = array(
             'idPersonagem' => $idPersonagem,
-            'idUsuario' => $idUsuario,
             'idMissao' => $missao,
-            'tempo' => $tempo_agora,           // Mission start time (Unix timestamp)
-            'tempo_final' => $tempo_final,     // Mission end time (Unix timestamp)
-            'gold' => $calculo_golds
+            'status' => 'ativa',           // ✅ Set status as active
+            'data_inicio' => date('Y-m-d H:i:s'),  // ✅ Set start date
+            'tempo_final' => $tempo_final   // ✅ Set end time
         );
+
         
-        // Insert mission into database
-        $insercao = $core->insert('personagens_missoes', $campos);
+        // Insert mission into database - Use correct table name
+        $insercao = $core->insert('missoes', $campos);
+
         
         if($insercao){
             // Get the newly created mission using core method
-            $missao_criada = $core->getDados('personagens_missoes', 
-                'WHERE idUsuario = '.intval($idUsuario).' AND idPersonagem = '.intval($idPersonagem).' ORDER BY id DESC LIMIT 1');
-            
+            // Get the newly created mission using core method
+            $missao_criada = $core->getDados('missoes', 
+                'WHERE idPersonagem = '.intval($idPersonagem).' AND status = "ativa" ORDER BY id DESC LIMIT 1');
+
+                        
             if($missao_criada){
                 // Set session variables for mission tracking
                 $_SESSION['missao'] = true;

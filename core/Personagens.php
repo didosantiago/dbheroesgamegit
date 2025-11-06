@@ -1885,9 +1885,13 @@ public function getCacadaRunning($idPersonagem, $idCacada){
             unset($_SESSION['cacada']);
             unset($_SESSION['cacada_id']);
             
-            // Reload page to show rewards popup
-            echo '<script>window.location.reload(true);</script>';
+            // Clear session
+            unset($_SESSION['missao']);
+            unset($_SESSION['missao_id']);
+
+            // DON'T reload - just return empty (mission finished)
             return '';
+
         }
         
         // ORIGINAL STYLE - Full width banner at top
@@ -1908,30 +1912,98 @@ public function getCacadaRunning($idPersonagem, $idCacada){
     public function getMissaoRunning($idPersonagem, $idMissao){
         $core = new Core();
         
-        $sql = "SELECT * FROM personagens_missoes WHERE idPersonagem = $idPersonagem AND id = $idMissao";
+        // Get mission details
+        $sql = "SELECT * FROM missoes 
+                WHERE id = $idMissao 
+                AND idPersonagem = $idPersonagem
+                AND status = 'ativa'";
         $stmt = DB::prepare($sql);
         $stmt->execute();
-        $item = $stmt->fetch();
-        
-        $row = '';
         
         if($stmt->rowCount() > 0){
-            if($item->tempo_final > time()){
-                $row .= '<div class="missao-running">
-                            <span>Você está em uma missão, aguarde o tempo terminar para iniciar outras missões, arena e caçadas.</span>
-                            <a class="bts-form" id="cancelarMissao">Cancelar Missão</a>
-                            <input type="hidden" name="idMissao" id="idMissao" value="'.$idMissao.'" />
-                            <div class="contador"></div>
-                        </div>';
-            } else {
-                $row .= '<div class="missao-running">
-                            <span>Missão Concluída, clique no botão para receber seu prêmio</span><form method="post"><input type="submit" id="confirmarMissao" name="confirmar_missao" value="Concluir" /></form>
-                         </div>';
+            $missao = $stmt->fetch();
+            
+            $time_atual = time();
+            $tempo_restante = $missao->tempo_final - $time_atual;
+            
+        // CHECK IF MISSION ALREADY FINISHED (missed completion)
+        if($tempo_restante <= 0){
+            // Mission finished! Process rewards NOW
+            
+            // Mark mission as completed
+            $campos = array('status' => 'concluida', 'data_conclusao' => date('Y-m-d H:i:s'));
+            $where = 'id = ' . $missao->id;
+            $core->update('missoes', $campos, $where);
+            
+            // Get character data
+            $sql_char = "SELECT * FROM usuarios_personagens WHERE id = " . $missao->idPersonagem;
+            $stmt_char = DB::prepare($sql_char);
+            $stmt_char->execute();
+            $char_data = $stmt_char->fetch();
+            
+            // Get mission rewards from missoes_lista
+            $sql_rewards = "SELECT * FROM missoes_lista WHERE id = " . $missao->idMissao;
+            $stmt_rewards = DB::prepare($sql_rewards);
+            $stmt_rewards->execute();
+            
+            if($stmt_rewards->rowCount() > 0){
+                $mission_data = $stmt_rewards->fetch();
+                
+                // Calculate rewards
+                $gold_ganho = intval($mission_data->recompensa_ouro ?? 100);
+                $exp_ganho = intval($mission_data->experiencia ?? 50);
+                
+                // Update character gold and exp
+                $novo_gold = intval($char_data->gold) + $gold_ganho;
+                $novo_gold_total = intval($char_data->gold_total) + $gold_ganho;
+                $novo_exp = intval($char_data->exp) + $exp_ganho;
+                
+                $campos_personagem = array(
+                    'gold' => $novo_gold,
+                    'gold_total' => $novo_gold_total,
+                    'exp' => $novo_exp
+                );
+                $where_personagem = 'id = ' . $missao->idPersonagem;
+                $core->update('usuarios_personagens', $campos_personagem, $where_personagem);
+                
+                // Insert rewards notification
+                $campos_valor = array(
+                    'idPersonagem' => $missao->idPersonagem,
+                    'gold' => $gold_ganho,
+                    'exp' => $exp_ganho,
+                    'tipo' => 'missao',  // ✅ ADD THIS LINE!
+                    'visualizado' => 0
+                );
+                $core->insert('personagens_new_valores', $campos_valor);
+
+                
+                // Check for level up
+                $this->checkLevelUp($missao->idPersonagem);
             }
+            
+            // Clear session
+            unset($_SESSION['missao']);
+            unset($_SESSION['missao_id']);
+            
+            // DON'T reload - just return empty (mission finished)
+            return '';
+        }
+
+            
+            // SAME STYLE AS CACADA - Full width banner at top
+            $row = '<div class="missao-running">
+                        <input type="hidden" id="idMissao" value="'.$idMissao.'" />
+                        <span>Você está em uma missão, aguarde o tempo terminar para iniciar outras missões, arena e caçadas.</span>
+                        <button class="bts-form" id="cancelarMissao">CANCELAR</button>
+                        <div class="contador">00:00:00</div>
+                    </div>';
+            
+            return $row;
         }
         
-        echo $row;
+        return '';
     }
+
 
                 /**
      * Check if character should level up based on current EXP
