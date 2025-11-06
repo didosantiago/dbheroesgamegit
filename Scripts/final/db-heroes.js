@@ -291,10 +291,12 @@ DBH.common = {
         menuMobile();
         loader();
         verificaCacada();
+        verificaMissao();
         texteditor();
         
         if($('body').hasClass('pvp') || $('body').hasClass('ranking')){
             verificaAtaque();
+            verificaMissao();
         }
         
         if($('body').hasClass('publico')){
@@ -497,6 +499,56 @@ DBH.common = {
             }
         });
     },
+    verificaMissao = function() {
+    var id = $('#personagemLogged').val();
+    var data_string = 'id=' + id;
+    var baseSite = $('#baseSite').val();
+    
+    if($('.missao-running').length > 0){
+        $.ajax({
+            type: "POST",
+            url: baseSite + "ajax/ajaxMissao.php",  // ✅ Changed from ajaxVerificaMissao.php
+            data: data_string,
+            success: function (res) {
+                startCountdownMissao(res);
+            }
+        });
+    }
+},
+
+
+
+
+startCountdownMissao = function(tempo){
+    // First call - display immediately
+    if(tempo >= 0){
+        var horas = Math.floor(tempo / 3600);
+        var minutos = Math.floor((tempo % 3600) / 60);
+        var segundos = tempo % 60;
+
+        // Add leading zeros
+        horas = (horas < 10) ? "0" + horas : horas;
+        minutos = (minutos < 10) ? "0" + minutos : minutos;
+        segundos = (segundos < 10) ? "0" + segundos : segundos;
+
+        var horaImprimivel = horas + ':' + minutos + ':' + segundos;
+        $(".missao-running .contador").html(horaImprimivel);
+        
+        // Continue countdown with setTimeout
+        window.missionTimer = setTimeout(function(){ 
+            startCountdownMissao(tempo - 1);
+        }, 1000);
+        
+    } else {
+        // Mission complete!
+        $(".missao-running .contador").html("CONCLUÍDA!");
+        clearTimeout(window.missionTimer);
+    }
+};
+
+
+
+
     startCountdownBatalha = function(tempo){
         // Se o tempo não for zerado
         if((tempo - 1) >= 0){
@@ -1635,6 +1687,18 @@ DBH.common = {
 
     DBH.header.init();
     
+    init = function(){
+    // Your existing code...
+    
+    // ADD THIS - START TIMER IF MISSION IS ACTIVE
+    var $missaoBox = $(".missao-running");
+    if($missaoBox.length > 0){
+        // Mission is active, start the verification loop
+        verificaMissao(); // Call once immediately
+        setInterval(verificaMissao, 1000); // Then every second
+    }
+};
+
     if(!$body.hasClass('login')){
         DBH.modal.iniciaModal();
     }

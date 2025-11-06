@@ -42,8 +42,6 @@
 
                         $core->insert('personagens_treino', $campos_treino);
 
-                        $core->msg('sucesso', 'Personagem Criado.');
-                        
                         $campos_golpe = array(
                             'idPersonagem' => $item->id,
                             'idGolpe' => 4
@@ -58,24 +56,32 @@
 
                         $core->insert('personagens_golpes', $campos_golpe2);
 
-                        $core->msg('sucesso', 'Personagem Criado.');
+                        // ✅ FIXED: Only ONE success message (no duplicates)
+                        $core->msg('sucesso', 'Personagem Criado com Sucesso!');
                         
-                        header('Location: '.BASE.'portal/');
+                        // ✅ FIXED: Redirect to meus-personagens instead of portal
+                        header('Location: '.BASE.'meus-personagens/');
+                        exit;
+                        
                     } else {
-                        header('Location: '.BASE.'criar-personagem');
                         $core->msg('error', 'Ocorreu um Erro.');
+                        header('Location: '.BASE.'criar-personagem');
+                        exit;
                     }
                 } else {
-                    header('Location: '.BASE.'criar-personagem');
                     $core->msg('error', 'Não é permitido palavras ofensivas ou bloqueadas.');
+                    header('Location: '.BASE.'criar-personagem');
+                    exit;
                 }
             } else {
-                header('Location: '.BASE.'criar-personagem');
                 $core->msg('error', 'Já existe um Guerreiro com este Nome.');
+                header('Location: '.BASE.'criar-personagem');
+                exit;
             }
         } else {
-            header('Location: '.BASE.'portal');
             $core->msg('error', 'Quantidade de Guerreiros esgotada.');
+            header('Location: '.BASE.'portal');
+            exit;
         }
     }
 ?>

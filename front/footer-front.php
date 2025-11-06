@@ -9,7 +9,7 @@
         </div>
         
         <div class="box-facebook">
-            <h2>Facebook</h2><small> Acompanhe nossa página </small>
+            <h2>Facebook</h2><small> Acompanhe nossa pÃ¡gina </small>
             <div id="fb-root"></div>
             <script>(function(d, s, id) {
               var js, fjs = d.getElementsByTagName(s)[0];
@@ -25,13 +25,13 @@
         <div class="stm-container">
             <div class="botoes-footer">
                 <a href="<?php echo BASE; ?>doc/aviso-legal.pdf" target="_blank">Aviso Legal</a>
-                <a href="<?php echo BASE; ?>doc/politica-de-privacidade.pdf" target="_blank">Política de Privacidade</a>
+                <a href="<?php echo BASE; ?>doc/politica-de-privacidade.pdf" target="_blank">PolÃ­tica de Privacidade</a>
                 <a href="<?php echo BASE; ?>doc/termos-de-uso.pdf" target="_blank">Termos de Uso</a>
-                <a href="<?php echo BASE; ?>doc/regras.pdf" target="_blank">Regras & Punições</a>
+                <a href="<?php echo BASE; ?>doc/regras.pdf" target="_blank">Regras & PuniÃ§Ãµes</a>
             </div>
             <div class="copyright">
-                <p>©2019 DB Heroes Game RPG - SINCE 2018</p>
-                <p>Personagens e desenhos © CopyRight 1984 by Akira Toriyama. Todos os direitos reservados</p>
+                <p>Â©2019 DB Heroes Game RPG - SINCE 2018</p>
+                <p>Personagens e desenhos Â© CopyRight 1984 by Akira Toriyama. Todos os direitos reservados</p>
             </div>
         </div>
     </div>

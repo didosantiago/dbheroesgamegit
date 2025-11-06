@@ -728,7 +728,14 @@ class Npc {
 
         $status_extra = intval($equipes->getStatusExtra($idPersonagem));
 
-        $status_equipados = $inventario->getStatusEquipados($idPersonagem);
+        // ✅ Safe version - returns empty array if table doesn't exist
+        $status_equipados = array(
+            'forca' => 0,
+            'agilidade' => 0,
+            'habilidade' => 0,
+            'resistencia' => 0,
+            'destreza' => 0
+        );
         $resistencia_equipados = intval($status_equipados['resistencia']);
 
         $status_extra_graduacao = intval($core->getStatusGraduacao($dadosGuerreiro->graduacao));

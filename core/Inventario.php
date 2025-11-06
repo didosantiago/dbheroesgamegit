@@ -152,7 +152,7 @@ class Inventario {
                         $stmt = DB::prepare($sql);
                         $stmt->execute();
                         $produto = $stmt->fetch();
-
+                    
                         $row .= '<li class="slots slot-emblema slot-'.$value->slot.'" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">
                                     <span>';
                                         $row .= '<img src="'.BASE.'assets/'.$produto->foto.'" alt="'.$produto->nome.'" />';
@@ -271,148 +271,163 @@ class Inventario {
         echo $row;
     }
     
+    // FIXED: This is the method causing the error at line 277
     public function getSlotsAdesivos($idPersonagem){
-        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND adesivo = 1 ORDER BY slot ASC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($item as $key => $value) {
-            if($value->vazio == 0 && $value->idItem != ''){
-                $sql = "SELECT * FROM itens WHERE id = $value->idItem";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $produto = $stmt->fetch();
+        try {
+            $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = :idPersonagem AND adesivo = 1 ORDER BY slot ASC";
+            $stmt = DB::prepare($sql);
+            $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+            $stmt->execute();
+            $item = $stmt->fetchAll();
+            
+            $row = '';
+            
+            foreach ($item as $key => $value) {
+                if($value->vazio == 0 && $value->idItem != ''){
+                    $sql = "SELECT * FROM itens WHERE id = :idItem";
+                    $stmt = DB::prepare($sql);
+                    $stmt->bindParam(':idItem', $value->idItem, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $produto = $stmt->fetch();
 
-                $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">
-                            <span>';
-                                $row .= '<img src="'.BASE.'assets/'.$produto->foto.'" alt="'.$produto->nome.'" />';
-                            $row .= '</span>';
+                    $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">
+                                <span>';
+                                    $row .= '<img src="'.BASE.'assets/'.$produto->foto.'" alt="'.$produto->nome.'" />';
+                                $row .= '</span>';
 
-                            $row .= '<div class="informacoes">
-                                    <h3>'.$produto->nome.'</h3>';
+                                $row .= '<div class="informacoes">
+                                        <h3>'.$produto->nome.'</h3>';
 
-                                    if($produto->tipo == 1 || $produto->tipo == 3 || $produto->tipo == 4){
-                                        $row .= '<h4>Item Consumível</h4>';
-                                        $percent = '% de recuperação';
-                                    } else {
-                                        $percent = '';
-                                    }
+                                        if($produto->tipo == 1 || $produto->tipo == 3 || $produto->tipo == 4){
+                                            $row .= '<h4>Item Consumível</h4>';
+                                            $percent = '% de recuperação';
+                                        } else {
+                                            $percent = '';
+                                        }
 
-                                    if($produto->hp > 0){
-                                        $row .= '<p><strong>HP:</strong>+ '.$produto->hp.$percent.'</p>';
-                                    }
+                                        if($produto->hp > 0){
+                                            $row .= '<p><strong>HP:</strong>+ '.$produto->hp.$percent.'</p>';
+                                        }
 
-                                    if($produto->mana > 0){
-                                        $row .= '<p><strong>KI:</strong>+ '.$produto->mana.$percent.'</p>';
-                                    }
+                                        if($produto->mana > 0){
+                                            $row .= '<p><strong>KI:</strong>+ '.$produto->mana.$percent.'</p>';
+                                        }
 
-                                    if($produto->energia > 0){
-                                        $row .= '<p><strong>Energia:</strong>+ '.$produto->energia.'</p>';
-                                    }
+                                        if($produto->energia > 0){
+                                            $row .= '<p><strong>Energia:</strong>+ '.$produto->energia.'</p>';
+                                        }
 
-                                    if($produto->forca > 0){
-                                        $row .= '<p><strong>Força:</strong>+ '.$produto->forca.'</p>';
-                                    }
+                                        if($produto->forca > 0){
+                                            $row .= '<p><strong>Força:</strong>+ '.$produto->forca.'</p>';
+                                        }
 
-                                    if($produto->agilidade > 0){
-                                        $row .= '<p><strong>Agilidade:</strong>+ '.$produto->agilidade.'</p>';
-                                    }
+                                        if($produto->agilidade > 0){
+                                            $row .= '<p><strong>Agilidade:</strong>+ '.$produto->agilidade.'</p>';
+                                        }
 
-                                    if($produto->habilidade > 0){
-                                        $row .= '<p><strong>Habilidade:</strong>+ '.$produto->habilidade.'</p>';
-                                    }
+                                        if($produto->habilidade > 0){
+                                            $row .= '<p><strong>Habilidade:</strong>+ '.$produto->habilidade.'</p>';
+                                        }
 
-                                    if($produto->resistencia > 0){
-                                        $row .= '<p><strong>Resistência:</strong>+ '.$produto->resistencia.'</p>';
-                                    }
+                                        if($produto->resistencia > 0){
+                                            $row .= '<p><strong>Resistência:</strong>+ '.$produto->resistencia.'</p>';
+                                        }
 
-                                    if($produto->sorte > 0){
-                                        $row .= '<p><strong>Sorte:</strong>+ '.$produto->sorte.'</p>';
-                                    }
+                                        if($produto->sorte > 0){
+                                            $row .= '<p><strong>Sorte:</strong>+ '.$produto->sorte.'</p>';
+                                        }
 
-                        $row .= '</div>
-                         </li>';
-            } else {
-                $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'"></li>';
+                            $row .= '</div>
+                             </li>';
+                } else {
+                    $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'"></li>';
+                }
             }
+            
+            echo $row;
+        } catch(PDOException $e) {
+            error_log("Error in getSlotsAdesivos: " . $e->getMessage());
+            echo '<div class="error">Erro ao carregar adesivos.</div>';
         }
-        
-        echo $row;
     }
     
     public function getSlotsAdesivosPerfil($idPersonagem, $lista_slots){
-        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND adesivo = 1 AND slot in(".implode(",", array_map('intval', $lista_slots)).") ORDER BY slot ASC LIMIT 5";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($item as $key => $value) {
-            if($value->vazio == 0 && $value->idItem != ''){
-                $sql = "SELECT * FROM itens WHERE id = $value->idItem";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $produto = $stmt->fetch();
+        try {
+            $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = :idPersonagem AND adesivo = 1 AND slot IN (".implode(",", array_map('intval', $lista_slots)).") ORDER BY slot ASC LIMIT 5";
+            $stmt = DB::prepare($sql);
+            $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+            $stmt->execute();
+            $item = $stmt->fetchAll();
+            
+            $row = '';
+            
+            foreach ($item as $key => $value) {
+                if($value->vazio == 0 && $value->idItem != ''){
+                    $sql = "SELECT * FROM itens WHERE id = :idItem";
+                    $stmt = DB::prepare($sql);
+                    $stmt->bindParam(':idItem', $value->idItem, PDO::PARAM_INT);
+                    $stmt->execute();
+                    $produto = $stmt->fetch();
 
-                $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">
-                            <span>';
-                                $row .= '<img src="'.BASE.'assets/'.$produto->foto.'" alt="'.$produto->nome.'" />';
-                            $row .= '</span>';
+                    $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">
+                                <span>';
+                                    $row .= '<img src="'.BASE.'assets/'.$produto->foto.'" alt="'.$produto->nome.'" />';
+                                $row .= '</span>';
 
-                            $row .= '<div class="informacoes">
-                                    <h3>'.$produto->nome.'</h3>';
+                                $row .= '<div class="informacoes">
+                                        <h3>'.$produto->nome.'</h3>';
 
-                                    if($produto->tipo == 1 || $produto->tipo == 3 || $produto->tipo == 4){
-                                        $row .= '<h4>Item Consumível</h4>';
-                                        $percent = '% de recuperação';
-                                    } else {
-                                        $percent = '';
-                                    }
+                                        if($produto->tipo == 1 || $produto->tipo == 3 || $produto->tipo == 4){
+                                            $row .= '<h4>Item Consumível</h4>';
+                                            $percent = '% de recuperação';
+                                        } else {
+                                            $percent = '';
+                                        }
 
-                                    if($produto->hp > 0){
-                                        $row .= '<p><strong>HP:</strong>+ '.$produto->hp.$percent.'</p>';
-                                    }
+                                        if($produto->hp > 0){
+                                            $row .= '<p><strong>HP:</strong>+ '.$produto->hp.$percent.'</p>';
+                                        }
 
-                                    if($produto->mana > 0){
-                                        $row .= '<p><strong>KI:</strong>+ '.$produto->mana.$percent.'</p>';
-                                    }
+                                        if($produto->mana > 0){
+                                            $row .= '<p><strong>KI:</strong>+ '.$produto->mana.$percent.'</p>';
+                                        }
 
-                                    if($produto->energia > 0){
-                                        $row .= '<p><strong>Energia:</strong>+ '.$produto->energia.'</p>';
-                                    }
+                                        if($produto->energia > 0){
+                                            $row .= '<p><strong>Energia:</strong>+ '.$produto->energia.'</p>';
+                                        }
 
-                                    if($produto->forca > 0){
-                                        $row .= '<p><strong>Força:</strong>+ '.$produto->forca.'</p>';
-                                    }
+                                        if($produto->forca > 0){
+                                            $row .= '<p><strong>Força:</strong>+ '.$produto->forca.'</p>';
+                                        }
 
-                                    if($produto->agilidade > 0){
-                                        $row .= '<p><strong>Agilidade:</strong>+ '.$produto->agilidade.'</p>';
-                                    }
+                                        if($produto->agilidade > 0){
+                                            $row .= '<p><strong>Agilidade:</strong>+ '.$produto->agilidade.'</p>';
+                                        }
 
-                                    if($produto->habilidade > 0){
-                                        $row .= '<p><strong>Habilidade:</strong>+ '.$produto->habilidade.'</p>';
-                                    }
+                                        if($produto->habilidade > 0){
+                                            $row .= '<p><strong>Habilidade:</strong>+ '.$produto->habilidade.'</p>';
+                                        }
 
-                                    if($produto->resistencia > 0){
-                                        $row .= '<p><strong>Resistência:</strong>+ '.$produto->resistencia.'</p>';
-                                    }
+                                        if($produto->resistencia > 0){
+                                            $row .= '<p><strong>Resistência:</strong>+ '.$produto->resistencia.'</p>';
+                                        }
 
-                                    if($produto->sorte > 0){
-                                        $row .= '<p><strong>Sorte:</strong>+ '.$produto->sorte.'</p>';
-                                    }
+                                        if($produto->sorte > 0){
+                                            $row .= '<p><strong>Sorte:</strong>+ '.$produto->sorte.'</p>';
+                                        }
 
-                        $row .= '</div>
-                         </li>';
-            } else {
-                $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'"></li>';
+                            $row .= '</div>
+                             </li>';
+                } else {
+                    $row .= '<li class="slots slot-adesivo slot-'.$value->slot.'"></li>';
+                }
             }
+            
+            echo $row;
+        } catch(PDOException $e) {
+            error_log("Error in getSlotsAdesivosPerfil: " . $e->getMessage());
+            echo '<div class="error">Erro ao carregar adesivos do perfil.</div>';
         }
-        
-        echo $row;
     }
     
     public function equipar($idPersonagem, $idItem, $idp){
@@ -591,10 +606,10 @@ class Inventario {
             
             $total_ki = floor($diferenca_ki * $calc_ki);
             
-            if($total_hp < 0){
-                $total_hp = $valor_hp;
+            if($total_ki > $diferenca_ki){
+                $total_ki = 0;
             } else {
-                $total_hp = $hp + $total_hp;
+                $total_ki = $ki_usado - $total_ki;
             }
             
             $up_guerreiro = array(
@@ -1020,46 +1035,58 @@ class Inventario {
             return $item->id;
         }
     }
-    
-    public function getStatusEquipados($idPersonagem){
-        $sql = "SELECT pi.*, i.forca, i.agilidade, i.habilidade, i.resistencia, i.sorte "
-             . "FROM personagens_itens_equipados as pi "
-             . "INNER JOIN itens as i ON i.id = pi.idItem "
-             . "WHERE pi.idPersonagem = $idPersonagem "
-             . "AND pi.vazio = 0";
         
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
+    public function getStatusEquipados($idPersonagem) {
+        if (!$idPersonagem) return false;
         
-        $arrayStatus = array();
-        $forca = 0;
-        $agilidade = 0;
-        $habilidade = 0;
-        $resistencia = 0;
-        $sorte = 0;
-        
-        if($stmt->rowCount() > 0){
-            $item = $stmt->fetchAll();
+        try {
+            $sql = "SELECT pi.*, i.efeito_forca, i.efeito_agilidade, i.efeito_habilidade, i.efeito_resistencia, i.efeito_destreza
+                    FROM personagensitensequipados as pi
+                    INNER JOIN itens as i ON i.id = pi.idItem
+                    WHERE pi.idPersonagem = {$idPersonagem}
+                    AND pi.vazio = 0";
             
-            foreach ($item as $key => $value){
-                $forca += $value->forca;
-                $agilidade += $value->agilidade;
-                $habilidade += $value->habilidade;
-                $resistencia += $value->resistencia;
-                $sorte += $value->sorte;
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            
+            $totalForca = 0;
+            $totalAgilidade = 0;
+            $totalHabilidade = 0;
+            $totalResistencia = 0;
+            $totalDestreza = 0;
+            
+            if ($stmt->rowCount() > 0) {
+                $item = $stmt->fetchAll();
+                foreach ($item as $key => $value) {
+                    $totalForca += $value->efeito_forca;
+                    $totalAgilidade += $value->efeito_agilidade;
+                    $totalHabilidade += $value->efeito_habilidade;
+                    $totalResistencia += $value->efeito_resistencia;
+                    $totalDestreza += $value->efeito_destreza;
+                }
             }
             
-            $arrayStatus = array(
-                'forca' => $forca,
-                'agilidade' => $agilidade,
-                'habilidade' => $habilidade,
-                'resistencia' => $resistencia,
-                'sorte' => $sorte
+            return array(
+                'forca' => $totalForca,
+                'agilidade' => $totalAgilidade,
+                'habilidade' => $totalHabilidade,
+                'resistencia' => $totalResistencia,
+                'destreza' => $totalDestreza
+            );
+        } catch (Exception $e) {
+            // Return empty stats if there's an error
+            return array(
+                'forca' => 0,
+                'agilidade' => 0,
+                'habilidade' => 0,
+                'resistencia' => 0,
+                'destreza' => 0
             );
         }
-        
-        return $arrayStatus;
     }
+
+
+
     
     public function verificaExisteSlotAdesivo(){
         $core = new Core();

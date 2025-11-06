@@ -1,4 +1,20 @@
-<?php 
+<?php
+// Start session FIRST before any output
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Load required files
+require_once __DIR__ . '/init.php';  // ✅ Loads everything
+
+// Generate token ONCE
+if(!isset($_SESSION['token_form_cadastro'])) {
+    $_SESSION['token_form_cadastro'] = md5(time());
+}
+
+// Rest of your code...
+
+
     if(!$_POST){
         $_SESSION['token_form_cadastro'] = md5(time());
     }

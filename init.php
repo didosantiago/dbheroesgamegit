@@ -70,6 +70,7 @@
     // These sessions need to persist across page loads
     // Only clear them when the player explicitly completes or cancels the action
     
+    
     //unset($_SESSION['cacada']);
     //unset($_SESSION['cacada_id']);
     //unset($_SESSION['missao']);
@@ -88,8 +89,16 @@
     
     // Content Security Policy
     //header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com; font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://pagead2.googlesyndication.com; img-src 'self' data: https://*; connect-src 'self' https://apis.google.com; frame-src https://www.youtube.com;");
-    header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+    //header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
 
         // Content Security Policy - Complete version with Font Awesome support
-
+    header("Content-Security-Policy: " .
+        "default-src 'self'; " .
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://kit.fontawesome.com https://ka-f.fontawesome.com https://pagead2.googlesyndication.com; " .
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com; " .
+        "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com data: https://ka-f.fontawesome.com; " .
+        "img-src 'self' data: https://*; " .
+        "connect-src 'self' https://apis.google.com https://ka-f.fontawesome.com https://use.fontawesome.com; " .
+        "frame-src 'self' https://www.youtube.com;"
+    );
 ?>

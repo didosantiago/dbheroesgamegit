@@ -34,6 +34,7 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         
@@ -41,12 +42,13 @@
     <link type="text/css" rel="stylesheet" href="<?php echo BASE; ?>assets/dbheroes.css" />
     <link type="text/css" rel="stylesheet" href="<?php echo BASE; ?>assets/dbheroes-vendor.css" />
     <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.js"></script>
-    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script>
+     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script> 
     <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes-vendor.min.js?v=15042019.2"></script>
     <script type="text/javascript" src="<?php echo BASE; ?>assets/modernizr.custom.js"></script>
     <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
     <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
     <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
+    
 
 </head>
 <body class="<?php echo $modulo; ?>">
@@ -167,23 +169,12 @@
                 <?php 
                     // Show NPC battle notification if active
                     if(isset($_SESSION['npc']) && isset($_SESSION['npc_id'])){
-                        // Get the opponent ID from the database instead of using the battle ID
-                        $sql_npc_battle = "SELECT idDesafiado FROM npc WHERE id = ".$_SESSION['npc_id']." AND concluido = 0";
-                        $stmt_npc_battle = DB::prepare($sql_npc_battle);
-                        $stmt_npc_battle->execute();
-                        
-                        if($stmt_npc_battle->rowCount() > 0){
-                            $npc_battle_data = $stmt_npc_battle->fetch();
-                            $opponent_id = $npc_battle_data->idDesafiado;
                 ?>
                         <div class="npc-paused">
                             <span>Você está em uma batalha do Torneio de Artes Marciais NPC, volte para o combate para finalizar.</span>
-                            <a href="<?php echo BASE; ?>npc/<?php echo $opponent_id; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
+                            <a href="<?php echo BASE; ?>npc/<?php echo $_SESSION['npc_id']; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
                         </div>
-                <?php 
-                        }
-                    } 
-                ?>
+                <?php } ?>
 
                 <?php 
                 // Show mission notification if active - CHECK DATABASE!
@@ -588,6 +579,80 @@ $(document).ready(function(){
 
 
 </script>
+<?php 
+// Get active mission data
+$missaoAtiva = null;
+if(isset($_SESSION['PERSONAGEMID']) && isset($_SESSION['missao'])) {
+    $missaoAtiva = $missoes->getMissaoAtiva($_SESSION['PERSONAGEMID']);
+}
+?>
 
-</body>
-</html>
+<?php if($missaoAtiva && intval($missaoAtiva->tempo_final) > 0): ?>
+<div class="missao-ativa">
+    <p>Você está em uma caçada, aguarde o tempo terminar para iniciar missões, arena e caçadas.</p>
+    
+    <div class="mission-timer-container">
+        <div id="missionTimer" class="timer-display">00:00:00</div>
+        <span class="timer-label">Tempo Restante</span>
+    </div>
+    
+    <button class="btn-cancel" onclick="cancelarMissao()">CANCELAR MISSÃO</button>
+</div>
+
+<script type="text/javascript">
+    // Mission auto-complete system (SAME AS CACADAS)
+    (function() {
+        var missionId = <?php echo intval($missaoAtiva->id); ?>;
+        var missionEnd = <?php echo intval($missaoAtiva->tempo_final); ?>; // Unix timestamp
+        var timerInterval;
+        
+        function formatTime(seconds) {
+            var h = Math.floor(seconds / 3600);
+            var m = Math.floor((seconds % 3600) / 60);
+            var s = seconds % 60;
+            
+            return (h < 10 ? '0' : '') + h + ':' +
+                   (m < 10 ? '0' : '') + m + ':' +
+                   (s < 10 ? '0' : '') + s;
+        }
+        
+        function updateMissionTimer() {
+            var now = Math.floor(Date.now() / 1000);
+            var remaining = missionEnd - now;
+            
+            if(remaining <= 0) {
+                document.getElementById('missionTimer').innerText = '00:00:00';
+                clearInterval(timerInterval);
+                
+                $.ajax({
+                    url: '<?php echo BASE; ?>missoes',
+                    type: 'POST',
+                    data: {
+                        completarMissao: 1,
+                        idMissao: missionId
+                    },
+                    success: function() {
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1000);
+                    },
+                    error: function() {
+                        location.reload();
+                    }
+                });
+                return;
+            }
+            
+            document.getElementById('missionTimer').innerText = formatTime(remaining);
+        }
+        
+        updateMissionTimer();
+        timerInterval = setInterval(updateMissionTimer, 1000);
+        
+        window.addEventListener('beforeunload', function() {
+            if(timerInterval) clearInterval(timerInterval);
+        });
+    })();
+</script>
+
+<?php endif; ?>
