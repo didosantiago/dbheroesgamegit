@@ -3,6 +3,12 @@
     session_cache_expire(10);
     session_start();
     
+    // Allow JavaScript execution - Fix for CSP blocking
+    header("Content-Security-Policy: script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;");
+    // header("Content-Security-Policy: script-src 'self' default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com; img-src 'self' data: https://*;");
+    //header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com; img-src 'self' data: https://*;");
+    
+
     //Inclusão das Classes
     include_once "./core/config.php";
     include_once "./core/DB.php";
@@ -66,31 +72,18 @@
     $sorteios = new Sorteios();
     $chat = new Chat();
     
-    // REMOVED: These lines were clearing game sessions on every page load
-    // Don't clear game sessions - they need to persist!
-    // unset($_SESSION['cacada']);
-    // unset($_SESSION['cacada_id']);
-    // unset($_SESSION['missao']);
-    // unset($_SESSION['missao_id']);
-    // unset($_SESSION['npc']);
-    // unset($_SESSION['npc_id']);
-    // unset($_SESSION['pvp']);
-    // unset($_SESSION['pvp_id']);
+    unset($_SESSION['cacada']);
+    unset($_SESSION['cacada_id']);
+    unset($_SESSION['missao']);
+    unset($_SESSION['missao_id']);
+    unset($_SESSION['npc']);
+    unset($_SESSION['npc_id']);
+    unset($_SESSION['pvp']);
+    unset($_SESSION['pvp_id']);
     
     /* Informa o nível dos erros que serão exibidos */
     error_reporting(E_ALL & ~E_NOTICE & ~E_WARNING);
 
     /* Habilita a exibição de erros */
     ini_set("display_errors", 1);
-    
-    // Content Security Policy - Complete version with Font Awesome support
-    header("Content-Security-Policy: " .
-        "default-src 'self'; " .
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://kit.fontawesome.com https://ka-f.fontawesome.com https://pagead2.googlesyndication.com; " .
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com; " .
-        "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com data: https://ka-f.fontawesome.com; " .
-        "img-src 'self' data: https://*; " .
-        "connect-src 'self' https://apis.google.com https://ka-f.fontawesome.com https://use.fontawesome.com; " .
-        "frame-src 'self' https://www.youtube.com;"
-    );
 ?>
