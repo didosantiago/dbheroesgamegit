@@ -12,6 +12,7 @@
  * @author Felipe Faciroli
  */
 class Administrar {
+    
     public function getListGuerreiros(){
         $core = new Core();
         
@@ -69,6 +70,44 @@ class Administrar {
         
         echo $row;
     }
+    
+        /**
+     * Update photo raridade based on selected flags
+     */
+    public function updatePhotoRaridade($photo, $selectedFlags) {
+        if(empty($photo)) {
+            return false;
+        }
+        
+        // Map flags to raridade numbers
+        $raridade = 4; // Default to orange (4) as you set
+        
+        if(in_array('Mítico', $selectedFlags)) {
+            $raridade = 5; // Pink
+        } elseif(in_array('Lendário', $selectedFlags)) {
+            $raridade = 4; // Orange 
+        } elseif(in_array('Épico', $selectedFlags)) {
+            $raridade = 3; // Purple (lilas)
+        } elseif(in_array('Raro', $selectedFlags)) {
+            $raridade = 2; // Blue (like Gohan)
+        } elseif(in_array('Comum', $selectedFlags)) {
+            $raridade = 1; // Green
+        }
+        
+        try {
+            // Update or insert into personagens_fotos table
+            $sql = "INSERT INTO personagens_fotos (foto, raridade, free) VALUES (?, ?, 0) 
+                    ON DUPLICATE KEY UPDATE raridade = VALUES(raridade)";
+            $stmt = DB::prepare($sql);
+            $success = $stmt->execute([$photo, $raridade]);
+            
+            return $success;
+        } catch (Exception $e) {
+            error_log("Error updating photo raridade: " . $e->getMessage());
+            return false;
+        }
+    }
+
     
     public function getJogadoresPorPersonagens(){
         $sql = "SELECT * FROM personagens WHERE liberado = 1";
@@ -157,7 +196,8 @@ class Administrar {
         $mes = date('m');
         $ano = date('Y');
         
-        $sql = "SELECT t.*, u.nome, u.email "
+        // Fix: First get count
+        $sql = "SELECT count(*) as total "
              . "FROM transacoes as t "
              . "INNER JOIN usuarios as u ON u.id = t.idUsuario "
              . "WHERE MONTH(t.data) = '$mes' "
@@ -214,122 +254,297 @@ class Administrar {
         echo $row;
     }
     
-    public function getListVideosDestaque(){
-        $core = new Core();
+    // NEW LOJA METHODS - CLEAN VERSION WITHOUT DUPLICATES
+    
+    /**
+     * Get shop statistics - SINGLE VERSION ONLY
+     */
+    public function getLojaStats(){
+        $stats = new stdClass();
         
-        $sql = "SELECT * FROM adm_videos WHERE destaque = 1 ORDER BY id DESC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($item as $key => $value) {
-            $row .= '<li>
-                        <iframe width="1240" height="700" src="https://www.youtube.com/embed/'.$value->url.'" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allownetworking="internal"></iframe>
-                     </li>';
+        try {
+            // Total active items
+            $sql = "SELECT COUNT(*) as total FROM adm_loja_itens WHERE loja = 1";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $result = $stmt->fetch();
+            $stats->total_items = $result->total;
+            
+            // Items by type
+            $sql = "SELECT modulo, COUNT(*) as count FROM adm_loja_itens WHERE loja = 1 GROUP BY modulo";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $types = $stmt->fetchAll();
+            
+            $stats->fotos = 0;
+            $stats->modulos = 0;
+            $stats->itens = 0;
+            
+            foreach($types as $type) {
+                switch($type->modulo) {
+                    case 1: $stats->fotos = $type->count; break;
+                    case 2: $stats->modulos = $type->count; break;
+                    case 3: $stats->itens = $type->count; break;
+                }
+            }
+            
+            // Current active day - simplified query
+            $sql = "SELECT dia FROM adm_loja_produtos WHERE status = 1 LIMIT 1";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            if($stmt->rowCount() > 0) {
+                $active_day = $stmt->fetch();
+                $stats->active_day = $active_day->dia;
+            } else {
+                $stats->active_day = null;
+            }
+            
+        } catch (Exception $e) {
+            error_log("Error getting loja stats: " . $e->getMessage());
+            $stats->total_items = 0;
+            $stats->fotos = 0;
+            $stats->modulos = 0;
+            $stats->itens = 0;
+            $stats->active_day = null;
         }
         
-        echo $row;
+        return $stats;
     }
     
-    public function getListVideos(){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM adm_videos ORDER BY id DESC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($item as $key => $value) {
-            $row .= '<li>
-                        <iframe width="390" height="270" src="https://www.youtube.com/embed/'.$value->url.'" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allownetworking="internal"></iframe>
-                     </li>';
-        }
-        
-        echo $row;
-    }
-    
-    public function existsEnquete(){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM adm_enquetes WHERE votacao = 1 AND status = 1 ORDER BY id DESC LIMIT 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        if($stmt->rowCount() > 0){
-            return true;
-        } else {
+    /**
+     * Add new item to shop
+     */
+    public function addLojaItem($data) {
+        try {
+            // Debug what we're inserting
+            error_log("DEBUG - Adding item: " . json_encode($data));
+            
+            // Use the exact column structure from your database
+            $sql = "INSERT INTO adm_loja_itens 
+                    (nome, descricao, valor, modulo, foto, loja, novo, promocao, flag, idBoneco) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            
+            $stmt = DB::prepare($sql);
+            
+            $params = [
+                $data['nome'],                    // nome
+                $data['descricao'] ?: null,      // descricao 
+                intval($data['valor']),          // valor
+                intval($data['modulo']),         // modulo
+                $data['foto'] ?: null,           // foto
+                1,                               // loja (always 1 for active)
+                $data['novo'] ? 1 : 0,          // novo
+                $data['promocao'] ? 1 : 0,      // promocao  
+                $data['flag'] ?: null,           // flag
+                $data['idBoneco'] ?: null       // idBoneco
+            ];
+            
+            error_log("DEBUG - SQL params: " . json_encode($params));
+            
+            $result = $stmt->execute($params);
+            
+            if (!$result) {
+                error_log("DEBUG - SQL Error: " . json_encode($stmt->errorInfo()));
+                return false;
+            }
+            
+            // FIX: Use proper method to get last insert ID for your DB class
+            try {
+                // Alternative method - query for it
+                $lastIdStmt = DB::prepare("SELECT LAST_INSERT_ID() as id");
+                $lastIdStmt->execute();
+                $lastIdResult = $lastIdStmt->fetch();
+                $lastId = $lastIdResult->id;
+                
+                error_log("DEBUG - Item created with ID: " . $lastId);
+                return $lastId;
+                
+            } catch (Exception $e) {
+                error_log("DEBUG - Could not get last insert ID: " . $e->getMessage());
+                // Return true since the insert was successful even if we can't get the ID
+                return true;
+            }
+            
+        } catch (Exception $e) {
+            error_log("DEBUG - Exception: " . $e->getMessage());
             return false;
         }
     }
     
-    public function getEnquete(){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM adm_enquetes WHERE votacao = 1 AND status = 1 ORDER BY id DESC LIMIT 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $enquete = $stmt->fetch();
-        
-        return $enquete;
-    }
-    
-    public function getOptionsEnquete($idEnquete){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM adm_enquetes_opcoes WHERE idEnquete = $idEnquete ORDER BY ordem ASC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $opcoes = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($opcoes as $key => $value) {
-            $row .= '<label for="enquete_'.$value->id.'">
-                        <input type="radio" id="enquete_'.$value->id.'" name="votar_enquete" value="'.$value->id.'" required />
-                        <span>'.$value->opcao.'</span>
-                     </label>';
-        }
-        
-        return $row;
-    }
-    
-    public function getPorcentagensEnquete($idEnquete){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM adm_enquetes_opcoes WHERE idEnquete = $idEnquete ORDER BY ordem ASC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $opcoes = $stmt->fetchAll();
-        
-        $sql = "SELECT sum(votos) as total FROM adm_enquetes_opcoes WHERE idEnquete = $idEnquete";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $totais = $stmt->fetch();
-        
-        $row = '';
-        
-        foreach ($opcoes as $key => $value) {
-            $total = $totais->total;
+    /**
+     * Update existing shop item
+     */
+    public function updateLojaItem($id, $data) {
+        try {
+            $sql = "UPDATE adm_loja_itens SET 
+                    nome = ?, descricao = ?, valor = ?, modulo = ?, foto = ?, 
+                    novo = ?, promocao = ?, flag = ?
+                    WHERE id = ?";
             
-            if($total != 0){
-              $porcentagem = intval(($value->votos / $total) * 100);
+            $stmt = DB::prepare($sql);
+            $result = $stmt->execute([
+                $data['nome'],
+                $data['descricao'] ?: '',
+                $data['valor'],
+                $data['modulo'],
+                $data['foto'] ?: '',
+                $data['novo'] ? 1 : 0,
+                $data['promocao'] ? 1 : 0,
+                $data['flag'] ?: '',
+                $id
+            ]);
+            
+            return $result;
+        } catch (Exception $e) {
+            error_log("Error updating loja item: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Remove item from shop (soft delete)
+     */
+    public function removeLojaItem($id) {
+        try {
+            $sql = "UPDATE adm_loja_itens SET loja = 0 WHERE id = ?";
+            $stmt = DB::prepare($sql);
+            return $stmt->execute([$id]);
+        } catch (Exception $e) {
+            error_log("Error removing loja item: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get available personagens for dropdown
+     */
+    public function getPersonagensDisponiveis() {
+        try {
+            $sql = "SELECT id, nome, foto FROM personagens WHERE liberado = 1 ORDER BY nome ASC";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Error getting personagens: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Get available itens for dropdown  
+     */
+    public function getItensDisponiveis() {
+        try {
+            $sql = "SELECT id, nome FROM itens ORDER BY nome ASC LIMIT 50";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Error getting itens: " . $e->getMessage());
+            return [];
+        }
+    }
+    
+    /**
+     * Update daily products configuration
+     */
+    public function updateProdutosDiarios($dia, $positions) {
+        try {
+            // Check if day configuration exists
+            $sql = "SELECT id FROM adm_loja_produtos WHERE dia = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([$dia]);
+            $exists = $stmt->fetch();
+            
+            if($exists) {
+                // Update existing
+                $sql = "UPDATE adm_loja_produtos SET 
+                        posicao_1 = ?, posicao_2 = ?, posicao_3 = ?, posicao_4 = ?,
+                        posicao_5 = ?, posicao_6 = ?, posicao_7 = ?, posicao_8 = ?
+                        WHERE dia = ?";
+                
+                $stmt = DB::prepare($sql);
+                return $stmt->execute([
+                    $positions[1] ?: null, $positions[2] ?: null, $positions[3] ?: null, $positions[4] ?: null,
+                    $positions[5] ?: null, $positions[6] ?: null, $positions[7] ?: null, $positions[8] ?: null,
+                    $dia
+                ]);
             } else {
-              $porcentagem = 0;
+                // Insert new
+                $sql = "INSERT INTO adm_loja_produtos 
+                        (dia, posicao_1, posicao_2, posicao_3, posicao_4, posicao_5, posicao_6, posicao_7, posicao_8, status)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 0)";
+                
+                $stmt = DB::prepare($sql);
+                return $stmt->execute([
+                    $dia,
+                    $positions[1] ?: null, $positions[2] ?: null, $positions[3] ?: null, $positions[4] ?: null,
+                    $positions[5] ?: null, $positions[6] ?: null, $positions[7] ?: null, $positions[8] ?: null
+                ]);
             }
-            
-            $row .= '<li>
-                        <span>'.$value->opcao.'</span>
-                        <div class="meter animate roxo">
-                            <em>'.$porcentagem.'%</em>
-                            <span style="width: '.$porcentagem.'%"><span></span></span>
-                        </div>
-                     </li>';
+        } catch (Exception $e) {
+            error_log("Error updating produtos diarios: " . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Get daily products list for admin
+     */
+    public function getListProdutosDiarios(){
+        $dias = ['', 'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+        
+        $row = '';
+        
+        for($d = 1; $d <= 7; $d++) {
+            try {
+                $sql = "SELECT * FROM adm_loja_produtos WHERE dia = ?";
+                $stmt = DB::prepare($sql);
+                $stmt->execute([$d]);
+                $day_config = $stmt->fetch();
+                
+                $configured_items = 0;
+                $items_list = [];
+                
+                if($day_config) {
+                    for($pos = 1; $pos <= 8; $pos++) {
+                        if($day_config->{"posicao_$pos"}) {
+                            $configured_items++;
+                            
+                            // Get item name
+                            $sql_item = "SELECT nome FROM adm_loja_itens WHERE id = ?";
+                            $stmt_item = DB::prepare($sql_item);
+                            $stmt_item->execute([$day_config->{"posicao_$pos"}]);
+                            $item_data = $stmt_item->fetch();
+                            
+                            if($item_data) {
+                                $items_list[] = $item_data->nome;
+                            }
+                        }
+                    }
+                }
+                
+                $status_text = $day_config && $day_config->status ? 'Ativo' : 'Inativo';
+                $items_preview = count($items_list) > 0 ? implode(', ', array_slice($items_list, 0, 3)) : 'Nenhum item';
+                if(count($items_list) > 3) $items_preview .= '...';
+                
+                $row .= '<tr>
+                            <td><strong>'.$dias[$d].'</strong></td>
+                            <td>'.$status_text.'</td>
+                            <td>'.$configured_items.'/8 posições</td>
+                            <td><small>'.$items_preview.'</small></td>
+                         </tr>';
+            } catch (Exception $e) {
+                error_log("Error in getListProdutosDiarios for day $d: " . $e->getMessage());
+                $row .= '<tr>
+                            <td><strong>'.$dias[$d].'</strong></td>
+                            <td>Erro</td>
+                            <td>-</td>
+                            <td>Erro ao carregar</td>
+                         </tr>';
+            }
         }
         
-        return $row;
+        echo $row;
     }
 }
