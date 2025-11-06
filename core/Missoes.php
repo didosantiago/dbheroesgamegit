@@ -1,11 +1,5 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Missoes
  *
@@ -21,7 +15,7 @@ class Missoes {
         $stmt->execute();
         $dadosPersonagem = $stmt->fetch();
         
-        $sql = "SELECT * FROM missoes";
+        $sql = "SELECT * FROM missoes_lista";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetchAll();
@@ -64,29 +58,29 @@ class Missoes {
         
         foreach ($item as $key => $value) {
             
-            $row .= '<li class="missao missao-'.$core->slug($value->nome).'" >
+            $row .= '<li class="missao missao-'.$core->slug($value->titulo).'" >
                         <div class="box-img">
                             <div class="content-img">
-                                <img src="'.BASE.'assets/missoes/'.$value->foto.'" alt="'.$value->nome.'" />
+                                <img src="'.BASE.'assets/missoes/'.$value->foto.'" alt="'.$value->titulo.'" />
                             </div>
-                            <h3>'.$value->nome.'</h3>
+                            <h3>'.$value->titulo.'</h3>
                         </div>
-                        <span class="golds">'.$value->golds.' Golds</span>
+                        <span class="golds">'.$value->recompensa_ouro.' Golds</span>
                         <form class="formMissao" method="post">
                             <select name="tempo">
                                 '.$options_time.'
                             </select>
                             <input type="hidden" name="idMissao" value="'.$value->id.'" />
-                            <input type="submit" id="iniciar-missao" '.$this->verificaMissao($value->id, $idPersonagem, $value->total, $value->level_inicial, $dadosPersonagem->nivel, $value->qtd_vitorias, $dadosPersonagem->tam).' class="bts-form" name="iniciar" value="Começar" />
+                            <input type="submit" id="iniciar-missao" '.$this->verificaMissao($value->id, $idPersonagem, $value->total, $value->nivel_minimo, $dadosPersonagem->nivel, $value->qtd_vitorias, $dadosPersonagem->tam).' class="bts-form" name="iniciar" value="Começar" />
                         </form>';
                         if($value->id != 1){
                             $row .= '<div class="especificacoes">
                                     <h4>Conquistas Necessárias</h4>';
                         }
                         
-                        if($value->id != 1 && $value->level_inicial > 0){
-                            $row .= '<div class="indicador level '.$this->verificaLevel($idPersonagem, $value->level_inicial).'">
-                                        <strong>'.$value->level_inicial.'</strong>
+                        if($value->id != 1 && $value->nivel_minimo > 0){
+                            $row .= '<div class="indicador level '.$this->verificaLevel($idPersonagem, $value->nivel_minimo).'">
+                                        <strong>'.$value->nivel_minimo.'</strong>
                                         <span>Nível</span>
                                         <i class="far fa-check-circle"></i>
                                     </div>';
@@ -101,14 +95,9 @@ class Missoes {
                         }
                         
                         if($value->id != 1){
-                            $sql = "SELECT * FROM missoes WHERE id < $value->id";
-                            $stmt = DB::prepare($sql);
-                            $stmt->execute();
-                            $itens_menores = $stmt->fetchAll();
-
                             foreach ($item as $key2 => $value2) {
                                 if($value2->id < $value->id){
-                                    $row .= $this->validaEtapasMissoes($idPersonagem, $value2->id, $value->total, $value2->nome);
+                                    $row .= $this->validaEtapasMissoes($idPersonagem, $value2->id, $value->total, $value2->titulo);
                                 }
                             }
                         }
@@ -116,11 +105,12 @@ class Missoes {
                         if($value->id != 1){
                             $row .= '</div>';
                         }
-                     $row .= '</li>';
+                    $row .= '</li>';
         }
         
         echo $row;
     }
+
     
     public function verificaTAM($idPersonagem, $vitorias){
         $sql = "SELECT * FROM usuarios_personagens WHERE id = $idPersonagem";
@@ -158,7 +148,8 @@ class Missoes {
     }
     
     public function verificaMissao($idMissao, $idPersonagem, $total, $level_missao, $level, $vitorias_missao, $vitorias){        
-        $sql = "SELECT * FROM missoes WHERE id < $idMissao";
+        // CHANGE: Query from missoes_lista
+        $sql = "SELECT * FROM missoes_lista WHERE id < $idMissao";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $missao = $stmt->fetchAll();
@@ -200,12 +191,16 @@ class Missoes {
         }
     }
     
+
+
     public function iniciaMissao($idUsuario, $dados, $idPersonagem, $vip){
         $core = new Core();
         
-        $tempo = $dados['tempo'];
-        $missao = $dados['idMissao'];
+        // Sanitize and cast inputs
+        $tempo = intval($dados['tempo']);
+        $missao = intval($dados['idMissao']);
         
+        // Gold calculation map based on mission ID
         if($missao == 1){
             $golds = 500;
         } else if($missao == 2){
@@ -242,47 +237,72 @@ class Missoes {
             $golds = 15000;
         } else if($missao == 18){
             $golds = 20000;
+        } else {
+            $golds = 500; // Default
         }
         
         $config = $core->getConfiguracoes();
         
+        // Calculate mission duration in seconds
         if($config->teste == 1){
+            // TEST MODE: 3 seconds
             $segundos = intval(3);
         } else {
+            // NORMAL MODE: Calculate based on VIP status
             if($vip == 1){
+                // VIP gets 50% time reduction
                 $time_vip = (50 / 100) * intval($tempo);
             } else {
+                // Non-VIP: full time
                 $time_vip = intval($tempo);
             }
             
-            $segundos = $time_vip * 3600;
+            // Convert hours to seconds
+            $segundos = $time_vip * 60 * 60;
         }
         
-        $tempo_atual = time();
-        $tempo_final = time() + $segundos;
+        // Calculate end time (Unix timestamp)
+        $tempo_agora = time();
+        $tempo_final = $tempo_agora + $segundos;
         
+        // Calculate total gold reward
         $calculo_golds = intval($tempo) * intval($golds);
         
+        // Prepare fields for database insert - ONLY FIELDS THAT EXIST
         $campos = array(
             'idPersonagem' => $idPersonagem,
             'idUsuario' => $idUsuario,
             'idMissao' => $missao,
-            'tempo' => $tempo_atual,
-            'tempo_final' => $tempo_final,
+            'tempo' => $tempo_agora,           // Mission start time (Unix timestamp)
+            'tempo_final' => $tempo_final,     // Mission end time (Unix timestamp)
             'gold' => $calculo_golds
         );
         
-        $core->insert('personagens_missoes', $campos);
+        // Insert mission into database
+        $insercao = $core->insert('personagens_missoes', $campos);
         
-        $sql = "SELECT * FROM personagens_missoes WHERE idUsuario = '$idUsuario' ORDER BY id DESC LIMIT 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $dados_missao = $stmt->fetch();
-        
-        $_SESSION['missao'] = true;
-        $_SESSION['missao_id'] = $dados_missao->id;        
-        header('Location: '.BASE.'portal');
+        if($insercao){
+            // Get the newly created mission using core method
+            $missao_criada = $core->getDados('personagens_missoes', 
+                'WHERE idUsuario = '.intval($idUsuario).' AND idPersonagem = '.intval($idPersonagem).' ORDER BY id DESC LIMIT 1');
+            
+            if($missao_criada){
+                // Set session variables for mission tracking
+                $_SESSION['missao'] = true;
+                $_SESSION['missao_id'] = $missao_criada->id;
+            }
+            
+            // Redirect to portal
+            header('Location: '.BASE.'portal');
+            exit;
+        } else {
+            // Mission insert failed
+            echo "Erro ao criar missão!";
+            exit;
+        }
     }
+
+
     
     public function contadorMissao($idPersonagem){
         $core = new Core();
@@ -299,6 +319,63 @@ class Missoes {
             }
         }
     }
+
+
+    public function completarMissaoComRecompensa($idPersonagem, $idMissao){
+        try {
+            // Get mission details
+            $sql = "SELECT * FROM missoes_lista WHERE id = " . intval($idMissao);
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $missao = $stmt->fetch();
+            
+            if(!$missao){
+                return false;
+            }
+            
+            // Update mission as completed
+            $sql = "UPDATE personagens_missoes 
+                    SET concluida = 1, data_conclusao = NOW() 
+                    WHERE idPersonagem = " . intval($idPersonagem) . " 
+                    AND idMissao = " . intval($idMissao);
+            DB::prepare($sql)->execute();
+            
+            // Get character current stats
+            $sql = "SELECT * FROM usuarios_personagens WHERE id = " . intval($idPersonagem);
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $personagem = $stmt->fetch();
+            
+            if(!$personagem){
+                return false;
+            }
+            
+            // Calculate rewards
+            $exp_ganho = intval($missao->experiencia ?? 100);
+            $ouro_ganho = intval($missao->ouro ?? 50);
+            
+            // Add EXP and update character
+            $nova_exp = intval($personagem->experiencia) + $exp_ganho;
+            $novo_ouro = intval($personagem->ouro) + $ouro_ganho;
+            
+            $sql = "UPDATE usuarios_personagens 
+                    SET experiencia = " . $nova_exp . ", 
+                        ouro = " . $novo_ouro . " 
+                    WHERE id = " . intval($idPersonagem);
+            DB::prepare($sql)->execute();
+            
+            // Log reward notification
+            $conteudo = "Missão concluída! Você ganhou " . $exp_ganho . " de EXP e " . $ouro_ganho . " de ouro!";
+            $this->core->setNotification($conteudo, 'sucesso', $idPersonagem);
+            
+            return true;
+            
+        } catch (Exception $e) {
+            error_log("Erro ao completar missão: " . $e->getMessage());
+            return false;
+        }
+    }
+
     
     public function MissoesRun($idUsuario, $idPersonagem){
         $core = new Core();
@@ -431,7 +508,8 @@ class Missoes {
     }
     
     public function getCountMissoes($idPersonagem){
-        $sql = "SELECT * FROM missoes";
+        // CHANGE: Query from missoes_lista
+        $sql = "SELECT * FROM missoes_lista";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $itens = $stmt->fetchAll();
@@ -444,9 +522,10 @@ class Missoes {
             $stmt->execute();
             $item = $stmt->fetch();
             
+            // CHANGE: Use titulo instead of nome
             $row .= '<li>
                         <strong>'.$item->total.'</strong>
-                        <span>Missões '.$value->nome.'</span>
+                        <span>Missões '.$value->titulo.'</span>
                      </li>';
         }
         
@@ -461,6 +540,7 @@ class Missoes {
         
         return $item->total;
     }
+
     
     public function validaEtapasMissoes($idPersonagem, $idMissao, $total, $nome_missao){
         $total_alcancado = $this->getCountTotalMissoes($idPersonagem, $idMissao);
@@ -471,4 +551,128 @@ class Missoes {
                     <i class="far fa-check-circle"></i>
                 </div>';
     }
+
+    /**
+     * Complete mission and grant rewards
+     * AUTO-CALLED when timer reaches 0
+     */
+    public function completeMissao($idMissao, $idPersonagem) {
+        global $core;
+        
+        try {
+            $missao = $core->getDados('personagens_missoes', 'WHERE id = ' . intval($idMissao));
+            if (!$missao) {
+                return false;
+            }
+            
+            $sql = "UPDATE personagens_missoes SET concluida = 1 WHERE id = ?";
+            $stmt = DB::prepare($sql);
+            if (!$stmt->execute([intval($idMissao)])) {
+                return false;
+            }
+            
+            $missaoLista = $core->getDados('missoes_lista', 'WHERE id = ' . intval($missao->idMissao));
+            $personagem = $core->getDados('usuarios_personagens', 'WHERE id = ' . intval($idPersonagem));
+            
+            if ($missaoLista && $personagem) {
+                $experiencia = intval($missaoLista->experiencia);
+                $ouro = intval($missaoLista->ouro);
+                
+                $campos = array(
+                    'experiencia' => intval($personagem->experiencia) + $experiencia,
+                    'ouro' => intval($personagem->ouro) + $ouro
+                );
+                
+                $core->update('usuarios_personagens', $campos, 'id = ' . intval($idPersonagem));
+                
+                if (isset($_SESSION['missao'])) {
+                    unset($_SESSION['missao']);
+                }
+                
+                return true;
+            }
+            
+            return false;
+            
+        } catch (Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get active mission for timer display
+     * CALLED in index.php to get mission data
+     */
+    public function getMissaoAtiva($idPersonagem) {
+        try {
+            $sql = "SELECT 
+                        pm.id, 
+                        pm.tempo, 
+                        pm.duracao, 
+                        pm.concluida, 
+                        ml.titulo, 
+                        ml.experiencia, 
+                        ml.ouro
+                    FROM personagens_missoes pm
+                    INNER JOIN missoes_lista ml ON pm.idMissao = ml.id
+                    WHERE pm.idPersonagem = ? 
+                    AND pm.cancelada = 0 
+                    AND pm.concluida = 0
+                    LIMIT 1";
+            
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($idPersonagem)]);
+            return $stmt->fetch();
+            
+        } catch (Exception $e) {
+            return null;
+        }
+    }
+
+    public function completarMissao($idPersonagem, $idMissao){
+        // Get mission data
+        $sql = "SELECT * FROM missoes_lista WHERE id = " . intval($idMissao);
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $missao = $stmt->fetch();
+        
+        if($missao){
+            // Update mission as complete
+            $sql = "UPDATE personagens_missoes SET concluida = 1, data_conclusao = NOW() 
+                    WHERE idPersonagem = " . intval($idPersonagem) . " AND idMissao = " . intval($idMissao);
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            
+            // Get player character
+            $sql = "SELECT * FROM usuarios_personagens WHERE id = " . intval($idPersonagem);
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $personagem = $stmt->fetch();
+            
+            // Calculate and give rewards
+            $exp_ganho = $missao->experiencia ?? 100;
+            $ouro_ganho = $missao->ouro ?? 50;
+            
+            // Add EXP
+            $nova_exp = $personagem->experiencia + $exp_ganho;
+            $sql = "UPDATE usuarios_personagens SET experiencia = " . intval($nova_exp) . " 
+                    WHERE id = " . intval($idPersonagem);
+            DB::prepare($sql)->execute();
+            
+            // Add Gold
+            $novo_ouro = $personagem->ouro + $ouro_ganho;
+            $sql = "UPDATE usuarios_personagens SET ouro = " . intval($novo_ouro) . " 
+                    WHERE id = " . intval($idPersonagem);
+            DB::prepare($sql)->execute();
+            
+            return true;
+        }
+        
+        return false;
+    }
+
+
+
 }
+
+?>

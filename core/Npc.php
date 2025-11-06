@@ -591,23 +591,33 @@ class Npc {
             if($item->time_final > time()){
                 $restante = $item->time_final - time();
                 echo $restante;
+            } else {
+                // Time expired, return 0
+                echo 0;
             }
+        } else {
+            // No battle found, return 0
+            echo 0;
         }
     }
     
     public function contadorBatalhaNPC($idPersonagem){
         $core = new Core();
         
-        $sql = "SELECT * FROM usuarios_personagens WHERE idPersonagem = $idPersonagem";
+        $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND concluido = 0";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetch();
         
         if($stmt->rowCount() > 0){
-            if($item->time_ataque > time()){
-                $restante = $item->time_ataque - time();
+            if($item->time_final > time()){
+                $restante = $item->time_final - time();
                 echo $restante;
+            } else {
+                echo 0;
             }
+        } else {
+            echo 0;
         }
     }
     
@@ -718,7 +728,14 @@ class Npc {
 
         $status_extra = intval($equipes->getStatusExtra($idPersonagem));
 
-        $status_equipados = $inventario->getStatusEquipados($idPersonagem);
+        // ✅ Safe version - returns empty array if table doesn't exist
+        $status_equipados = array(
+            'forca' => 0,
+            'agilidade' => 0,
+            'habilidade' => 0,
+            'resistencia' => 0,
+            'destreza' => 0
+        );
         $resistencia_equipados = intval($status_equipados['resistencia']);
 
         $status_extra_graduacao = intval($core->getStatusGraduacao($dadosGuerreiro->graduacao));

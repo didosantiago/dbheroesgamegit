@@ -720,18 +720,25 @@ class Usuarios {
             return false;
         }
     }
-    
-    public function validaIP($ip){
-        $sql = "SELECT * FROM usuarios WHERE ip = '$ip' ";
+        
+    // Add this method to Usuarios.php class
+    public function validaIP($ip) {
+        $core = new Core();
+        
+        // Check how many accounts exist with this IP
+        $sql = "SELECT COUNT(*) as total FROM usuarios WHERE ip = '$ip'";
         $stmt = DB::prepare($sql);
         $stmt->execute();
+        $row = $stmt->fetch();
         
-        if($stmt->rowCount() >= 2){
-            return false;
-        } else {
-            return true;
+        // Allow maximum 3 accounts per IP (you can change this limit)
+        if($row->total >= 3) {
+            return false; // IP limit reached
         }
+        
+        return true; // IP is valid
     }
+
     
     public function validaCamposCadastro($id){
         $sql = "SELECT * FROM usuarios WHERE id = $id";

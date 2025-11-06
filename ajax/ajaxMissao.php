@@ -1,11 +1,32 @@
 <?php
-    require_once "../core/config.php";
-    require_once "../core/DB.php";
-    require_once "../core/Core.php";
-    require_once "../core/Missoes.php";
+session_start();
+require '../init.php';
+
+// Get mission countdown time - same as cacadas.php
+if (isset($_POST['id'])) {
+    $id = intval($_POST['id']);
     
-    $core = new Core();
-    $missoes = new Missoes();
+    $sql = "SELECT * FROM personagens_missoes 
+            WHERE idPersonagem = $id 
+            AND concluida = 0 
+            AND cancelada = 0 
+            LIMIT 1";
     
-    $missoes->contadorMissao(addslashes($_POST['id']));
+    $stmt = DB::prepare($sql);
+    $stmt->execute();
+    
+    if ($stmt->rowCount() > 0) {
+        $missao = $stmt->fetch();
+        
+        // Calculate remaining time
+        $tempo_atual = time();
+        $tempo_restante = $missao->tempo_final - $tempo_atual;
+        
+        // Return remaining seconds (minimum 0)
+        echo max(0, intval($tempo_restante));
+    } else {
+        // No active mission
+        echo 0;
+    }
+}
 ?>

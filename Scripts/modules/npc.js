@@ -18,13 +18,19 @@ DBH.npc = (function() {
             url: baseSite+"ajax/ajaxNPC.php",
             data: data_string,
             success: function (res) {
-                startCountdownNPC(res);
+                // Convert response to integer, default to 0 if empty
+                var tempo = parseInt(res) || 0;
+                startCountdownNPC(tempo);
+            },
+            error: function() {
+                // If AJAX fails, start with 0
+                startCountdownNPC(0);
             }
         });
     },
     startCountdownNPC = function(tempo){
         // Se o tempo não for zerado
-        if((tempo - 1) >= 0){
+        if(tempo > 0){
             
             var min = parseInt(tempo/60);
             var horas = parseInt(min/60);
@@ -59,12 +65,9 @@ DBH.npc = (function() {
 
             // Define que a função será executada novamente em 1000ms = 1 segundo
             setTimeout(function(){ 
-                startCountdownNPC(tempo);
+                startCountdownNPC(tempo - 1);
             }, 1000);
-            
 
-            // diminui o tempo
-            tempo --;
         } else {
             $(".contador-batalha .cronometro").html('00:00');
             var finalizado = $('#finalizado').val();
@@ -90,13 +93,16 @@ DBH.npc = (function() {
             url: baseSite+"ajax/ajaxBatalhaNPC.php",
             data: data_string,
             success: function (res) {
-                startCountdownBatalha(res);
+                var tempo = parseInt(res) || 0;
+                if(tempo > 0) {
+                    startCountdownBatalha(tempo);
+                }
             }
         });
     },
     startCountdownBatalha = function(tempo){
         // Se o tempo não for zerado
-        if((tempo - 1) >= 0){
+        if(tempo > 0){
             
             var min = parseInt(tempo/60);
             var horas = parseInt(min/60);
@@ -126,12 +132,9 @@ DBH.npc = (function() {
 
             // Define que a função será executada novamente em 1000ms = 1 segundo
             setTimeout(function(){ 
-                startCountdownBatalha(tempo);
+                startCountdownBatalha(tempo - 1);
             }, 1000);
-            
 
-            // diminui o tempo
-            tempo --;
         } else {
             $(".npc-running").remove();
         }
@@ -150,16 +153,19 @@ DBH.npc = (function() {
             url: baseSite+"ajax/ajaxAtacarNPC.php",
             data: data_string,
             success: function (res) {
-                location.reload(true);
+                // REMOVED location.reload(true) - this was causing constant page refresh
+                // Instead, reload only after a delay to show the attack result
+                setTimeout(function() {
+                    location.reload(true);
+                }, 1500);
             }
         });
     },
     combateLog = function(){
         const container = document.querySelector('.log');
-        const ps = new PerfectScrollbar(container);
-
-        // or just with selector string
-        const ps = new PerfectScrollbar('.log');
+        if(container) {
+            const ps = new PerfectScrollbar(container);
+        }
     }
     
     return {

@@ -1,11 +1,48 @@
 <?php 
+
     // Redirect logged-out users to home/login
     if(!isset($_SESSION['user_logado']) || $_SESSION['user_logado'] !== true){
         header('Location: '.BASE.'home');
         exit;
     }
 
-    // Get Double EXP data with error handling
+    // ============ MISSION/HUNTING TIMER ============
+    $tempoMissao = 0;
+    $tempoTotal = 0; // Total time for display
+    $idMissao = 0;
+    $missaoAtiva = null;
+    $tipoBusca = 'missao'; // 'missao' or 'cacada'
+    
+    // Check for active mission
+    if(isset($_SESSION['missao'])) {
+        $dadosMissao = $core->getDados('personagens_missoes', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND concluida = 0 AND cancelada = 0');
+        if($dadosMissao) {
+            $idMissao = $dadosMissao->id;
+            $missaoAtiva = $dadosMissao;
+            $tipoBusca = 'missao';
+            
+            if($dadosMissao->tempo_final && $dadosMissao->tempo_final > time()) {
+                $tempoMissao = $dadosMissao->tempo_final - time();
+                $tempoTotal = $tempoMissao;
+            }
+        }
+    }
+    
+    // If no mission, check for active hunting
+    if(!$missaoAtiva && isset($_SESSION['cacada'])) {
+        $dadosCacada = $core->getDados('personagens_cacadas', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND ativa = 1');
+        if($dadosCacada) {
+            $missaoAtiva = $dadosCacada;
+            $tipoBusca = 'cacada';
+            
+            if($dadosCacada->tempo_final && $dadosCacada->tempo_final > time()) {
+                $tempoMissao = $dadosCacada->tempo_final - time();
+                $tempoTotal = $tempoMissao;
+            }
+        }
+    }
+
+    // Get Double EXP data
     $tempoRestanteDouble = 0;
     $dadosDouble = null;
     
@@ -41,11 +78,11 @@
         $dadosDouble = (object) array('status' => 0, 'periodo' => 0);
     }
     
-    // Ensure dadosDouble is an object
     if(!$dadosDouble){
         $dadosDouble = (object) array('status' => 0, 'periodo' => 0);
     }
 
+    // Handle poll voting
     if(isset($_POST['votar_enquete'])){
         $dados = $core->getDados('adm_enquetes_opcoes', "WHERE id = ".addslashes($_POST['votar_enquete']));
         
@@ -56,7 +93,6 @@
         $where = 'id = '.addslashes($_POST['votar_enquete']);
 
         if($core->update('adm_enquetes_opcoes', $campos, $where)){
-            
             $campos = array(
                 'idEnquete' => $dados->idEnquete,
                 'idUsuario' => $user->id,
@@ -102,12 +138,23 @@
 </div>
 
 <ul class="ultimos-acontecimentos">
+    <!-- Mission/Hunting Timer (if active) -->
+    <?php if($missaoAtiva && $tempoMissao > 0): ?>
+    <li class="double-exp">
+        <h4><?php echo strtoupper($tipoBusca); ?> ATIVA</h4>
+        <div class="contador-double-exp cont timer-missao" id="timer-missao" data-tempo="<?php echo $tempoTotal; ?>">00:00:00</div>
+        <span>Tempo Restante</span>
+    </li>
+    <?php endif; ?>
+    
+    <!-- Double EXP Timer -->
     <li class="double-exp">
         <img src="<?php echo BASE; ?>assets/bg-double-exp.jpg" />
         <h4>DOUBLE EXP</h4>
-            <div class="contador-double-exp cont">00:00:00</div>
-            <span>Tempo Restante</span>
+        <div class="contador-double-exp cont" id="contador-double-exp">00:00:00</div>
+        <span>Tempo Restante</span>
     </li>
+    
     <li class="nf">
         <img src="<?php echo BASE.'assets/bg-ultimos-avisos.jpg'; ?>" />
         <h4>Avisos</h4>
@@ -228,51 +275,78 @@
     </div>
 </div>
 
+<!-- ============ JAVASCRIPT TIMERS ============ -->
 <script type="text/javascript">
-    var tempoRestante = <?php echo $tempoRestanteDouble; ?>;
-    
-    function startCountdownDouble(tempo){
-        if(tempo > 0){
-            var min = parseInt(tempo/60);
-            var horas = parseInt(min/60);
-            min = min % 60;
-            var seg = tempo%60;
-
-            if(min < 10){
-                min = "0"+min;
-                min = min.substr(0, 2);
+    // ============ MISSION/HUNTING TIMER (WORKS!) ============
+    <?php if($missaoAtiva && $tempoMissao > 0): ?>
+    (function() {
+        let tempoRestante = <?php echo $tempoMissao; ?>;
+        const timerElement = document.getElementById('timer-missao');
+        
+        if (!timerElement) return;
+        
+        function updateTimer() {
+            if (tempoRestante > 0) {
+                let horas = Math.floor(tempoRestante / 3600);
+                let minutos = Math.floor((tempoRestante % 3600) / 60);
+                let segundos = tempoRestante % 60;
+                
+                let display = 
+                    String(horas).padStart(2, '0') + ':' +
+                    String(minutos).padStart(2, '0') + ':' +
+                    String(segundos).padStart(2, '0');
+                
+                timerElement.textContent = display;
+                tempoRestante--;
+            } else {
+                timerElement.textContent = '00:00:00';
+                clearInterval(timerInterval);
+                setTimeout(() => location.reload(), 1000);
             }
-
-            if(seg <=9){
-                seg = "0"+seg;
-            }
-
-            if(horas <=9){
-                horas = "0" + horas;
-            }
-
-            var horaImprimivel = horas + ':' + min + ':' + seg;
-
-            $(".contador-double-exp.cont").html(horaImprimivel);
-
-            tempo--;
-            
-            setTimeout(function(){ 
-                startCountdownDouble(tempo);
-            }, 1000);
-        } else {
-            // Timer finished - just show 00:00:00, DO NOT reload
-            $(".contador-double-exp.cont").html("00:00:00");
         }
-    }
+        
+        updateTimer(); // Update immediately
+        const timerInterval = setInterval(updateTimer, 1000); // Update every second
+    })();
+    <?php endif; ?>
     
-    if(tempoRestante > 0){
-        startCountdownDouble(tempoRestante);
-    }
-</script>
-
-<script type="text/javascript">
-    $('#formEnquete input[name="votar_enquete"]').on('change', function(){
+    // ============ DOUBLE EXP TIMER ============
+    (function() {
+        var tempoRestante = <?php echo $tempoRestanteDouble; ?>;
+        const doubleExpElement = document.getElementById('contador-double-exp');
+        
+        if (!doubleExpElement) return;
+        
+        function startCountdownDouble(tempo) {
+            if (tempo > 0) {
+                var min = parseInt(tempo / 60);
+                var horas = parseInt(min / 60);
+                min = min % 60;
+                var seg = tempo % 60;
+                
+                if (min < 10) min = "0" + min;
+                if (seg <= 9) seg = "0" + seg;
+                if (horas <= 9) horas = "0" + horas;
+                
+                var horaImprimivel = horas + ':' + min + ':' + seg;
+                doubleExpElement.innerHTML = horaImprimivel;
+                tempo--;
+                
+                setTimeout(function() {
+                    startCountdownDouble(tempo);
+                }, 1000);
+            } else {
+                doubleExpElement.innerHTML = "00:00:00";
+            }
+        }
+        
+        if (tempoRestante > 0) {
+            startCountdownDouble(tempoRestante);
+        }
+    })();
+    
+    // ============ POLL VOTING ============
+    $('#formEnquete input[name="votar_enquete"]').on('change', function() {
         $('#formEnquete').submit();
     });
 </script>

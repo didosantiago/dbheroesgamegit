@@ -101,30 +101,27 @@
             unset($_SESSION['npc_final']);
         }
 
+        // Validation checks - only run if battle doesn't exist yet
         if(!isset($_SESSION['npc'])){
             if($personagem->hp <= 0){
                 $habilitado = 0;
                 $core->msg('error', 'Seu HP é insuficiente para a luta.');
-                header('Location: '.BASE.'ranking');
+                header('Location: '.BASE.'hospital');
+                exit();
             }
             
-            if($personagem->nivel < $oponente->nivel){
+            if(isset($oponente) && $personagem->nivel < $oponente->nivel){
                 $habilitado = 0;
                 $core->msg('error', 'Você não pode atacar um adversário com level maior');
                 header('Location: '.BASE.'torneio');
+                exit();
             }
-        }
         
-        if($core->proccessInNotNPC()){
-            $habilitado = 0;
-            header('Location: '.BASE.'profile');
-        }
-
-        if(!isset($_SESSION['npc'])){
             if($personagem->gold < 20){
                 $habilitado = 0;
                 $core->msg('error', 'Gold insuficiente para a Batalha, realize caçadas ou missões para conseguir o gold necessário!');
                 header('Location: '.BASE.'ranking');
+                exit();
             }
             
             $energia_restante = intval($personagem->energia) - intval($personagem->energia_usada);
@@ -133,6 +130,7 @@
                 $habilitado = 0;
                 $core->msg('error', 'Energia insuficiente para a Batalha.');
                 header('Location: '.BASE.'torneio');
+                exit();
             }
         }
 
@@ -210,8 +208,8 @@
                 $core->update('npc', $campos_npc, $where_npc);
                 
                 $personagem->getGuerreiro($idPersonagem);
-                
-                $treino->viewNewLevel($personagem->id, $personagem->nivel, $personagem->exp);
+
+                $personagem->checkLevelUp($idPersonagem);
             } else {
                 $oponente = $parametro_1;
 
@@ -419,4 +417,3 @@
         $npc->printConfronto($parametro_1, $idPersonagem, $npc_life, $npc_life_oponente, $personagem->mana, $user->vip, $npc_ki_oponente); 
     ?>
 </div>
-
