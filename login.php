@@ -7,7 +7,7 @@
             $core->controleLogin($core->getIP(), addslashes($_POST['username']), addslashes($_POST['senha']));
             
             if($user->login(addslashes(htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8')), md5(addslashes($_POST['senha'])))){
-                header('Location: '.BASE.'portal');
+                header('Location: '.BASE.'meus-personagens');
                 exit;
             } else {
                 $core->msg('error', 'Usuário ou Senha invalidos!');

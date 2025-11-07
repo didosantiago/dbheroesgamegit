@@ -1486,6 +1486,8 @@ startCountdownMissao = function(tempo){
     },
     jogar = function(){
         $('.bt-jogar').on('click', function(){
+            console.log('🎮 JOGAR button clicked from db-heroes.js!');
+            
             if($('.loader').length <= 0){
                 $('body').prepend('<div class="loader">'+
                                 '<img src="assets/loader2.gif" alt="Carregando Game..." />'+
@@ -1500,7 +1502,10 @@ startCountdownMissao = function(tempo){
                     url: "ajax/ajaxJogar.php",
                     data: data_string,
                     success: function (res) {
-                        
+                        console.log('✅ JOGAR AJAX Success:', res);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('❌ JOGAR AJAX Error:', error);
                     }
                 });
                     
@@ -1514,9 +1519,9 @@ startCountdownMissao = function(tempo){
                     $('.loader').remove();
                 }, 3000);
             }
-           
         });
     },
+
     foto = function(){
         $('.fotos-personagem li').on('click', function(){
             if(!$(this).hasClass('bloqueado')){

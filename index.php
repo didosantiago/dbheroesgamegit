@@ -35,20 +35,32 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-        
+    
     <link rel="shortcut icon" href="<?php echo BASE; ?>assets/favicon.ico" type="image/x-icon">
-    <link type="text/css" rel="stylesheet" href="<?php echo BASE; ?>assets/dbheroes.css" />
+    
+    <!-- CSS - Load for ALL pages -->
     <link type="text/css" rel="stylesheet" href="<?php echo BASE; ?>assets/dbheroes-vendor.css" />
+    <link type="text/css" rel="stylesheet" href="<?php echo BASE; ?>assets/dbheroes.css" />
+    
+    <!-- jQuery and Font Awesome - All pages -->
     <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.js"></script>
-     <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script> 
-    <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes-vendor.min.js?v=15042019.2"></script>
-    <script type="text/javascript" src="<?php echo BASE; ?>assets/modernizr.custom.js"></script>
-    <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
-    <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
-    <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script>
+    
+    <?php if(!$isPublicPage): ?>
+        <!-- GAME PAGES ONLY - JavaScript -->
+        <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes-vendor.min.js?v=15042019.2"></script>
+        <script type="text/javascript" src="<?php echo BASE; ?>assets/modernizr.custom.js"></script>
+        <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
+        <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
+        <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
+    <?php endif; ?>
 </head>
+
+
+
+
+
 <body class="<?php echo $modulo; ?>">
         <div class="top-bar">
             <button id="playTema" style="display: none;"></button>
@@ -517,15 +529,13 @@ if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0)
                     setTimeout(checkMissionStatus, 1000);
                     
                 } else if(seconds == 0){
-                    console.log("🎉 Mission completed! Processing rewards...");
-                    $(".missao-running .contador").html('CONCLUÍDO');
+                    console.log('Mission completed! Processing rewards...');
+                    $('.missao-running .contador').html('CONCLUÍDO');
                     
-                    // Mission is complete - ajaxMissao.php already handled rewards
-                    // Just fade out and reload to show the purple static popup
                     setTimeout(function(){
-                        $(".missao-running").fadeOut(500, function(){
-                            // Reload immediately to show purple reward popup
-
+                        $('.missao-running').fadeOut(500, function(){
+                            // ✅ Redirect to missions page to show purple reward popup
+                            window.location.href = '<?php echo BASE; ?>missoes';
                         });
                     }, 1000);
                     
@@ -646,42 +656,7 @@ if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0)
         return false;
     });
 
-// Initialize JOGAR button immediately on page load
-$(document).ready(function(){
-    // Attach jogar button handler
-    $(document).on('click', '.bt-jogar', function(){
-        if($('.loader').length <= 0){
-            $('body').prepend('<div class="loader">'+
-                            '<img src="<?php echo BASE; ?>assets/loader2.gif" alt="Carregando Game..." />'+
-                            '<p>Carregando o Jogo, Aguarde...</p>'+
-                        '</div>'); 
-                
-            var id = $(this).attr('dataid');
-            var data_string = 'id=' + id;
 
-            $.ajax({
-                type: "POST",
-                url: "<?php echo BASE; ?>ajax/ajaxJogar.php",
-                data: data_string,
-                success: function (res) {
-                    console.log('Character switched successfully');
-                }
-            });
-                
-            setTimeout(function(){ 
-                var base = window.location.href.split('/meus-personagens');
-                var url = base[0] + '/portal';
-                window.location.href = url;
-            }, 2000);
-            
-            setTimeout(function(){ 
-                $('.loader').remove();
-            }, 2000);
-        }
-    });
-    
-    console.log('✅ JOGAR button handler initialized');
-});
 
 </script>
 </body>

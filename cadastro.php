@@ -7,80 +7,95 @@ if (session_status() == PHP_SESSION_NONE) {
 // Load required files
 require_once __DIR__ . '/init.php';  // ✅ Loads everything
 
-// Generate token ONCE
+// Generate token ONCE at the start
 if(!isset($_SESSION['token_form_cadastro'])) {
     $_SESSION['token_form_cadastro'] = md5(time());
 }
 
-// Rest of your code...
+// Store token value for form
+$formToken = $_SESSION['token_form_cadastro'];
 
+// Initialize invite variable
+$invite = null;
 
-    if(!$_POST){
-        $_SESSION['token_form_cadastro'] = md5(time());
-    }
-    
-    if(isset($_POST['cadastrar'])){
-        if($_SESSION['token_form_cadastro'] == addslashes($_POST['token_form_cadastro'])){
-            if(Url::getURL(2) != null){
-                if(Url::getURL(2) == 'invite'){
-                    $invite = Url::getURL(3);
-                }
+if(isset($_POST['cadastrar'])){
+    if($_SESSION['token_form_cadastro'] == addslashes($_POST['token_form_cadastro'])){
+        
+        // Check for invite code
+        if(Url::getURL(2) != null){
+            if(Url::getURL(2) == 'invite'){
+                $invite = Url::getURL(3);
             }
+        }
 
-            $campos = array(
-                'nome' => addslashes($_POST['nome']),
-                'email' => addslashes($_POST['email']),
-                'username' => addslashes($_POST['username']),
-                'senha' => md5(addslashes($_POST['senha'])),
-                'aceite' => addslashes($_POST['aceite']),
-                'vip' => 0,
-                'data_cadastro' => date('Y-m-d'),
-                'data_expiracao' => date('Y-m-d', strtotime('+3 days')),
-                'user_vinculado' => $invite,
-                'ip' => $core->getIP()
-            );
+        $campos = array(
+            'nome' => addslashes($_POST['nome']),
+            'email' => addslashes($_POST['email']),
+            'username' => addslashes($_POST['username']),
+            'senha' => md5(addslashes($_POST['senha'])),
+            'aceite' => addslashes($_POST['aceite']),
+            'vip' => 0,
+            'data_cadastro' => date('Y-m-d'),
+            'data_expiracao' => date('Y-m-d', strtotime('+3 days')),
+            'user_vinculado' => $invite,
+            'ip' => $core->getIP()
+        );
 
-            if(filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
-                if($core->filtrarPalavrasOfensivas(addslashes($_POST['nome']))){
-                    if($core->filtrarPalavrasOfensivas(addslashes($_POST['username']))){
-                        if(!$core->isExists('usuarios', 'WHERE email = "'.addslashes($_POST['email']).'"')){
-                            if(!$core->isExists('usuarios', 'WHERE username = "'.addslashes($_POST['username']).'"')){
-                                if($user->validaIP($core->getIP())){
-                                    if(addslashes($_POST['senha']) == addslashes($_POST['confirmar_senha'])){
-                                        if($core->insert('usuarios', $campos)){
+        if(filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)){
+            if($core->filtrarPalavrasOfensivas(addslashes($_POST['nome']))){
+                if($core->filtrarPalavrasOfensivas(addslashes($_POST['username']))){
+                    if(!$core->isExists('usuarios', 'WHERE email = "'.addslashes($_POST['email']).'"')){
+                        if(!$core->isExists('usuarios', 'WHERE username = "'.addslashes($_POST['username']).'"')){
+                            if($user->validaIP($core->getIP())){
+                                if(addslashes($_POST['senha']) == addslashes($_POST['confirmar_senha'])){
+                                    
+                                    if($core->insert('usuarios', $campos)){
+                                        $user->enviaConfirmacaoCadastro(addslashes($_POST['username']));
 
-                                            $user->enviaConfirmacaoCadastro(addslashes($_POST['username']));
-
-                                            if($user->login(addslashes($_POST['username']), md5(addslashes($_POST['senha'])))){
-                                                $core->msg('sucesso', 'Cadastro Realizado.');
-                                                header('Location: '.BASE.'portal/');
-                                            }
-                                        } else {
-                                            $core->msg('error', 'Ocorreu um Erro ao Registrar.');
+                                        if($user->login(addslashes($_POST['username']), md5(addslashes($_POST['senha'])))){
+                                            $core->msg('sucesso', 'Cadastro Realizado.');
+                                            echo '<script>alert("✅ Cadastro realizado com sucesso!");</script>';
+                                            echo '<script>window.location.href = "'.BASE.'meus-personagens";</script>';
+                                            exit;
                                         }
                                     } else {
-                                        $core->msg('error', 'Confirmação de senha diferente.');
+                                        $core->msg('error', 'Ocorreu um Erro ao Registrar.');
+                                        echo '<script>alert("❌ Erro ao registrar no banco de dados!");</script>';
                                     }
                                 } else {
-                                    $core->msg('error', 'Número de Contas por Máquina esgotado.');
+                                    $core->msg('error', 'Confirmação de senha diferente.');
+                                    echo '<script>alert("❌ As senhas não coincidem!\n\nDigite a mesma senha nos dois campos.");</script>';
                                 }
                             } else {
-                                $core->msg('error', 'Este Username já foi utilizado por outro Usuário.');
+                                $core->msg('error', 'Número de Contas por Máquina esgotado.');
+                                echo '<script>alert("❌ LIMITE ATINGIDO!\n\nVocê já possui 3 contas cadastradas neste IP.\n\nNão é possível criar mais contas.");</script>';
                             }
                         } else {
-                            $core->msg('error', 'Este E-mail já foi utilizado por outro Usuário.');
+                            $core->msg('error', 'Este Username já foi utilizado por outro Usuário.');
+                            echo '<script>alert("❌ Username já existe!\n\nEscolha outro nome de usuário.");</script>';
                         }
                     } else {
-                        $core->msg('error', 'Não é permitido palavras ofensivas ou bloqueadas.');
+                        $core->msg('error', 'Este E-mail já foi utilizado por outro Usuário.');
+                        echo '<script>alert("❌ Email já cadastrado!\n\nEste email já está sendo usado por outra conta.");</script>';
                     }
                 } else {
                     $core->msg('error', 'Não é permitido palavras ofensivas ou bloqueadas.');
+                    echo '<script>alert("❌ Nome de usuário bloqueado!\n\nO username contém palavras não permitidas.");</script>';
                 }
             } else {
-                $core->msg('error', 'E-mail inválido.');
+                $core->msg('error', 'Não é permitido palavras ofensivas ou bloqueadas.');
+                echo '<script>alert("❌ Nome bloqueado!\n\nO nome contém palavras não permitidas.");</script>';
             }
+        } else {
+            $core->msg('error', 'E-mail inválido.');
+            echo '<script>alert("❌ Email inválido!\n\nDigite um email válido (ex: usuario@email.com)");</script>';
         }
+        
+        // Regenerate token after form submission
+        $_SESSION['token_form_cadastro'] = md5(time());
+        $formToken = $_SESSION['token_form_cadastro'];
     }
+}
 ?>
 
 <?php require_once 'front/header-front.php'; ?>
@@ -90,10 +105,10 @@ if(!isset($_SESSION['token_form_cadastro'])) {
         <h2>Ainda não tem Cadastro? Cadastre-se!</h2>
         
         <form id="formCadastro" action="" method="post" autocomplete="off">
-            <input type="hidden" name="token_form_cadastro" value="<?php echo md5(time()); ?>" />
+            <input type="hidden" name="token_form_cadastro" value="<?php echo $formToken; ?>" />
             
             <div class="img-form desktop">
-                <img src="<?php echo BASE; ?>assets/goku-form.png" />
+                <img src="<?php echo BASE; ?>assets/goku-form.png" alt="Goku" />
             </div>
             <div class="box-form">
                 <div class="campos">

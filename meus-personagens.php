@@ -1,3 +1,18 @@
+<?php
+// Initialize personagem object
+if (!is_object($personagem) || !method_exists($personagem, 'getMeusPersonagens')) {
+    $personagem = new Personagens();
+}
+
+// We'll check after getMeusPersonagens() is called
+ob_start(); // Start output buffering
+$personagem->getMeusPersonagens($user->id);
+$charactersList = ob_get_clean(); // Get the output
+
+// Check if there are characters (if output is empty or just whitespace)
+$hasCharacters = (trim($charactersList) !== '');
+?>
+
 <div class="personagem-atual">
     <div class="foto-personagem">
         <img src="<?php echo BASE; ?>assets/guerreiro_blank.jpg" alt="Selecione seu Guerreiro" />
@@ -47,9 +62,59 @@
 <h2 class="title">Escolha um Guerreiro</h2>
 
 <div class="lista-meus-personagens">
-    <?php
-    if (!is_object($personagem) || !method_exists($personagem, 'getMeusPersonagens')) {
-    $personagem = new Personagens();
-}
-    $personagem->getMeusPersonagens($user->id); ?>
+    <?php if(!$hasCharacters): ?>
+        <!-- NO CHARACTERS MESSAGE -->
+        <div class="empty-characters-state" style="text-align: center; padding: 60px 20px; background: rgba(0, 0, 0, 0.4); border-radius: 15px; margin: 20px auto; max-width: 600px;">
+            <div style="font-size: 60px; margin-bottom: 20px;">⚠️</div>
+            <p style="font-size: 22px; color: #ffcc00; margin-bottom: 30px; font-weight: bold; letter-spacing: 1px;">
+                Você ainda não possui nenhum guerreiro!
+            </p>
+            <a href="<?php echo BASE; ?>criar-personagem" 
+               style="display: inline-block; 
+                      background: linear-gradient(135deg, #58e945ff 0%, #38c27dff 100%); 
+                      color: #ffffff; 
+                      padding: 18px 50px; 
+                      border-radius: 30px; 
+                      text-decoration: none; 
+                      font-weight: bold; 
+                      font-size: 20px; 
+                      text-transform: uppercase; 
+                      letter-spacing: 1.5px;
+                      box-shadow: 0 5px 20px rgba(196, 228, 203, 0.5); 
+                      transition: all 0.3s ease;
+                      border: 2px solid rgba(255, 255, 255, 0.1);"
+               onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(208, 255, 176, 0.7)';"
+               onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 5px 20px rgba(215, 245, 108, 0.5)';">
+                🔥 CRIAR GUERREIRO
+            </a>
+        </div>
+    <?php else: ?>
+        <!-- EXISTING CHARACTER LIST -->
+        <?php echo $charactersList; ?>
+    <?php endif; ?>
 </div>
+
+<style>
+.empty-characters-state a {
+    cursor: pointer;
+}
+
+.empty-characters-state p {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 768px) {
+    .empty-characters-state {
+        padding: 40px 15px !important;
+    }
+    
+    .empty-characters-state p {
+        font-size: 18px !important;
+    }
+    
+    .empty-characters-state a {
+        padding: 15px 35px !important;
+        font-size: 16px !important;
+    }
+}
+</style>

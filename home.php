@@ -1,10 +1,10 @@
 <?php 
     // Redirect logged-in users to portal
     if(isset($_SESSION['user_logado']) && $_SESSION['user_logado'] === true){
-        header('Location: '.BASE.'portal');
+        header('Location: '.BASE.'meus-personagens');
         exit;
     }
-
+    session_start();
     if(!$_POST){
         $_SESSION['token_form_login_home'] = md5(time());
     }
@@ -16,7 +16,6 @@
             if($user->login(addslashes(htmlspecialchars($_POST['username'], ENT_QUOTES, 'UTF-8')), md5(addslashes($_POST['senha'])))){
                 $core->msg('sucesso', 'Bem vindo!');
                 header('Location: '.BASE.'portal');
-                exit;
             } else {
                 $core->msg('error', 'Usuário ou Senha invalidos!');
             }
