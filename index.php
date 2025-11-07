@@ -26,7 +26,7 @@
     }
     
     // Define public pages that don't need the game layout
-    $publicPages = array('home', 'login', 'cadastro', 'sobre', 'autenticar', 'rank', 'ranking', 'assistir');
+    $publicPages = array('home', 'login', 'cadastro', 'sobre', 'autenticar', 'rank', 'assistir');
     $isPublicPage = in_array($modulo, $publicPages);
 ?>
 

@@ -3,7 +3,8 @@
         header('Location: '.BASE.'portal');
     }
     
-    if(isset(_POST['aceitar'])){
+    if(isset($_POST['aceitar'])){  // ✅ Correct - $_POST with $
+
         $campos = array(
             'aceitou' => 1
         );

@@ -210,34 +210,74 @@ class Treino {
     }
     
     public function getPorcentagemKI($ki, $ki_usado){
+        // Safety check
+        if($ki == null || $ki <= 0){
+            return 0;
+        }
+        
+        if($ki_usado == null || $ki_usado < 0){
+            $ki_usado = 0;
+        }
+        
         $ki_restante = $ki - $ki_usado;
         
-        $total = $ki_restante / intval($ki);
+        if($ki_restante < 0){
+            $ki_restante = 0;
+        }
         
+        $total = $ki_restante / intval($ki);
         $resultado = intval($total * 98);
 
         return $resultado;
-    }
-    
+}
+
+        
     public function getPorcentagemEnergia($energia, $energia_usada){
+        // Safety check
+        if($energia == null || $energia <= 0){
+            return 0;
+        }
+        
+        if($energia_usada == null || $energia_usada < 0){
+            $energia_usada = 0;
+        }
+        
         $energia_restante = $energia - $energia_usada;
         
-        $total = $energia_restante / intval($energia);
+        if($energia_restante < 0){
+            $energia_restante = 0;
+        }
         
+        $total = $energia_restante / intval($energia);
         $resultado = intval($total * 98);
 
         return $resultado;
     }
+
     
     public function getPorcentagemHP($hp, $hp_usado){
+        // Safety check to prevent division by zero
+        if($hp == null || $hp <= 0){
+            return 0;
+        }
+        
+        if($hp_usado == null || $hp_usado < 0){
+            $hp_usado = 0;
+        }
+        
         $hp_restante = $hp - $hp_usado;
         
-        $total = $hp_restante / intval($hp);
+        // Additional check: ensure hp_restante is not negative
+        if($hp_restante < 0){
+            $hp_restante = 0;
+        }
         
+        $total = $hp_restante / intval($hp);
         $resultado = intval($total * 98);
 
         return $resultado;
     }
+
     
     public function getProximoNivel($nivel){
         $core = new Core();

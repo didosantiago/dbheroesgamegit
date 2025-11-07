@@ -85,22 +85,7 @@
     
     
 
-// Check if we're in development or production
-$isDevelopment = ($_SERVER['SERVER_NAME'] === 'localhost' || strpos($_SERVER['SERVER_NAME'], '127.0.0.1') !== false);
 
-if ($isDevelopment) {
-    // Development CSP - FULL support for Font Awesome AND AJAX
-    header("Content-Security-Policy: " .
-        "default-src 'self'; " .
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://kit.fontawesome.com https://ka-f.fontawesome.com; " .
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com https://kit.fontawesome.com; " .
-        "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://ka-f.fontawesome.com data:; " .
-        "img-src 'self' data: blob: https://*; " .
-        "connect-src 'self' http://localhost:* http://127.0.0.1:* https://ka-f.fontawesome.com; " .
-        "frame-src 'self' https://www.youtube.com;"
-    );
-} else {
-    // Production CSP - More strict
     header("Content-Security-Policy: " .
         "default-src 'self'; " .
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://kit.fontawesome.com https://ka-f.fontawesome.com https://pagead2.googlesyndication.com; " .
@@ -110,7 +95,6 @@ if ($isDevelopment) {
         "connect-src 'self' https://apis.google.com https://ka-f.fontawesome.com https://use.fontawesome.com; " .
         "frame-src 'self' https://www.youtube.com;"
     );
-}
 
 
 

@@ -84,20 +84,16 @@
 </div>
 
 <div class="widgets widget-news">
-    <div class="mural">
-        <div class="news">
-            <div class="info img">
-                <h3>Título da notícia</h3>
-                <span>Publicado em 05/01/2022</span>
-                <div class="descricao">Bem-vindo ao DB Heroes Game!</div>
-            </div>
-        </div>
-    </div>
+<div class="evento">
+    <a href="<?php echo BASE; ?>missoes">
+        <img src="<?php echo BASE.'assets/esferasgoku.png'; ?>" />
+    </a>
+</div>
 </div>
 
 <div class="evento">
     <a href="<?php echo BASE; ?>invasao">
-        <img src="<?php echo BASE.'assets/boss/boss_freeza.jpg'; ?>" />
+        <img src="<?php echo BASE.'assets/boss/evento_freeza.jpg'; ?>" />
     </a>
 </div>
 

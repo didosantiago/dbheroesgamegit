@@ -488,7 +488,7 @@ class Personagens {
                 $time_vip = intval($tempo);
             }
             
-            $segundos = $time_vip * 60;
+            $segundos = $time_vip * 6;
         }
         
         $tempo_atual = time();
@@ -1173,7 +1173,9 @@ class Personagens {
                                     <strong>'.$value->nome_guerreiro.'</strong>
                                 </a>
                             </td>
-                            <td width="250">'.$this->verificaGraduacao($value->nivel).'</td>
+                            <td width="250" style="text-align: center; vertical-align: middle;">
+            '.$this->getGraduacaoBadgeRanking($value->nivel).'
+         </td>
                             <td>'.$value->nivel.'</td>
                             <td>'.$value->vitorias_pvp.'</td>
                             <td>'.$this->getDerrotasPVP($value->idP).'</td>
@@ -1284,6 +1286,29 @@ class Personagens {
         
         echo $row;
     }
+
+    public function getGraduacaoBadgeRanking($nivel){        
+    $sql = "SELECT * FROM graduacoes";
+    $stmt = DB::prepare($sql);
+    $stmt->execute();
+    $graduacao = $stmt->fetchAll();
+
+    foreach ($graduacao as $key => $value) {
+        if($nivel >= $value->level_inicial && $nivel <= $value->level_final){
+            return '<img src="'.BASE.'assets/'.$value->emblema.'" 
+                         alt="'.$value->graduacao.'" 
+                         title="'.$value->graduacao.'"
+                         style="width: 70px; height: 70px; object-fit: contain; 
+                                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+                                transition: transform 0.2s;"
+                         onmouseover="this.style.transform=\'scale(1.1)\'" 
+                         onmouseout="this.style.transform=\'scale(1)\'" />';
+        } 
+    }
+    
+    return '';
+}
+
     
     public function verificaGraduacao($level){
         $core = new Core();

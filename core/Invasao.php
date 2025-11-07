@@ -27,12 +27,44 @@ class Invasao {
         $stmt->execute();
         $invasao_semana = $stmt->fetch();
         
-        $sql = "SELECT * FROM adm_invasao_boss WHERE id = $invasao_semana->id";
+        // Check if invasion exists
+        if(!$invasao_semana || !isset($invasao_semana->id)) {
+            return null;
+        }
+        
+        $sql = "SELECT * FROM adm_invasao_boss WHERE id = " . intval($invasao_semana->idBoss);
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $invasor = $stmt->fetch();
+        $ativo = true; // Always active regardless of day
+
+        
+        // Merge invasion data with boss data
+        if($invasor) {
+            $invasor->invasion_id = $invasao_semana->id;
+        }
         
         return $invasor;
+    }
+    
+    public function dia_certo($dia_semana) {
+        if (empty($dia_semana)) {
+            return true; // If no specific day, allow all days
+        }
+        
+        $dias = array(
+            'domingo' => 0,
+            'segunda' => 1,
+            'terca' => 2,
+            'quarta' => 3,
+            'quinta' => 4,
+            'sexta' => 5,
+            'sabado' => 6
+        );
+        
+        $hoje = date('w'); // 0 (Sunday) through 6 (Saturday)
+        
+        return (isset($dias[$dia_semana]) && $dias[$dia_semana] == $hoje);
     }
     
     public function getLogInvasao($idInvasor){
@@ -119,10 +151,11 @@ class Invasao {
                      </div>';
         }
         
-        $sql = "SELECT ai.*, i.foto, i.nome "
-             . "FROM adm_invasao_item as ai "
-             . "INNER JOIN itens as i ON i.id = ai.idItem "
-             . "WHERE ai.idInvasao = $idInvasao";
+        $sql = "SELECT ai.*, i.imagem as foto, i.nome "
+            . "FROM adm_invasao_item as ai "
+            . "INNER JOIN itens as i ON i.id = ai.idItem "
+            . "WHERE ai.idInvasao = $idInvasao";
+
         
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -130,7 +163,7 @@ class Invasao {
         
         if($stmt->rowCount() > 0){
             $row .= '<div class="recompensas recompensa-item">
-                        <img src="'.BASE.'assets/'.$item->foto.'" />
+                        <img src="'.BASE.'assets/itens/'.$item->foto.'" />
                         <span>'.$item->nome.'</span>
                      </div>';
         }
@@ -169,38 +202,40 @@ class Invasao {
         
         $row = '';
         
-        $sql = "SELECT * FROM ataques WHERE graduacao <= $graduacao AND id in(".implode(",", array_map('intval', $lista_ataques)).") ORDER BY ki ASC";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $itens = $stmt->fetchAll();
+        if(count($lista_ataques) > 0){
+            $sql = "SELECT * FROM ataques WHERE graduacao <= $graduacao AND id in(".implode(",", array_map('intval', $lista_ataques)).") ORDER BY ki ASC";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+            $itens = $stmt->fetchAll();
 
-        foreach ($itens as $key2 => $value2) {
-            $inativo = '';
-            $estado = 1;
-            $disabled = '';
+            foreach ($itens as $key2 => $value2) {
+                $inativo = '';
+                $estado = 1;
+                $disabled = '';
 
-            if($ki_restante < $value2->ki){
-                $inativo = 'inativo';
-                $estado = 0;
-                $disabled = 'disabled';
+                if($ki_restante < $value2->ki){
+                    $inativo = 'inativo';
+                    $estado = 0;
+                    $disabled = 'disabled';
+                }
+
+                if($level < $value2->level){
+                    $inativo = 'inativo';
+                    $estado = 0;
+                    $disabled = 'disabled';
+                }
+
+                $row .= '<li dataid="'.$value2->id.'" class="'.$inativo.'">
+                            <input type="submit" '.$disabled.' dataid="'.$value2->id.'" dataestado="'.$estado.'" class="bt-atacar" '.$disabled.' value="" style="background-image: url('.BASE.'assets/ataques/'.$value2->imagem.');" />
+                            <div class="info">
+                                <h3>'.$value2->nome.'</h3>
+                                <p>'.$value2->descricao.'</p>
+                                <span class="ataque"><strong>Ataque: </strong> +'.$value2->dano.'</span>
+                                <span class="level"><strong>Level Necesário: </strong> '.$value2->level.'</span>
+                                <span class="consome"><strong>Consome </strong> '.$value2->ki.' <strong>de KI</strong></span>
+                            </div>
+                         </li>';
             }
-
-            if($level < $value2->level){
-                $inativo = 'inativo';
-                $estado = 0;
-                $disabled = 'disabled';
-            }
-
-            $row .= '<li dataid="'.$value2->id.'" class="'.$inativo.'">
-                        <input type="submit" '.$disabled.' name="'.$nameButton.'" dataid="'.$value2->id.'" dataestado="'.$estado.'" class="bt-atacar" '.$disabled.' value="" style="background-image: url('.BASE.'assets/ataques/'.$value2->imagem.');" />
-                        <div class="info">
-                            <h3>'.$value2->nome.'</h3>
-                            <p>'.$value2->descricao.'</p>
-                            <span class="ataque"><strong>Ataque: </strong> +'.$value2->dano.'</span>
-                            <span class="level"><strong>Level Necesário: </strong> '.$value2->level.'</span>
-                            <span class="consome"><strong>Consome </strong> '.$value2->ki.' <strong>de KI</strong></span>
-                        </div>
-                     </li>';
         }
         
         return $row;
@@ -252,10 +287,11 @@ class Invasao {
 
                 $bonus = rand(0, 5);
 
-                $forca = intval($dados_atacante->forca) + $status_extra + $status_extra_graduacao + $forca_equipados;
-                $defesa = intval($dados_atacante->resistencia) + $status_extra + $status_extra_graduacao + $resistencia_equipados;
-                $agilidade = intval($dados_atacante->agilidade) + $status_extra + $status_extra_graduacao + $agilidade_equipados;
-                $habilidade = intval($dados_atacante->habilidade) + $status_extra + $status_extra_graduacao + $habilidade_equipados;
+                // ✅ FIXED: Changed $dados_atacante to $dadosPersonagem
+                $forca = intval($dadosPersonagem->forca) + $status_extra + $status_extra_graduacao + $forca_equipados;
+                $defesa = intval($dadosPersonagem->resistencia) + $status_extra + $status_extra_graduacao + $resistencia_equipados;
+                $agilidade = intval($dadosPersonagem->agilidade) + $status_extra + $status_extra_graduacao + $agilidade_equipados;
+                $habilidade = intval($dadosPersonagem->habilidade) + $status_extra + $status_extra_graduacao + $habilidade_equipados;
 
                 $calc_agilidade = $agilidade / 100;
                 $calc_habilidade = $habilidade / 100;
@@ -451,12 +487,13 @@ class Invasao {
         $stmt->execute();
         $item = $stmt->fetch();
         
-        if($item->hp_usado >= $item->hp){
+        if($item && $item->hp_usado >= $item->hp_total){  // ✅ Changed hp to hp_total
             return true;
         } else {
             return false;
         }
     }
+
     
     public function getBatalhaRunning($idInvasor, $idPersonagem){
         $sql = "SELECT * FROM adm_invasao_batalhas WHERE idInvasao = $idInvasor AND idPersonagem = $idPersonagem AND finalizado = 0";
@@ -522,7 +559,7 @@ class Invasao {
         
         $sorteio = $this->getSorteioBau();
         
-        if($sorteio == 1){
+        if($sorteio == 1 && $market){
             if($inventario->verificaItemIgual($market->nome, $idPersonagem)){
                 $slot_recebido = $inventario->verificaItemIgual($market->nome, $idPersonagem);
             }

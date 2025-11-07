@@ -4,7 +4,7 @@
     }
     
     $dadosInvasor = $invasao->getInvasaoSemanal();
-    $porcentagem_hp_boss = $treino->getPorcentagemHP($dadosInvasor->hp, $dadosInvasor->hp_usado);
+    $porcentagem_hp_boss = $treino->getPorcentagemHP($dadosInvasor->hp_total, $dadosInvasor->hp_usado);
     $porcentagem_ki_boss = $treino->getPorcentagemKI($dadosInvasor->ki, $dadosInvasor->ki_usado);
 ?>
 
@@ -87,12 +87,19 @@
     <?php case 'boss': ?>
         <?php 
             if($personagem->time_invasao == 0){
-                if(!$invasao->getBatalhaRunning($dadosInvasor->id, $_SESSION['PERSONAGEMID'])){
+                if($dadosInvasor && $dadosInvasor->id && !$invasao->getBatalhaRunning($dadosInvasor->id, $_SESSION['PERSONAGEMID'])){
+
                     $campos = array(
                         'idInvasao' => $dadosInvasor->id,
                         'idPersonagem' => $_SESSION['PERSONAGEMID'],
-                        'data' => date('Y-m-d H:i:s'),
-                        'hp_inicial' => $personagem->hp
+                        'idUsuario' => $user->id,
+                        'hp_boss_inicial' => $dadosInvasor->hp_total,
+                        'hp_boss_atual' => $dadosInvasor->hp_total,
+                        'dano_total' => 0,
+                        'tempo_inicio' => time(),
+                        'tempo_fim' => time() + (10 * 60),
+                        'concluida' => 0,
+                        'finalizado' => 0
                     );
 
                     $core->insert('adm_invasao_batalhas', $campos);
@@ -149,11 +156,15 @@
                     $campos = array(
                         'idInvasao' => $dadosInvasor->id,
                         'idPersonagem' => $_SESSION['PERSONAGEMID'],
-                        'data' => date('Y-m-d H:i:s'),
-                        'hp_inicial' => $personagem->hp
+                        'idUsuario' => $user->id,
+                        'hp_boss_inicial' => $dadosInvasor->hp_total,
+                        'hp_boss_atual' => $dadosInvasor->hp_total,
+                        'dano_total' => 0,
+                        'tempo_inicio' => time(),
+                        'tempo_fim' => time() + (10 * 60),
+                        'concluida' => 0,
+                        'finalizado' => 0
                     );
-
-                    $core->insert('adm_invasao_batalhas', $campos);
                 }
                 
                 $tempoRestante = $personagem->time_invasao - time();
@@ -168,13 +179,13 @@
             }
         ?>
         <div class="invasor">
-            <img src="<?php echo BASE.'assets/boss/'.$dadosInvasor->foto; ?>" alt="<?php echo $dadosInvasor->nome; ?>" />
+            <img src="<?php echo BASE.'assets/boss/'.$dadosInvasor->imagem; ?>" alt="<?php echo $dadosInvasor->nome; ?>" />
 
             <?php if(!$invasao->getDerrotado($dadosInvasor->id)){ ?>
                 <div class="boss-atributo hp">
                     <strong>HP </strong>
                     <div class="meter animate red">
-                        <em><?php echo $dadosInvasor->hp - $dadosInvasor->hp_usado; ?> / <strong><?php echo $dadosInvasor->hp; ?></strong></em>
+                        <em><?php echo $dadosInvasor->hp_total - $dadosInvasor->hp_usado; ?> / <strong><?php echo $dadosInvasor->hp_total; ?></strong></em>
                         <span style="width: <?php echo $porcentagem_hp_boss; ?>%"><span></span></span>
                     </div>
                 </div>
@@ -243,24 +254,47 @@
                     <?php } ?>
 
                     <script type="text/javascript">
-                        $('.invasao .meus-ataques .bt-atacar').on('click', function(){
-                            if(!$(this).hasClass('inativo')){
-                                var idBatalha = $('#idBatalha').val();
-                                var idInvasor = $('#idInvasor').val();
-                                var idPersonagem = $('#personagemLogged').val();
-                                var idGolpe = $(this).attr('dataid');
+                        $(document).ready(function(){
+                            // ✅ FIXED: Changed 'dataid' to 'data-id'
+                            $('.invasao .meus-ataques .bt-atacar').on('click', function(e){
+                                e.preventDefault();
+                                
+                                console.log('Attack button clicked!'); // Debug
+                                
+                                if(!$(this).hasClass('inativo')){
+                                    var idBatalha = $('#idBatalha').val();
+                                    var idInvasor = $('#idInvasor').val();
+                                    var idPersonagem = $('#personagemLogged').val();
+                                    var idGolpe = $(this).attr('data-id'); // ✅ FIXED: was 'dataid'
 
-                                var data_string = 'idPersonagem=' + idPersonagem + '&idInvasor=' + idInvasor + '&idBatalha=' + idBatalha + '&idGolpe=' + idGolpe;
+                                    console.log('Battle data:', {
+                                        idBatalha: idBatalha,
+                                        idInvasor: idInvasor,
+                                        idPersonagem: idPersonagem,
+                                        idGolpe: idGolpe
+                                    }); // Debug
 
-                                $.ajax({
-                                    type: 'POST',
-                                    url: "<?php echo BASE; ?>ajax/ajaxInvasao.php",
-                                    data: data_string,
-                                    success: function (res) {
-                                        window.location.href = "<?php echo BASE; ?>invasao/boss";
-                                    }
-                                });
-                            }
+                                    var data_string = 'idPersonagem=' + idPersonagem + '&idInvasor=' + idInvasor + '&idBatalha=' + idBatalha + '&idGolpe=' + idGolpe;
+
+                                    $.ajax({
+                                        type: 'POST',
+                                        url: "<?php echo BASE; ?>ajax/ajaxInvasao.php",
+                                        data: data_string,
+                                        success: function (res) {
+                                            console.log('Attack successful!', res); // Debug
+                                            window.location.href = "<?php echo BASE; ?>invasao/boss";
+                                        },
+                                        error: function(xhr, status, error){
+                                            console.error('AJAX Error:', error); // Debug
+                                            alert('Erro ao atacar: ' + error);
+                                        }
+                                    });
+                                } else {
+                                    console.log('Button is inactive'); // Debug
+                                }
+                                
+                                return false;
+                            });
                         });
 
                         startCountdown(<?php echo $tempoRestante; ?>);
@@ -298,7 +332,6 @@
 
                                 tempo --;
                             } else {
-                                //atualizar novos itens
                                 if($('.time-restante').length > 0){
                                     location.reload(true);
                                 }
@@ -317,14 +350,18 @@
                 <div class="invasor-derrotado">
                     <h2>Invasor foi derrotado por</h2>
                     <div class="vencedor">
-                        <a href="<?php echo BASE; ?>publico/<?php echo $dadosInvasor->vencedor; ?>">
-                            <?php  
-                                $dadosVencedor = $core->getDados('usuarios_personagens', "WHERE id = ".$dadosInvasor->vencedor);
-                            ?>
-                            <img src="<?php echo BASE.'assets/cards/'.$dadosVencedor->foto; ?>" alt="<?php echo $dadosVencedor->nome; ?>" />
-                            <h3><?php echo $dadosVencedor->nome; ?></h3>
-                            <span class="level">Level: <strong><?php echo $dadosVencedor->nivel; ?></strong></span>
-                        </a>
+                        <?php if($dadosInvasor->vencedor != null){ ?>
+                            <a href="<?php echo BASE; ?>publico/<?php echo $dadosInvasor->vencedor; ?>">
+                                <?php  
+                                    $dadosVencedor = $core->getDados('usuarios_personagens', "WHERE id = ".$dadosInvasor->vencedor);
+                                ?>
+                                <img src="<?php echo BASE.'assets/cards/'.$dadosVencedor->foto; ?>" alt="<?php echo $dadosVencedor->nome; ?>" />
+                                <h3><?php echo $dadosVencedor->nome; ?></h3>
+                                <span class="level">Level: <strong><?php echo $dadosVencedor->nivel; ?></strong></span>
+                            </a>
+                        <?php } else { ?>
+                            <p>Nenhum vencedor ainda!</p>
+                        <?php } ?>
                     </div>
                 </div>
             <?php } ?>
