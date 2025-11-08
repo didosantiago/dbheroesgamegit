@@ -22,7 +22,6 @@
 ?>
 
 <style>
-    /* Smarter, flexible menu layout for top bar */
     .menu-superior.desktop .container {
         display: flex;
         flex-wrap: nowrap;
@@ -45,6 +44,33 @@
     }
     .menu-superior.desktop i {
         font-size: 14px;
+    }
+    header .menu-superior .radar {
+        position: absolute;
+        top: -29px;
+        right: 10px; /* Moved right from -10px to 10px */
+        width: 94px;
+        height: 114px;
+        background: url(radar.png);
+        background-repeat: no-repeat;
+        background-size: 100%;
+    }
+    header .menu-superior .radar span {
+        display: block;
+        color: #FDBC01;
+        margin: 45px 0 0 0;
+        font-weight: bold;
+        font-size: 17px;
+        text-align: center;
+    }
+    header .menu-superior .radar strong {
+        display: block;
+        color: #FDBC01;
+        margin: 0 0 0 0;
+        font-weight: normal;
+        font-size: 13px;
+        text-align: center;
+        text-transform: uppercase;
     }
 </style>
 
