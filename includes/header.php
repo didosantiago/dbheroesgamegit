@@ -53,9 +53,7 @@
                 </ul>
             </li>
             
-                    <li>
-                        <a href="<?php echo BASE; ?>criar-personagem"><i class="fa fa-plus"></i> Novo Guerreiro</a>
-                    </li>
+                 
                     <li>
                         <a href="<?php echo BASE; ?>meus-personagens"><i class="fas fa-users"></i> Meus Guerreiros</a>
                     </li>

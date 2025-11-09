@@ -512,7 +512,7 @@ class Npc {
                                 <div class="contador-batalha">
                                     <div class="cronometro"></div>
                                 </div>
-                                <img src="'.BASE.'assets/batalha.jpg" alt="Batalha DB Heroes" />
+                                <img src="'.BASE.'assets/batalha.gif" alt="Batalha DB Heroes" />
                                 <div class="log">
                                     '.$log.'
                                 </div>

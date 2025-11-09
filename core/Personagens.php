@@ -332,7 +332,7 @@ class Personagens {
             $stmt->bindParam(':idUsuario', $idUsuario, PDO::PARAM_INT);
             $stmt->execute();
             $result = $stmt->fetch();
-            return ($result && $result->total >= 3);
+            return ($result && $result->total >= 20);
         }
         return false;
     }
@@ -1844,95 +1844,86 @@ class Personagens {
         return $item->total;
     }
     
-public function getCacadaRunning($idPersonagem, $idCacada){
-    $core = new Core();
-    
-    // Get hunt details
-    $sql = "SELECT * FROM cacadas 
-            WHERE id = $idCacada 
-            AND idPersonagem = $idPersonagem
-            AND concluida = 0 
-            AND cancelada = 0";
-    $stmt = DB::prepare($sql);
-    $stmt->execute();
-    
-    if($stmt->rowCount() > 0){
-        $cacada = $stmt->fetch();
-        
-        $time_atual = time();
-        $tempo_restante = $cacada->tempo_final - $time_atual;
-        
-        // CHECK IF HUNT ALREADY FINISHED (missed completion)
-        if($tempo_restante <= 0){
-            // Hunt finished! Process rewards NOW
+        public function getCacadaRunning($idPersonagem, $idCacada){
+            $core = new Core();
             
-            // Mark hunt as completed
-            $campos = array('concluida' => 1);
-            $where = 'id = ' . $cacada->id;
-            $core->update('cacadas', $campos, $where);
+            // Get hunt details
+            $sql = "SELECT * FROM cacadas 
+                    WHERE id = $idCacada 
+                    AND idPersonagem = $idPersonagem
+                    AND concluida = 0 
+                    AND cancelada = 0";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
             
-            // Get character data
-            $sql_char = "SELECT * FROM usuarios_personagens WHERE id = " . $cacada->idPersonagem;
-            $stmt_char = DB::prepare($sql_char);
-            $stmt_char->execute();
-            $char_data = $stmt_char->fetch();
-            
-            // Calculate rewards
-            $gold_ganho = intval($cacada->gold);
-            $exp_ganho = intval($cacada->exp);
-            
-            // Update character gold and exp
-            $novo_gold = intval($char_data->gold) + $gold_ganho;
-            $novo_gold_total = intval($char_data->gold_total) + $gold_ganho;
-            $novo_exp = intval($char_data->exp) + $exp_ganho;
-            
-            $campos_personagem = array(
-                'gold' => $novo_gold,
-                'gold_total' => $novo_gold_total,
-                'exp' => $novo_exp
-            );
-            $where_personagem = 'id = ' . $cacada->idPersonagem;
-            $core->update('usuarios_personagens', $campos_personagem, $where_personagem);
-            
-            // Insert rewards notification
-            $campos_valor = array(
-                'idPersonagem' => $cacada->idPersonagem,
-                'gold' => $gold_ganho,
-                'exp' => $exp_ganho,
-                'visualizado' => 0
-            );
-            $core->insert('personagens_new_valores', $campos_valor);
-            
-            // Check for level up
-            $this->checkLevelUp($cacada->idPersonagem);
-            
-            // Clear session
-            unset($_SESSION['cacada']);
-            unset($_SESSION['cacada_id']);
-            
-            // Clear session
-            unset($_SESSION['missao']);
-            unset($_SESSION['missao_id']);
-
-            // DON'T reload - just return empty (mission finished)
-            return '';
-
-        }
-        
-        // ORIGINAL STYLE - Full width banner at top
-        $row = '<div class="cacada-running">
-                    <input type="hidden" id="idCacada" value="'.$idCacada.'" />
-                    <span>Você está em uma caçada, aguarde o tempo terminar para iniciar missões, arena e caçadas.</span>
+            if($stmt->rowCount() > 0){
+                $cacada = $stmt->fetch();
+                $tempo_restante = $cacada->tempo_final - time();
+                
+                if($tempo_restante > 0){
+                    // Hunt still running - show notification
+                    $row = '<div class="cacada-running">
+                                <span>Você está em uma caçada, aguarde o tempo terminar para iniciar missões, arena e caçadas.</span>
+                                <a class="bts-form" id="cancelarCacada">Cancelar Caçada</a>
+                                <input type="hidden" name="idCacada" id="idCacada" value="'.$idCacada.'" />
+                                <div class="contador"></div>
+                            </div>';
+                    return $row;
+                } else {
+                    // Hunt finished! Complete it now
                     
-                    <button class="bts-form" id="cancelarCacada">CANCELAR</button>
-                    <div class="contador">00:00:00</div>
-                </div>';
-        
-        return $row;
-    }
-    
-    return '';
-}
+                    // Mark as completed
+                    $campos_cacada = array('concluida' => 1);
+                    $where_cacada = 'id = ' . $cacada->id;
+                    $core->update('cacadas', $campos_cacada, $where_cacada);
+                    
+                    // Get character data
+                    $sql_char = "SELECT * FROM usuarios_personagens WHERE id = " . $cacada->idPersonagem;
+                    $stmt_char = DB::prepare($sql_char);
+                    $stmt_char->execute();
+                    $char_data = $stmt_char->fetch();
+                    
+                    // Calculate rewards
+                    $gold_ganho = intval($cacada->gold);
+                    $exp_ganho = intval($cacada->exp);
+                    
+                    // Update character gold and exp
+                    $novo_gold = intval($char_data->gold) + $gold_ganho;
+                    $novo_gold_total = intval($char_data->gold_total) + $gold_ganho; // ← ADDED!
+                    $novo_exp = intval($char_data->exp) + $exp_ganho;
+                    
+                    $campos_personagem = array(
+                        'gold' => $novo_gold,
+                        'gold_total' => $novo_gold_total, // ← ADDED!
+                        'exp' => $novo_exp
+                    );
+                    $where_personagem = 'id = ' . $cacada->idPersonagem;
+                    $core->update('usuarios_personagens', $campos_personagem, $where_personagem);
+                    
+                    // Insert rewards notification
+                    $campos_valor = array(
+                        'idPersonagem' => $cacada->idPersonagem,
+                        'gold' => $gold_ganho,
+                        'exp' => $exp_ganho,
+                        'visualizado' => 0
+                    );
+                    $core->insert('personagens_new_valores', $campos_valor);
+                    
+                    // Check for level up
+                    $this->checkLevelUp($cacada->idPersonagem);
+                    
+                    // Clear session
+                    unset($_SESSION['cacada']);
+                    unset($_SESSION['cacada_id']);
+                    
+                    // Return empty (rewards popup will show on page reload)
+                    return '';
+                }
+            }
+            
+            return '';
+        }
+
     
     public function getMissaoRunning($idPersonagem, $idMissao){
         $core = new Core();
@@ -2033,7 +2024,57 @@ public function getCacadaRunning($idPersonagem, $idCacada){
                 /**
      * Check if character should level up based on current EXP
      * @param int $idPersonagem Character ID
-     */
+        */
+
+        public function createInventorySlots($idPersonagem){
+            try {
+                // 30 inventory slots
+                for ($i = 1; $i <= 30; $i++) {
+                    $sql = "INSERT INTO personagens_inventario (idPersonagem, slot, vazio) VALUES (:idPersonagem, :slot, 1)";
+                    $stmt = DB::prepare($sql);
+                    $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+                    $stmt->bindParam(':slot', $i, PDO::PARAM_INT);
+                    if (!$stmt->execute()) {
+                        error_log("Failed to create inventory slot $i: " . implode(', ', $stmt->errorInfo()));
+                        throw new Exception("Failed inventory slot $i");
+                    }
+                }
+                // 8 equipped slots
+                for ($i = 1; $i <= 8; $i++) {
+                    $emblema = ($i <= 3) ? 1 : 0;
+                    $sql = "INSERT INTO personagensitensequipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 0, :emblema)";
+                    $stmt = DB::prepare($sql);
+                    $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+                    $stmt->bindParam(':slot', $i, PDO::PARAM_INT);
+                    $stmt->bindParam(':emblema', $emblema, PDO::PARAM_INT);
+                    if (!$stmt->execute()) {
+                        error_log("Failed to create equipped slot $i: " . implode(', ', $stmt->errorInfo()));
+                        throw new Exception("Failed equipped slot $i");
+                    }
+                }
+                // 10 sticker slots
+                for ($i = 9; $i <= 18; $i++) {
+                    $sql = "INSERT INTO personagensitensequipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 1, 0)";
+                    $stmt = DB::prepare($sql);
+                    $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+                    $stmt->bindParam(':slot', $i, PDO::PARAM_INT);
+                    if (!$stmt->execute()) {
+                        error_log("Failed to create sticker slot $i: " . implode(', ', $stmt->errorInfo()));
+                        throw new Exception("Failed sticker slot $i");
+                    }
+                }
+                error_log("Created all inventory/equipment/sticker slots for character $idPersonagem");
+                return true;
+            } catch (Exception $e) {
+                error_log("Error creating inventory slots: " . $e->getMessage());
+                return false;
+            }
+        }
+
+
+
+
+    
     public function checkLevelUp($idPersonagem){
         $core = new Core();
         

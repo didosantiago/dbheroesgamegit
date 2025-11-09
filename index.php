@@ -278,7 +278,6 @@
             ?>
         </div>
     </div>
-
 <?php if(!$isPublicPage){ ?>
         <?php
             // Show rewards popup if there are new gains
@@ -403,6 +402,7 @@
             }
         ?>
     <?php } ?>
+
 
             
     <input type="hidden" id="baseSite" value="<?php echo BASE; ?>" />
@@ -560,66 +560,6 @@ if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0)
 }
 
     
-    // Hunt cancel button (EXISTING)
-    $(document).on('click', '#cancelarCacada', function(e){
-        e.preventDefault();
-        
-        var idCacada = $('#idCacada').val();
-        console.log("🔴 Cancel hunt button clicked! Hunt ID: " + idCacada);
-        
-        if(!idCacada || idCacada == '' || idCacada == '0'){
-            console.error("❌ No hunt ID found!");
-            swal('Erro!', 'ID da caçada não encontrado.', 'error');
-            return false;
-        }
-        
-        swal({
-            title: 'Confirmar Cancelamento?',
-            text: "Cancelando você não irá receber os prêmios!",
-            type: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, cancelar',
-            cancelButtonText: 'Não'
-        }).then((result) => {
-            if (result.value) {
-                console.log("✅ User confirmed hunt cancellation");
-                
-                huntTimerRunning = true;
-                $('.cacada-running .contador').html('CANCELANDO...');
-                
-                var cancel_data = 'id=' + idCacada;
-
-                $.ajax({
-                    type: "POST",
-                    url: "<?php echo BASE; ?>ajax/ajaxCancelarCacada.php",
-                    data: cancel_data,
-                    success: function (res) {
-                        console.log("📥 Hunt cancel response: [" + res + "]");
-                        
-                        if(res.trim() == "success"){
-                            swal('Cancelado!', 'Caçada cancelada com sucesso.', 'success');
-                            setTimeout(function(){
-                                window.location.href = "<?php echo BASE; ?>cacadas";
-                            }, 1500);
-                        } else {
-                            swal('Erro!', 'Erro ao cancelar: ' + res, 'error');
-                            huntTimerRunning = false;
-                        }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("❌ Hunt cancel AJAX Error: " + error);
-                        swal('Erro!', 'Erro ao conectar: ' + error, 'error');
-                        huntTimerRunning = false;
-                    }
-                });
-            }
-        });
-        
-        return false;
-    });
-    
     // Mission cancel button (NEW - SAME PATTERN AS HUNT)
     $(document).on('click', '#cancelarMissao', function(e){
         e.preventDefault();
@@ -657,7 +597,40 @@ if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0)
     });
 
 
+    // Cancel Hunt Button Handler
+    $(document).on('click', '#cancelarCacada', function(e){
+        e.preventDefault();
+        
+        var idCacada = $('#idCacada').val();
+        
+        if(!idCacada){
+            alert('ID da caçada não encontrado!');
+            return;
+        }
+        
+        if(confirm('Tem certeza que deseja cancelar esta caçada? Você não receberá recompensas!')){
+            $.ajax({
+                type: "POST",
+                url: "<?php echo BASE; ?>ajax/ajaxCancelarCacada.php",
+                data: {id: idCacada},
+                success: function(response){
+                    console.log('Cancel response:', response);
+                    
+                    if(response == "success" || response == "1"){
+                        alert('Caçada cancelada com sucesso!');
+                        window.location.href = "<?php echo BASE; ?>portal";
+                    } else {
+                        alert('Erro ao cancelar: ' + response);
+                    }
+                },
+                error: function(){
+                    alert('Erro ao cancelar a caçada!');
+                }
+            });
+        }
+    });
 
 </script>
+
 </body>
 </html>

@@ -13,6 +13,7 @@ if(isset($_POST['criar'])){
             // Get photo directly from personagens table
             $select_foto = $core->getDados('personagens', "WHERE id=".addslashes($_POST['idPersonagem']));
 
+
             $campos = array(
                 'idPersonagem' => addslashes($_POST['idPersonagem']),
                 'idPlaneta' => addslashes($_POST['idPlaneta']),
@@ -24,6 +25,7 @@ if(isset($_POST['criar'])){
                 'gold' => 1000
             );
 
+
             if($core->filtrarPalavrasOfensivas($nomeGuerreiro)){
                 if($core->insert('usuarios_personagens', $campos)){
                     // Fixed: Properly interpolate user ID
@@ -33,6 +35,23 @@ if(isset($_POST['criar'])){
                     $stmt->execute();
                     $item = $stmt->fetch();
 
+
+                    // ✅ CREATE INVENTORY SLOTS FOR NEW CHARACTER with error handling
+                    try {
+                        $success = $personagem->createInventorySlots($item->id);
+                        if ($success) {
+                            error_log("✅ Inventory slots created for character ID: " . $item->id);
+                            echo "<!-- Inventory slots created for character ID: " . $item->id . " -->";
+                        } else {
+                            error_log("❌ Inventory slot creation returned FALSE for character ID: " . $item->id);
+                            echo "<!-- Inventory slot creation returned FALSE for character ID: " . $item->id . " -->";
+                        }
+                    } catch (Exception $e) {
+                        error_log("❌ Inventory slots creation error: " . $e->getMessage());
+                        echo "<!-- Inventory slots creation error: " . $e->getMessage() . " -->";
+                    }
+
+
                     // Fixed: Properly interpolate personagem ID
                     $personagemId = intval($item->idPersonagem);
                     $sql = "SELECT * FROM personagens WHERE id = {$personagemId}";
@@ -40,16 +59,20 @@ if(isset($_POST['criar'])){
                     $stmt->execute();
                     $personagem_principal = $stmt->fetch();
 
+
                     $campos_treino = array(
                         'idPersonagem' => $item->id,
                     );
 
+
                     $core->insert('personagens_treino', $campos_treino);
+
 
                     $campos_golpe = array(
                         'idPersonagem' => $item->id,
                         'idGolpe' => 4
                     );
+
 
                     $core->insert('personagens_golpes', $campos_golpe);
                     
@@ -58,7 +81,9 @@ if(isset($_POST['criar'])){
                         'idGolpe' => 21
                     );
 
+
                     $core->insert('personagens_golpes', $campos_golpe2);
+
 
                     // ✅ FIXED: Only ONE success message
                     $core->msg('sucesso', 'Personagem Criado com Sucesso!');
@@ -86,6 +111,7 @@ if(isset($_POST['criar'])){
     }
 }
 ?>
+
 
 <form id="formPersonagem" class="forms" action="" method="post">
     <input type="hidden" name="idUsuario" value="<?php echo $user->id; ?>" />

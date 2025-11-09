@@ -1,6 +1,52 @@
 DBH.inventario = (function() {
+
     var init = function() {
-        selectItem();   
+        loadInventory();
+        loadEquipados();
+        loadAdesivos();
+        selectItem();
+    },
+
+    loadInventory = function() {
+        var guerreiro = $('#personagemLogged').val();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxInventario.php",
+            data: { idPersonagem: guerreiro },
+            success: function (res) {
+                $(".content-inventory .itens ul").html(res);
+            },
+            error: function(xhr, status, error) {
+                console.error("Inventory load error:", error);
+                console.log("Response:", xhr.responseText);
+            }
+        });
+    },
+
+    // FIXED: Changed URL to correct file
+    loadEquipados = function() {
+        var guerreiro = $('#personagemLogged').val();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxInventarioEquipado.php",  // FIXED URL
+            data: { idPersonagem: guerreiro, loadOnly: 1 },  // Added loadOnly flag
+            success: function (res) {
+                $(".equipados ul").html(res);
+            }
+        });
+    },
+
+    // FIXED: Changed URL to correct file
+    loadAdesivos = function() {
+        var guerreiro = $('#personagemLogged').val();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxInventarioAdesivos.php",  // FIXED URL
+            data: { idPersonagem: guerreiro, loadOnly: 1 },  // Added loadOnly flag
+            success: function (res) {
+                $(".adesivos ul").html(res);
+            }
+        });
     },
     selectItem = function(){
         $(document).on('mouseover', '.content-inventory .itens ul li', function(){
@@ -16,20 +62,20 @@ DBH.inventario = (function() {
                 if(!$(this).find('span').hasClass('bau')){
                     event.preventDefault();
                     $(this).prop('disabled', true);
+                    
                     var guerreiro = $('#personagemLogged').val();
                     var id = $(this).attr('dataidItem');
                     var dataid = $(this).attr('dataid');
                     var dataAdesivo = $(this).attr('dataadesivo');
                     var data_string = 'id=' + id + '&idp=' + dataid + '&idPersonagem=' + guerreiro;
-                    var data_idp = 'idP=' + dataid + '&idPersonagem=' + guerreiro;;
-
+                    var data_idp = 'idP=' + dataid + '&idPersonagem=' + guerreiro;
+                    
                     if(dataAdesivo == 1){
                         $.ajax({
                             type: "POST",
                             url: "ajax/ajaxInventarioAdesivos.php",
                             data: data_string,
                             success: function (res) {
-                                $(this).addClass('clicked');
                                 $(".adesivos ul").html(res);
                             }
                         });
@@ -39,37 +85,35 @@ DBH.inventario = (function() {
                             url: "ajax/ajaxInventarioEquipado.php",
                             data: data_string,
                             success: function (res) {
-                                $(this).addClass('clicked');
                                 $(".equipados ul").html(res);
                             }
                         });
+                        
+                        setTimeout(function(){
+                            $.ajax({
+                                type: "POST",
+                                url: "ajax/ajaxInventario.php",
+                                data: data_idp,
+                                success: function (res) {
+                                    $(".content-inventory .itens ul").html(res);
+                                }
+                            });
+                        }, 400);
                     }
-
-                    setTimeout(function(){
-                        $.ajax({
-                            type: "POST",
-                            url: "ajax/ajaxInventario.php",
-                            data: data_idp,
-                            success: function (res) {
-                                $(".content-inventory .itens ul").html(res);
-                            }
-                        });
-                    }, 400);
                 }
             }
         });
         
         $(document).on('click', '.equipados ul li', function(event){
             event.preventDefault();
-            
             $(this).prop('disabled', true);
             
             if(!$(this).hasClass('slot-vazio')){
                 var guerreiro = $('#personagemLogged').val();
                 var id = $(this).attr('dataid');
                 var idItem = $(this).attr('dataidItem');
-                var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;;
-
+                var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;
+                
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxEquipado.php",
@@ -78,7 +122,7 @@ DBH.inventario = (function() {
                         $(".equipados ul").html(res);
                     }
                 });
-
+                
                 setTimeout(function(){
                     $.ajax({
                         type: "POST",
@@ -94,15 +138,14 @@ DBH.inventario = (function() {
         
         $(document).on('click', '.adesivos ul li', function(event){
             event.preventDefault();
-            
             $(this).prop('disabled', true);
             
             if(!$(this).hasClass('slot-vazio')){
                 var guerreiro = $('#personagemLogged').val();
                 var id = $(this).attr('dataid');
                 var idItem = $(this).attr('dataidItem');
-                var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;;
-
+                var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;
+                
                 $.ajax({
                     type: "POST",
                     url: "ajax/ajaxAdesivos.php",
@@ -111,7 +154,7 @@ DBH.inventario = (function() {
                         $(".adesivos ul").html(res);
                     }
                 });
-
+                
                 setTimeout(function(){
                     $.ajax({
                         type: "POST",
@@ -124,9 +167,10 @@ DBH.inventario = (function() {
                 }, 400);
             }
         });
-    }
+    };
     
     return {
         init: init
-    }
-}());
+    };
+    
+})();
