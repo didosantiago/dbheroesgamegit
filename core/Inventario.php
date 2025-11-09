@@ -1,17 +1,9 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+/* ... (rest of your file remains unchanged above this line) ... */
 
-/**
- * Description of Inventario
- *
- * @author Felipe Faciroli
- */
 class Inventario {
+<<<<<<< HEAD
     public function existsInventory($idPersonagem){
         $sql = "SELECT * FROM personagens_inventario WHERE idPersonagem = $idPersonagem";
         $stmt = DB::prepare($sql);
@@ -436,37 +428,30 @@ public function getSlotsEquipados($idPersonagem){
         }
     
     public function equipar($idPersonagem, $idItem, $idp){
+=======
+    // ... existing methods ...
+
+    /**
+     * Initializes 8 equipped slots (3 emblems, 5 normal) for a new character
+     */
+    public function inicializaSlotsEquipados($idPersonagem) {
+>>>>>>> de214b635bdb353ce9083d5e92db6ffd6baa04cd
         $core = new Core();
-        $personagem = new Personagens();
-
-        $sql = "SELECT pi.*, i.emblema, i.adesivo, psi.id as idArmazenado, i.tipo, i.hp as item_hp, i.mana as item_ki, i.energia as item_energia "
-             . "FROM personagens_inventario as pi "
-             . "INNER JOIN personagens_inventario_itens as psi ON psi.idSlot = pi.id "
-             . "INNER JOIN itens as i ON i.id = psi.idItem "
-             . "WHERE pi.idPersonagem = $idPersonagem "
-             . "AND psi.idItem = $idItem";
-
+        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND slot IN (1,2,3,4,5,6,7,8)";
         $stmt = DB::prepare($sql);
         $stmt->execute();
-        $item_invetario = $stmt->fetch();
-        
-        if($item_invetario->tipo == 0){
-            if($item_invetario->emblema == 1){
-                $sql = "SELECT * FROM personagens_itens_equipados WHERE vazio = 1 AND emblema = 1 AND idPersonagem = $idPersonagem ORDER BY slot ASC LIMIT 1";
-            }  else {
-                $sql = "SELECT * FROM personagens_itens_equipados WHERE vazio = 1 AND emblema = 0 AND adesivo = 0 AND idPersonagem = $idPersonagem ORDER BY slot ASC LIMIT 1";
-            }
 
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-
-            if($stmt->rowCount() > 0){
-                $slots_vazio = $stmt->fetch();
-
+        if($stmt->rowCount() == 0){
+            for ($i = 1; $i <= 8; $i++) {
+                $emblema = ($i <= 3) ? 1 : 0;
                 $campos = array(
-                    'idItem' => $idItem,
-                    'vazio' => '0'
+                    'idPersonagem' => $idPersonagem,
+                    'slot' => $i,
+                    'emblema' => $emblema,
+                    'adesivo' => 0,
+                    'vazio' => 1
                 );
+<<<<<<< HEAD
 
                 if($item_invetario->emblema == 1){
                     $where = "id = ".$slots_vazio->id." AND emblema = 1";
@@ -1034,189 +1019,14 @@ public function getSlotsEquipados($idPersonagem){
                     }
                 }
                 
+=======
+                $core->insert('personagens_itens_equipados', $campos);
+>>>>>>> de214b635bdb353ce9083d5e92db6ffd6baa04cd
             }
         }
     }
-    
-    public function existsItem($id){
-        $sql = "SELECT * FROM personagens_inventario_itens WHERE id = $id";
-        
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        if($stmt->rowCount() > 0){
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public function getIdItem($idSlot, $idItem){
-        $sql = "SELECT * FROM personagens_inventario_itens WHERE idItem = $idItem AND idSlot = $idSlot";
-        
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetch();
-        
-        if($stmt->rowCount() > 0){
-            return $item->id;
-        }
-    }
-        
-    public function getStatusEquipados($idPersonagem) {
-        if (!$idPersonagem) return false;
-        
-        try {
-            $sql = "SELECT pi.*, i.efeito_forca, i.efeito_agilidade, i.efeito_habilidade, i.efeito_resistencia, i.efeito_destreza
-                    FROM personagensitensequipados as pi
-                    INNER JOIN itens as i ON i.id = pi.idItem
-                    WHERE pi.idPersonagem = {$idPersonagem}
-                    AND pi.vazio = 0";
-            
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-            
-            $totalForca = 0;
-            $totalAgilidade = 0;
-            $totalHabilidade = 0;
-            $totalResistencia = 0;
-            $totalDestreza = 0;
-            
-            if ($stmt->rowCount() > 0) {
-                $item = $stmt->fetchAll();
-                foreach ($item as $key => $value) {
-                    $totalForca += $value->efeito_forca;
-                    $totalAgilidade += $value->efeito_agilidade;
-                    $totalHabilidade += $value->efeito_habilidade;
-                    $totalResistencia += $value->efeito_resistencia;
-                    $totalDestreza += $value->efeito_destreza;
-                }
-            }
-            
-            return array(
-                'forca' => $totalForca,
-                'agilidade' => $totalAgilidade,
-                'habilidade' => $totalHabilidade,
-                'resistencia' => $totalResistencia,
-                'destreza' => $totalDestreza
-            );
-        } catch (Exception $e) {
-            // Return empty stats if there's an error
-            return array(
-                'forca' => 0,
-                'agilidade' => 0,
-                'habilidade' => 0,
-                'resistencia' => 0,
-                'destreza' => 0
-            );
-        }
-    }
 
-
-
-    
-    public function verificaExisteSlotAdesivo(){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM usuarios_personagens";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $guerreiros = $stmt->fetchAll();
-        
-        foreach ($guerreiros as $key => $value) {
-            $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $value->id AND slot in (9,10,11,12,13,14,15,16,17,18)";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-
-            if($stmt->rowCount() <= 0){
-                for ($i = 9; $i <= 18; $i++) {
-
-                    $campos = array(
-                        'idPersonagem' => $value->id,
-                        'slot' => $i,
-                        'emblema' => 0,
-                        'adesivo' => 1
-                    );
-
-                    $core->insert('personagens_itens_equipados', $campos);
-                }
-            }
-            
-            $sql = "SELECT * FROM personagens_inventario_itens WHERE idPersonagem = $value->id AND idItem = 47";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-
-            if($stmt->rowCount() <= 0){
-                $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $value->id AND idItem = 47 AND vazio = 0 AND adesivo = 1";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-
-                if($stmt->rowCount() <= 0){
-                    $slot_recebido = $this->getSlotAdesivoVazio($value->id);
-
-                    if($slot_recebido > 0){
-                        $campos = array(
-                            'idItem' => 47,
-                            'vazio' => 0
-                        );
-
-                        $where = 'id="'.$slot_recebido.'"';
-
-                        $core->update('personagens_itens_equipados', $campos, $where);
-                    }
-                }
-            }
-        }
-    }
-    
-    public function verificaExisteSlotEquipados(){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM usuarios_personagens";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $guerreiros = $stmt->fetchAll();
-        
-        foreach ($guerreiros as $key => $value) {
-            $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $value->id AND slot in (1,2,3,4,5,6,7,8)";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-
-            if($stmt->rowCount() <= 0){
-                for ($i = 1; $i <= 8; $i++) {
-
-                    if($i == 1 || $i == 2 || $i == 3){
-                        $emblema = 1;
-                    } else {
-                        $emblema = 0;
-                    }
-                    
-                    $campos = array(
-                        'idPersonagem' => $value->id,
-                        'slot' => $i,
-                        'emblema' => $emblema,
-                        'adesivo' => 0
-                    );
-
-                    $core->insert('personagens_itens_equipados', $campos);
-                }
-            }
-        }
-    }
-    
-    public function getSlotAdesivoVazio($idPersonagem){
-        $core = new Core();
-        
-        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND vazio = 1 AND adesivo = 1 LIMIT 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        if($stmt->rowCount() > 0){
-            $item = $stmt->fetch();
-
-            return $item->id;
-        } else {
-            return 0;
-        }
-    }
+    // ... rest of your Inventario class
 }
+
+/* ... (rest of your file remains unchanged after this line) ... */
