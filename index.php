@@ -429,7 +429,7 @@
     var huntTimerRunning = false;
     var missionTimerRunning = false;
 
-    // Hunt countdown timer (EXISTING CODE)
+    // Hunt countdown timer
     if($('.cacada-running').length > 0 && $('.cacada-running .contador').length > 0){
         console.log("🎮 Hunt notification detected for character: " + id);
         
@@ -492,75 +492,73 @@
         checkHuntStatus();
     }
 
-// Mission countdown timer (FIXED VERSION)
-if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0){
-    console.log("🎯 Mission notification detected for character: " + id);
-    
-    function checkMissionStatus(){
-        if(missionTimerRunning){
-            console.warn("⚠️ Mission timer already running, skipping...");
-            return;
+    // Mission countdown timer
+    if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0){
+        console.log("🎯 Mission notification detected for character: " + id);
+        
+        function checkMissionStatus(){
+            if(missionTimerRunning){
+                console.warn("⚠️ Mission timer already running, skipping...");
+                return;
+            }
+            
+            missionTimerRunning = true;
+            
+            $.ajax({
+                type: "POST",
+                url: "<?php echo BASE; ?>ajax/ajaxMissao.php",
+                data: data_string,
+                success: function (res) {
+                    console.log("📥 Mission status: " + res);
+                    
+                    var seconds = parseInt(res);
+                    
+                    if(seconds > 0){
+                        var horas = Math.floor(seconds / 3600);
+                        var minutos = Math.floor((seconds % 3600) / 60);
+                        var segs = seconds % 60;
+                        
+                        if(horas < 10) horas = "0" + horas;
+                        if(minutos < 10) minutos = "0" + minutos;
+                        if(segs < 10) segs = "0" + segs;
+                        
+                        var horaImprimivel = horas + ':' + minutos + ':' + segs;
+                        $(".missao-running .contador").html(horaImprimivel);
+                        
+                        missionTimerRunning = false;
+                        setTimeout(checkMissionStatus, 1000);
+                        
+                    } else if(seconds == 0){
+                        console.log('Mission completed! Processing rewards...');
+                        $('.missao-running .contador').html('CONCLUÍDO');
+                        
+                        setTimeout(function(){
+                            $('.missao-running').fadeOut(500, function(){
+                                window.location.href = '<?php echo BASE; ?>missoes';
+                            });
+                        }, 1000);
+                        
+                        missionTimerRunning = false;
+                        
+                    } else {
+                        console.error("❌ Invalid mission response: " + res);
+                        missionTimerRunning = false;
+                        setTimeout(checkMissionStatus, 5000);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error("🚨 Mission AJAX Error: " + error);
+                    missionTimerRunning = false;
+                    setTimeout(checkMissionStatus, 2000);
+                }
+            });
         }
         
-        missionTimerRunning = true;
-        
-        $.ajax({
-            type: "POST",
-            url: "<?php echo BASE; ?>ajax/ajaxMissao.php",
-            data: data_string,
-            success: function (res) {
-                console.log("📥 Mission status: " + res);
-                
-                var seconds = parseInt(res);
-                
-                if(seconds > 0){
-                    var horas = Math.floor(seconds / 3600);
-                    var minutos = Math.floor((seconds % 3600) / 60);
-                    var segs = seconds % 60;
-                    
-                    if(horas < 10) horas = "0" + horas;
-                    if(minutos < 10) minutos = "0" + minutos;
-                    if(segs < 10) segs = "0" + segs;
-                    
-                    var horaImprimivel = horas + ':' + minutos + ':' + segs;
-                    $(".missao-running .contador").html(horaImprimivel);
-                    
-                    missionTimerRunning = false;
-                    setTimeout(checkMissionStatus, 1000);
-                    
-                } else if(seconds == 0){
-                    console.log('Mission completed! Processing rewards...');
-                    $('.missao-running .contador').html('CONCLUÍDO');
-                    
-                    setTimeout(function(){
-                        $('.missao-running').fadeOut(500, function(){
-                            // ✅ Redirect to missions page to show purple reward popup
-                            window.location.href = '<?php echo BASE; ?>missoes';
-                        });
-                    }, 1000);
-                    
-                    missionTimerRunning = false;
-                    
-                } else {
-                    console.error("❌ Invalid mission response: " + res);
-                    missionTimerRunning = false;
-                    // Don't reload immediately, just try again
-                    setTimeout(checkMissionStatus, 5000);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error("🚨 Mission AJAX Error: " + error);
-                missionTimerRunning = false;
-                setTimeout(checkMissionStatus, 2000);
-            }
-        });
+        checkMissionStatus();
     }
-    
-    checkMissionStatus();
-}
 
     
-    // Mission cancel button (NEW - SAME PATTERN AS HUNT)
+    // Mission cancel button
     $(document).on('click', '#cancelarMissao', function(e){
         e.preventDefault();
         
@@ -597,37 +595,52 @@ if($('.missao-running').length > 0 && $('.missao-running .contador').length > 0)
     });
 
 
-    // Cancel Hunt Button Handler
+    // Cancel Hunt Button Handler - UPDATED TO USE data-cacada-id
     $(document).on('click', '#cancelarCacada', function(e){
         e.preventDefault();
         
-        var idCacada = $('#idCacada').val();
+        // Try to get ID from data attribute first, fallback to hidden input
+        var idCacada = $(this).data('cacada-id') || $('#idCacada').val();
         
-        if(!idCacada){
+        console.log('🔴 Cancel hunt button clicked! Hunt ID: ' + idCacada);
+        
+        if(!idCacada || idCacada == '' || idCacada == '0'){
+            console.error('❌ No hunt ID found!');
             alert('ID da caçada não encontrado!');
-            return;
+            return false;
         }
         
         if(confirm('Tem certeza que deseja cancelar esta caçada? Você não receberá recompensas!')){
+            console.log('✅ User confirmed hunt cancellation');
+            
+            huntTimerRunning = true;
+            $('.cacada-running .contador').html('CANCELANDO...');
+            
             $.ajax({
                 type: "POST",
                 url: "<?php echo BASE; ?>ajax/ajaxCancelarCacada.php",
                 data: {id: idCacada},
                 success: function(response){
-                    console.log('Cancel response:', response);
+                    console.log('📥 Cancel response:', response);
                     
-                    if(response == "success" || response == "1"){
+                    if(response == "success" || response == "1" || response.trim() == "success"){
                         alert('Caçada cancelada com sucesso!');
                         window.location.href = "<?php echo BASE; ?>portal";
                     } else {
+                        console.error('Unexpected response: ' + response);
                         alert('Erro ao cancelar: ' + response);
+                        huntTimerRunning = false;
                     }
                 },
-                error: function(){
+                error: function(xhr, status, error){
+                    console.error('🚨 Cancel AJAX error:', error);
                     alert('Erro ao cancelar a caçada!');
+                    huntTimerRunning = false;
                 }
             });
         }
+        
+        return false;
     });
 
 </script>
