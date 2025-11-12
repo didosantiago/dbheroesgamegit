@@ -3,7 +3,6 @@
 /* ... (rest of your file remains unchanged above this line) ... */
 
 class Inventario {
-<<<<<<< HEAD
     public function existsInventory($idPersonagem){
         $sql = "SELECT * FROM personagens_inventario WHERE idPersonagem = $idPersonagem";
         $stmt = DB::prepare($sql);
@@ -428,14 +427,6 @@ public function getSlotsEquipados($idPersonagem){
         }
     
     public function equipar($idPersonagem, $idItem, $idp){
-=======
-    // ... existing methods ...
-
-    /**
-     * Initializes 8 equipped slots (3 emblems, 5 normal) for a new character
-     */
-    public function inicializaSlotsEquipados($idPersonagem) {
->>>>>>> de214b635bdb353ce9083d5e92db6ffd6baa04cd
         $core = new Core();
         $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND slot IN (1,2,3,4,5,6,7,8)";
         $stmt = DB::prepare($sql);
@@ -451,7 +442,6 @@ public function getSlotsEquipados($idPersonagem){
                     'adesivo' => 0,
                     'vazio' => 1
                 );
-<<<<<<< HEAD
 
                 if($item_invetario->emblema == 1){
                     $where = "id = ".$slots_vazio->id." AND emblema = 1";
@@ -1019,9 +1009,6 @@ public function getSlotsEquipados($idPersonagem){
                     }
                 }
                 
-=======
-                $core->insert('personagens_itens_equipados', $campos);
->>>>>>> de214b635bdb353ce9083d5e92db6ffd6baa04cd
             }
         }
     }
