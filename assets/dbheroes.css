@@ -21315,16 +21315,12 @@ a {
   vertical-align: top;
   margin: 10px 0 20px 3px;
   padding: 10px;
-  background: url("bg-cacadas.jpg");
-  background-position: center center;
-  background-size: 186%;
-  background-repeat: no-repeat
+  background: #FFFFFF;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
-  box-sizing: border-box
-
-  
+  box-sizing: border-box;
 }
+
 
 @media (max-width: 1200px) {
   .conteudo {
@@ -21649,3 +21645,570 @@ body.inventario .conteudo .box-inventario .content-inventory .adesivos ul li.slo
 .slots.slot-emblema:empty {
   display: none;
 }
+
+/* ========================================
+   PORTAL ICONS - ALL COLORS
+   ======================================== */
+
+/* PORTAL ICONS ONLY - Make big and colored */
+.conteudo i,
+.menu-portal i,
+main > div > div i {
+    font-size: 72px !important;
+    display: block !important;
+    margin: 20px auto !important;
+}
+
+/* 1. SEJA VIP - Gold Crown */
+.conteudo i[class*="crown"],
+.conteudo .fa-crown {
+    color: #8fff45 !important;
+}
+
+/* 2. LOJA DE ITENS - Orange Store */
+.conteudo i[class*="store"]:not([class*="box"]),
+.conteudo .fa-store {
+    color: #8fff45 !important;
+}
+
+/* 3. BANCO CENTRAL - Green Piggy Bank */
+.conteudo i[class*="piggy"],
+.conteudo i[class*="bank"],
+.conteudo .fa-piggy-bank {
+    color: #8fff45 !important;
+}
+
+/* 4. BÔNUS DIÁRIO - Yellow Gift Box */
+.conteudo i[class*="gift"],
+.conteudo i[class*="box"],
+.conteudo .fa-gift,
+.conteudo .fa-box {
+    color: #8fff45 !important;
+}
+
+/* 5. MERCADO - Purple Shopping Cart */
+.conteudo i[class*="cart"],
+.conteudo .fa-shopping-cart {
+    color: #8fff45 !important;
+}
+
+/* 6. TROCA DE GUERREIRO - Orange Person */
+.conteudo i[class*="male"],
+.conteudo i[class*="user-alt"],
+.conteudo .fa-male,
+.conteudo .fa-user-alt {
+    color: #8fff45 !important;
+}
+
+/* 7. TREINAR GUERREIRO - Orange Arrow Up */
+.conteudo i[class*="arrow-up"],
+.conteudo i[class*="level-up"],
+.conteudo i[class*="angle-up"],
+.conteudo i[class*="upload"],
+.conteudo .fa-arrow-up,
+.conteudo .fa-level-up-alt,
+.conteudo .fa-angle-up,
+.conteudo .fa-upload {
+    color: #8fff45 !important; /* Bright orange */
+}
+
+/* 8. EQUIPES - Teal Users */
+.conteudo i[class*="users"],
+.conteudo .fa-users {
+    color: #8fff45 !important;
+}
+
+/* ========================================
+   TOP MENU - KEEP WHITE/ORIGINAL COLOR
+   ======================================== */
+
+/* Reset top menu icons to white */
+.menu-superior i,
+header i,
+nav i,
+.menu-flutuante i {
+    font-size: 18px !important;
+    color: #FFFFFF !important; /* Force white */
+    display: inline-block !important;
+    margin: 0 !important;
+}
+
+/* Specific menu items - keep white */
+.menu-superior a i,
+header a i,
+nav a i {
+    color: inherit !important; /* Use parent link color */
+}
+
+
+/* ========================================
+   TOP MENU - ICON COLORS
+   ======================================== */
+
+/* Keep icons proper size */
+.menu-superior i,
+header nav i {
+    font-size: 18px !important;
+    margin-right: 5px;
+}
+
+/* Top Menu - Individual Colors */
+.menu-superior a:nth-child(1) i { color: #8fff45 !important; } /* SUPORTE - Blue */
+.menu-superior a:nth-child(2) i { color: #8fff45 !important; } /* MEUS GUERREIROS - Green */
+.menu-superior a:nth-child(3) i { color: #8fff45 !important; } /* USUÁRIO - Orange */
+.menu-superior a:nth-child(4) i { color: #8fff45 !important; } /* JOGAR - Red */
+.menu-superior a:nth-child(5) i { color: #8fff45 !important; } /* HOSPITAL - Purple */
+.menu-superior a:nth-child(6) i { color: #8fff45 !important; } /* TAM - Yellow/Orange */
+.menu-superior a:nth-child(7) i { color: #8fff45 !important; } /* PVP GLOBAL - Cyan */
+.menu-superior a:nth-child(8) i { color: #8fff45 !important; } /* RANKING - Gold */
+
+/* ========================================
+   DROPDOWN MENU - ICON COLORS
+   ======================================== */
+
+/* Purple dropdown menu icons */
+.dropdown-menu i,
+ul[class*="dropdown"] i {
+    font-size: 16px !important;
+    margin-right: 8px !important;
+    width: 20px;
+    text-align: center;
+}
+
+
+/* Dropdown - Individual Icon Colors */
+.dropdown-menu li:nth-child(1) i { color: #8fff45 !important; } /* PROFILE - Blue */
+.dropdown-menu li:nth-child(2) i { color: #8fff45 !important; } /* PERFIL PÚBLICO - Orange */
+.dropdown-menu li:nth-child(3) i { color: #8fff45 !important; } /* TREINAR GOLPES - Red */
+.dropdown-menu li:nth-child(4) i { color: #8fff45 !important; } /* INICIAR MISSÃO - Green */
+.dropdown-menu li:nth-child(5) i { color: #8fff45 !important; } /* INICIAR CAÇADA - Purple */
+.dropdown-menu li:nth-child(6) i { color: #8fff45 !important; } /* TAM (GANHE EXP) - Orange */
+.dropdown-menu li:nth-child(7) i { color: #8fff45 !important; } /* HISTÓRICO PVP - Cyan */
+.dropdown-menu li:nth-child(8) i { color: #8fff45 !important; } /* INVENTÁRIO - Gold */
+.dropdown-menu li:nth-child(9) i { color: #8fff45 !important; } /* EQUIPES - Teal */
+
+/* Alternative: Color by icon type */
+.fa-user { color: #8fff45 !important; }
+.fa-id-card { color: #8fff45 !important; }
+.fa-fist-raised { color: #8fff45 !important; }
+.fa-map-marker-alt { color: #8fff45 !important; }
+.fa-crosshairs { color: #8fff45 !important; }
+.fa-trophy { color: #8fff45 !important; }
+.fa-history { color: #8fff45 !important; }
+.fa-box { color: #8fff45 !important; }
+.fa-users { color: #8fff45 !important; }
+
+/* Amigos icon - Green */
+a[href*="amigos"] i,
+.amigos-link i {
+    color: #2ECC71 !important;
+    font-size: 28px !important;
+}
+
+/* Convite Equipes icon - Orange */
+a[href*="convite"] i,
+.convite-link i {
+    color: #FF6B35 !important;
+    font-size: 28px !important;
+}
+
+/* Make notification numbers bigger too */
+.badge {
+    font-size: 14px !important;
+    min-width: 22px !important;
+    height: 22px !important;
+}
+
+/* ========================================
+   FLOATING MENU ICONS - CUSTOM STYLING
+   ======================================== */
+
+/* Base styling for floating menu */
+.menu-flutuante li a i {
+    font-size: 28px !important;
+    display: inline-block !important;
+    transition: all 0.3s ease;
+}
+
+/* Amigos (Friends) - Green with heart */
+.menu-flutuante li:nth-child(1) a i,
+a[href*="amigos"] i {
+    color: #2ECC71 !important; /* Green */
+}
+
+/* Convite Equipes (Team Invites) - Orange */
+.menu-flutuante li:nth-child(2) a i,
+a[href*="convite"] i {
+    color: #FF6B35 !important; /* Orange */
+}
+
+/* Notification badges */
+.menu-flutuante .badge,
+.notificacao-num {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #E74C3C !important;
+    color: #FFF !important;
+    font-size: 13px !important;
+    font-weight: bold !important;
+    min-width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    border-radius: 50%;
+    border: 2px solid #1a1a1a;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* Hover animation */
+.menu-flutuante li a:hover i {
+    transform: scale(1.15) rotate(5deg);
+    filter: brightness(1.2);
+}
+
+/* Force vertical alignment */
+.menu-flutuante li a,
+a[href*="convite"],
+a[href*="amigos"] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 10px !important;
+}
+
+.menu-flutuante li a i {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.menu-flutuante li a .text,
+.menu-flutuante li a span:not(.badge) {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: normal !important;
+}
+
+/* ========================================
+   ICON SIZE CONTROL - SPECIFIC LOCATIONS
+   ======================================== */
+
+/* DEFAULT: Keep all icons normal size */
+i, .fa, .fas, .far, .fab {
+    font-size: inherit !important;
+}
+
+/* PORTAL BOXES ONLY - Big colored icons */
+.conteudo > div > div i,
+.portal-boxes i,
+.menu-portal i {
+    font-size: 72px !important;
+    display: block !important;
+    margin: 20px auto !important;
+}
+
+/* TOP MENU - Medium size */
+.menu-superior i,
+header nav i {
+    font-size: 18px !important;
+}
+
+/* FLOATING MENU (Amigos/Convite) - Medium size */
+.menu-flutuante i,
+.notificacoes-menu i {
+    font-size: 24px !important;
+}
+
+/* BUTTONS - Small size */
+button i,
+.btn i,
+a.button i,
+.atacar i,
+.defender i,
+[class*="btn-"] i {
+    font-size: 16px !important;
+    margin-right: 5px !important;
+    display: inline-block !important;
+}
+
+/* CHARACTER CARDS - Small size */
+.personagem-card i,
+.character-box i,
+.torneio i {
+    font-size: 20px !important;
+}
+
+/* SIDEBAR - Small size */
+.sidebar i,
+aside i {
+    font-size: 16px !important;
+}
+
+/* ========================================
+   GLOBAL ICON SIZE RESET
+   ======================================== */
+
+/* DEFAULT: All icons normal size */
+body * i,
+body * .fa,
+body * .fas,
+body * .far,
+body * .fab {
+    font-size: 16px !important;
+    display: inline !important;
+    margin: 0 !important;
+    line-height: inherit !important;
+}
+
+/* ONLY make portal page icons big */
+.conteudo .portal-box i {
+    font-size: 72px !important;
+    display: block !important;
+    margin: 20px auto !important;
+}
+
+/* Top menu - medium */
+.menu-superior i,
+header nav i {
+    font-size: 18px !important;
+}
+
+/* Floating menu - medium */
+.menu-flutuante i {
+    font-size: 24px !important;
+}
+
+/* Buttons - small */
+button i,
+.btn i {
+    font-size: 14px !important;
+    margin-right: 5px !important;
+}
+
+/* ========================================
+   FIX: BLOQUEADO BUTTON TEXT INSIDE
+   ======================================== */
+
+/* Tournament/NPC buttons */
+button.bloqueado,
+a.bloqueado,
+.btn-bloqueado,
+[class*="bloqueado"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 8px 15px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    min-width: 120px !important;
+}
+
+/* Icon inside bloqueado button */
+button.bloqueado i,
+a.bloqueado i,
+.btn-bloqueado i,
+[class*="bloqueado"] i {
+    font-size: 14px !important;
+    margin-right: 1px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+/* Text inside bloqueado button */
+button.bloqueado span,
+a.bloqueado span,
+.btn-bloqueado span {
+    font-size: 12px !important;
+    display: inline-block !important;
+    vertical-align: middle !important;
+}
+
+
+/* ========================================
+   DRAGON BALL THEMED NOTIFICATION
+   ======================================== */
+
+.notification-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    animation: fadeIn 0.3s ease;
+}
+
+.notification-box {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 550px;
+    width: 90%;
+    box-shadow: 
+        0 0 50px rgba(255, 165, 0, 0.3),
+        0 20px 60px rgba(0, 0, 0, 0.8);
+    position: relative;
+    animation: zoomIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    border: 4px solid;
+    border-image: linear-gradient(45deg, #ff6b35, #f7931e, #ff6b35) 1;
+}
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.5) rotate(-5deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.notification-box.success {
+    border-image: linear-gradient(45deg, #00ff88, #00d4ff, #00ff88) 1;
+    box-shadow: 
+        0 0 50px rgba(0, 255, 136, 0.4),
+        0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.notification-box.error {
+    border-image: linear-gradient(45deg, #ff4444, #ff6b6b, #ff4444) 1;
+    box-shadow: 
+        0 0 50px rgba(255, 68, 68, 0.4),
+        0 20px 60px rgba(0, 0, 0, 0.8);
+}
+
+.notification-icon {
+    text-align: center;
+    margin-bottom: 25px;
+    position: relative;
+}
+
+.notification-icon i {
+    font-size: 70px;
+    color: #ff6b35;
+    text-shadow: 
+        0 0 20px rgba(255, 107, 53, 0.8),
+        0 0 40px rgba(255, 107, 53, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.notification-box.success .notification-icon i {
+    color: #00ff88;
+    text-shadow: 
+        0 0 20px rgba(0, 255, 136, 0.8),
+        0 0 40px rgba(0, 255, 136, 0.5);
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.notification-content {
+    color: #FFF;
+    text-align: center;
+}
+
+.notification-content h3 {
+    font-size: 28px;
+    margin: 0 0 20px 0;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(255, 107, 53, 0.3);
+    color: #ff6b35;
+}
+
+.notification-box.success .notification-content h3 {
+    color: #00ff88;
+    text-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.5),
+        0 0 20px rgba(0, 255, 136, 0.3);
+}
+
+.notification-content p {
+    font-size: 16px;
+    margin: 15px 0;
+    line-height: 1.8;
+    color: #e0e0e0;
+}
+
+.notification-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    text-align: left;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.notification-content ul li {
+    padding: 12px 20px;
+    background: rgba(255, 107, 53, 0.1);
+    margin: 8px 0;
+    border-radius: 10px;
+    font-size: 15px;
+    border-left: 4px solid #ff6b35;
+    transition: all 0.3s ease;
+    color: #fff;
+}
+
+.notification-content ul li:hover {
+    background: rgba(255, 107, 53, 0.2);
+    transform: translateX(5px);
+}
+
+.notification-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    color: #FFF;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-close:hover {
+    background: rgba(255, 68, 68, 0.8);
+    border-color: #ff4444;
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* Scrollbar styling for skill list */
+.notification-content ul::-webkit-scrollbar {
+    width: 8px;
+}
+
+.notification-content ul::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.notification-content ul::-webkit-scrollbar-thumb {
+    background: rgba(255, 107, 53, 0.5);
+    border-radius: 10px;
+}
+
+.notification-content ul::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 107, 53, 0.8);
+}
+

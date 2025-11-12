@@ -1,8 +1,9 @@
 <?php
+
     ob_start();
     session_cache_expire(10);
     session_start();
-    
+
     //Inclusão das Classes
     include_once "./core/config.php";
     include_once "./core/DB.php";
@@ -84,11 +85,9 @@
     ini_set("display_errors", 1);
     
     
-
-
     header("Content-Security-Policy: " .
         "default-src 'self'; " .
-        //"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://kit.fontawesome.com https://ka-f.fontawesome.com https://pagead2.googlesyndication.com; " .
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://use.fontawesome.com https://kit.fontawesome.com https://ka-f.fontawesome.com https://pagead2.googlesyndication.com; " .
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com https://kit.fontawesome.com; " .
         "font-src 'self' https://fonts.gstatic.com https://use.fontawesome.com https://ka-f.fontawesome.com data:; " .
         "img-src 'self' data: blob: https://*; " .

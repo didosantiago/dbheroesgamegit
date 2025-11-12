@@ -1021,60 +1021,55 @@ class Batalha {
         }
     }
     
-    public function getListaGolpes($ki, $level){        
+    public function getListaGolpes($ki, $level) {
         $sql = "SELECT * FROM ataques ORDER BY ki ASC";
         $stmt = DB::prepare($sql);
         $stmt->execute();
-        $item = $stmt->fetchAll();
+        $item = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $row = '';
-
-        foreach ($item as $key => $value) {
+        $row = "";
+        
+        foreach ($item as $value) {
+            // Check if golpe is already selected
+            $sql2 = "SELECT * FROM personagens_golpes WHERE idGolpe = ".$value['id']." AND idPersonagem = ".$_SESSION['PERSONAGEMID'];
+            $stmt2 = DB::prepare($sql2);
+            $stmt2->execute();
             
-            $sql = "SELECT * FROM personagens_golpes WHERE idGolpe = $value->id";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
+            $checked = ($stmt2->rowCount() > 0) ? "checked" : "";
+            $ativo = ($stmt2->rowCount() > 0) ? "ativo" : "";
             
-            if($stmt->rowCount() > 0){
-                $ativo = 'ativo';
-                $checked = 'checked';
-            } else {
-                $ativo = '';
-                $checked = '';
+            // ✅ CHECK LEVEL REQUIREMENT
+            $disabled = "";
+            $warning = "";
+            $classe = "";
+            
+            if($level < $value['level']) {
+                $disabled = "disabled"; // ✅ DISABLE if level too low
+                $warning = '<span style="color: red; font-weight: bold;"> (Level insuficiente)</span>';
+                $classe = "bloqueado";
             }
             
-            if($ki >= $value->ki){
-                if($level >= $value->level){
-                    $classe = '';
-                    $inativo = '';
-                } else {
-                    $classe = 'inativo';
-                    $inativo = 'disabled';
-                }
-            } else {
-                $classe = 'inativo';
-                $inativo = 'disabled';
+            if($ki < $value['ki']) {
+                $warning .= '<span style="color: orange;"> (Ki insuficiente)</span>';
             }
             
-            if($value->ki == 0){
-                $disabled = 'disabled';
-            } else {
-                $disabled = '';
-            }
-            
-            $row .= '<li class="'.$classe.' '.$ativo.'">
-                        <img src="'.BASE.'assets/ataques/'.$value->imagem.'" />
-                        <span class="nome">Nome: <strong>'.$value->nome.'</strong></span>
-                        <span class="ki">KI Necessário: <strong>'.$value->ki.'</strong></span>
-                        <span class="dano">Dano do Ataque: <strong>'.$value->dano.'</strong></span>
-                        <span class="level">Level Necessário: <strong>'.$value->level.'</strong></span>
-                        <input type="checkbox" name="golpe[]" '.$disabled.' value="'.$value->id.'" '.$inativo.' '.$checked.' />
-                        <p class="descricao">'.$value->descricao.'</p>
-                     </li>';
+            $row .= "<li class='$classe $ativo'>";
+            $row .= "<img src='".BASE."assets/ataques/".$value['imagem']."' />";
+            $row .= "<span class='nome'>Nome: <strong style='color: #00ff00;'>".$value['nome']."</strong></span>";
+            $row .= "<span class='ki'>KI Necessário: <strong style='color: cyan;'>".$value['ki']."</strong></span>";
+            $row .= "<span class='dano'>Dano do Ataque: <strong style='color: yellow;'>".$value['dano']."</strong></span>";
+            $row .= "<span class='level'>Level Necessário: <strong style='color: orange;'>".$value['level']."</strong></span>";
+            $row .= $warning;
+            $row .= "<input type='checkbox' name='golpes[]' value='".$value['id']."' $checked $disabled />";
+            $row .= "<p class='descricao'>".$value['descricao']."</p>";
+            $row .= "</li>";
         }
         
         echo $row;
     }
+
+
+
     
     public function getListaGolpesIDs($idPersonagem){        
         $sql = "SELECT pg.*, a.ki "

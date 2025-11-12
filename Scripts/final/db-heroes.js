@@ -1791,3 +1791,72 @@ $(document).ajaxStop(function() {
     	DBH.personagem.jogar();
     }
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const characterLevel = <?php echo $personagem->nivel; ?>;
+    const checkboxes = document.querySelectorAll('input[name="golpes[]"]');
+    
+    checkboxes.forEach(function(checkbox) {
+        // Get the golpe item container
+        const container = checkbox.closest('li');
+        if(!container) return;
+        
+        // Find level requirement text
+        const levelText = container.querySelector('.level');
+        if(!levelText) return;
+        
+        // Extract level requirement number
+        const levelMatch = levelText.textContent.match(/Level Necessário:\s*(\d+)/);
+        if(!levelMatch) return;
+        
+        const requiredLevel = parseInt(levelMatch[1]);
+        
+        // Disable checkbox if level too low
+        if(characterLevel < requiredLevel){
+            checkbox.disabled = true;
+            checkbox.checked = false;
+            container.style.opacity = '0.5';
+            container.style.cursor = 'not-allowed';
+            
+            // Add tooltip
+            container.title = 'Você precisa ser level ' + requiredLevel + ' para aprender este golpe';
+        } else {
+            checkbox.disabled = false;
+            container.style.opacity = '1';
+            container.style.cursor = 'pointer';
+        }
+    });
+    
+    // Prevent form submission with invalid golpes
+    const form = document.querySelector('form');
+    if(form){
+        form.addEventListener('submit', function(e) {
+            const selectedCheckboxes = document.querySelectorAll('input[name="golpes[]"]:checked');
+            let hasInvalid = false;
+            let invalidGolpes = [];
+            
+            selectedCheckboxes.forEach(function(checkbox) {
+                const container = checkbox.closest('li');
+                const levelText = container.querySelector('.level');
+                const levelMatch = levelText.textContent.match(/Level Necessário:\s*(\d+)/);
+                
+                if(levelMatch){
+                    const requiredLevel = parseInt(levelMatch[1]);
+                    if(characterLevel < requiredLevel){
+                        hasInvalid = true;
+                        const nameText = container.querySelector('.nome strong');
+                        invalidGolpes.push(nameText.textContent + ' (Level ' + requiredLevel + ')');
+                    }
+                }
+            });
+            
+            if(hasInvalid){
+                e.preventDefault();
+                alert('❌ LEVEL INSUFICIENTE!\n\nVocê não pode aprender:\n' + invalidGolpes.join('\n'));
+                return false;
+            }
+        });
+    }
+});
+
