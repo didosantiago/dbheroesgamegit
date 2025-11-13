@@ -2019,10 +2019,9 @@ class Personagens {
         return '';
     }
 
-
     public function createInventorySlots($idPersonagem){
         try {
-            // 30 inventory slots
+            // ✅ 1. MEU INVENTÁRIO - 30 regular inventory slots
             for ($i = 1; $i <= 30; $i++) {
                 $sql = "INSERT INTO personagens_inventario (idPersonagem, slot, vazio) VALUES (:idPersonagem, :slot, 1)";
                 $stmt = DB::prepare($sql);
@@ -2033,22 +2032,24 @@ class Personagens {
                     throw new Exception("Failed inventory slot $i");
                 }
             }
-            // 8 equipped slots
+            error_log("✅ Created 30 MEU INVENTÁRIO slots for character $idPersonagem");
+            
+            // ✅ 2. ITENS EQUIPADOS - 8 equipped item slots (slots 1-8)
             for ($i = 1; $i <= 8; $i++) {
-                $emblema = ($i <= 3) ? 1 : 0;
-                $sql = "INSERT INTO personagens_itens_equipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 0, :emblema)";
+                $sql = "INSERT INTO personagensitensequipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 0, 0)";
                 $stmt = DB::prepare($sql);
                 $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
                 $stmt->bindParam(':slot', $i, PDO::PARAM_INT);
-                $stmt->bindParam(':emblema', $emblema, PDO::PARAM_INT);
                 if (!$stmt->execute()) {
                     error_log("Failed to create equipped slot $i: " . implode(', ', $stmt->errorInfo()));
                     throw new Exception("Failed equipped slot $i");
                 }
             }
-            // 10 sticker slots
+            error_log("✅ Created 8 ITENS EQUIPADOS slots for character $idPersonagem");
+            
+            // ✅ 3. ADESIVOS EQUIPADOS - 10 sticker slots (slots 9-18)
             for ($i = 9; $i <= 18; $i++) {
-                $sql = "INSERT INTO personagens_itens_equipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 1, 0)";
+                $sql = "INSERT INTO personagensitensequipados (idPersonagem, slot, vazio, adesivo, emblema) VALUES (:idPersonagem, :slot, 1, 1, 0)";
                 $stmt = DB::prepare($sql);
                 $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
                 $stmt->bindParam(':slot', $i, PDO::PARAM_INT);
@@ -2057,13 +2058,17 @@ class Personagens {
                     throw new Exception("Failed sticker slot $i");
                 }
             }
-            error_log("Created all inventory/equipment/sticker slots for character $idPersonagem");
+            error_log("✅ Created 10 ADESIVOS EQUIPADOS slots for character $idPersonagem");
+            
+            error_log("✅✅✅ SUCCESS: Created ALL inventory sections for character $idPersonagem");
             return true;
+            
         } catch (Exception $e) {
-            error_log("Error creating inventory slots: " . $e->getMessage());
+            error_log("❌ Error creating inventory slots: " . $e->getMessage());
             return false;
         }
     }
+
 
     
     public function checkLevelUp($idPersonagem){

@@ -174,7 +174,7 @@ header .menu-superior li .submenu li a svg {
 header .menu-superior .radar {
   position: absolute;
   top: -29px;
-  right: -50px;
+  right: -70px;
   width: 94px;
   height: 114px;
   background: url(radar.png);
@@ -5706,7 +5706,7 @@ body.ranking .lista-ranking tbody tr td {
 }
 
 body.ranking .lista-ranking tbody tr td a {
-  color: #000
+  color: #6eff56
 }
 
 body.ranking .lista-ranking tbody tr td.planeta img {
@@ -7288,7 +7288,7 @@ body.minhas-fotos .nova-foto-popup {
 
 body.hospital .conteudo {
   padding: 0;
-  margin: 110px 0 0 0px;
+  margin: 0px 0 0 0px;
   background: #1B2838
   height: 1043px;
   background: url("hospital1.png");
@@ -7314,7 +7314,7 @@ body.hospital .ficha {
   width: 300px;
   background-color: rgba(0, 0, 0, 0.5);
   padding: 15px;
-  margin: 50px 0 0 50px;
+  margin: 0px 0 0 50px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box
@@ -21315,7 +21315,7 @@ a {
   vertical-align: top;
   margin: 10px 0 20px 3px;
   padding: 10px;
-  background: #FFFFFF;
+  background: #1f2837;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -21350,20 +21350,20 @@ a {
   text-align: center;
   display: block;
   margin: 30px auto;
-  color: #ff001e;
+  color: #fff;
   font-size: 32px;
   text-transform: uppercase;
   font-weight: 800;
   padding: 15px 30px;
   background: rgba(0, 0, 0, 0.6);
-  border: 3px solid #ff001e;
+  border: 3px solid #52fd4d;
   border-radius: 10px;
   box-shadow: 
-    0 0 20px rgba(255, 0, 30, 0.5),
+    0 0 20px rgba(0, 255, 30, 0.5),
     inset 0 0 20px rgba(0, 0, 0, 0.5);
   text-shadow: 
     2px 2px 4px rgba(0, 0, 0, 0.9),
-    0 0 10px rgba(255, 0, 30, 0.7);
+    0 0 10px rgba(0, 255, 30, 0.7);
   letter-spacing: 3px;
   max-width: 600px;
 }
@@ -21663,12 +21663,17 @@ main > div > div i {
 .conteudo i[class*="crown"],
 .conteudo .fa-crown {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
-
 /* 2. LOJA DE ITENS - Orange Store */
 .conteudo i[class*="store"]:not([class*="box"]),
 .conteudo .fa-store {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 3. BANCO CENTRAL - Green Piggy Bank */
@@ -21676,6 +21681,9 @@ main > div > div i {
 .conteudo i[class*="bank"],
 .conteudo .fa-piggy-bank {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 4. BÔNUS DIÁRIO - Yellow Gift Box */
@@ -21684,12 +21692,18 @@ main > div > div i {
 .conteudo .fa-gift,
 .conteudo .fa-box {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 5. MERCADO - Purple Shopping Cart */
 .conteudo i[class*="cart"],
 .conteudo .fa-shopping-cart {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 6. TROCA DE GUERREIRO - Orange Person */
@@ -21698,6 +21712,9 @@ main > div > div i {
 .conteudo .fa-male,
 .conteudo .fa-user-alt {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 7. TREINAR GUERREIRO - Orange Arrow Up */
@@ -21710,12 +21727,18 @@ main > div > div i {
 .conteudo .fa-angle-up,
 .conteudo .fa-upload {
     color: #8fff45 !important; /* Bright orange */
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* 8. EQUIPES - Teal Users */
 .conteudo i[class*="users"],
 .conteudo .fa-users {
     color: #8fff45 !important;
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
 }
 
 /* ========================================
@@ -21987,43 +22010,27 @@ button i,
     margin-right: 5px !important;
 }
 
-/* ========================================
-   FIX: BLOQUEADO BUTTON TEXT INSIDE
-   ======================================== */
-
-/* Tournament/NPC buttons */
-button.bloqueado,
-a.bloqueado,
-.btn-bloqueado,
-[class*="bloqueado"] {
+/* Fix all NPC/tournament buttons */
+.torneio button,
+.torneio a,
+.npc-battle button,
+.npc-battle a {
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 8px 15px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-    min-width: 120px !important;
-}
-
-/* Icon inside bloqueado button */
-button.bloqueado i,
-a.bloqueado i,
-.btn-bloqueado i,
-[class*="bloqueado"] i {
-    font-size: 14px !important;
-    margin-right: 1px !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-}
-
-/* Text inside bloqueado button */
-button.bloqueado span,
-a.bloqueado span,
-.btn-bloqueado span {
+    padding: 10px 20px !important;
     font-size: 12px !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
+    white-space: nowrap !important;
+    min-width: 100px !important;
+}
+
+/* Icons in tournament buttons */
+.torneio button i,
+.torneio a i,
+.npc-battle button i,
+.npc-battle a i {
+    font-size: 14px !important;
+    margin-right: 5px !important;
 }
 
 
@@ -22212,3 +22219,162 @@ a.bloqueado span,
     background: rgba(255, 107, 53, 0.8);
 }
 
+
+/* Odd rows - Dark gray */
+table tbody tr:nth-child(odd) {
+    background: #34495e !important;
+    color: #ecf0f1 !important;
+}
+
+/* Even rows - Darker gray */
+table tbody tr:nth-child(even) {
+    background: #2c3e50 !important;
+    color: #ecf0f1 !important;
+}
+
+/* Hover - Blue accent */
+table tbody tr:hover {
+    background: #3498db !important;
+    color: #fff !important;
+}
+
+.portal-icon-big {
+    font-size: 80px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
+}
+
+/* Hide slot numbers inside empty slots */
+.slots .slot-number {
+    display: none !important;
+}
+
+/* Slot styling */
+.slots {
+    width: 70px;
+    height: 70px;
+    border: 2px solid #555;
+    display: inline-block;
+    margin: 5px;
+    position: relative;
+    background: #2a2a2a;
+}
+
+/* Empty slots */
+.slots.slot-vazio {
+    background: #1a1a1a;
+    border: 2px dashed #444;
+}
+
+/* Emblema slots - RED border */
+.slots.slot-emblema {
+    border: 3px solid #ff0000;
+    background: #330000;
+}
+
+/* Equipado slots - PURPLE border */
+.slots.slot-equipado {
+    border: 3px solid #9b30ff;
+    background: #1a0033;
+}
+
+/* Adesivo slots - YELLOW border */
+.slots.slot-amarelo {
+    border: 3px solid #ffcc00;
+    background: #332200;
+}
+
+/* Item images inside slots */
+.slots img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* ========================================
+   INVENTORY LAYOUT
+   ======================================== */
+
+/* Emblems row - center 3 items */
+.emblems-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+/* Equipped row - center 5 items */
+.equipped-row {
+    display: flex;
+    justify-content: center;
+}
+
+/* Hide SLOT text */
+.slots::before {
+    content: none !important;
+}
+
+.slots::after {
+    content: none !important;
+}
+
+/* Slot styling */
+.slots {
+    width: 70px;
+    height: 70px;
+    border: 2px solid #555;
+    display: inline-block;
+    margin: 5px;
+    background: #2a2a2a;
+    text-indent: -9999px; /* Hide text */
+    overflow: hidden;
+}
+
+/* Empty slots */
+.slots.slot-vazio {
+    background: #1a1a1a;
+    border: 2px dashed #444;
+}
+
+/* RED border - Emblems */
+.slots.slot-emblema {
+    border: 3px solid #ff0000 !important;
+    background: #330000 !important;
+}
+
+/* PURPLE border - Equipped */
+.slots.slot-equipado {
+    border: 3px solid #9b30ff !important;
+    background: #1a0033 !important;
+}
+
+/* YELLOW border - Adesivos */
+.slots.slot-amarelo {
+    border: 3px solid #ffcc00 !important;
+    background: #332200 !important;
+}
+
+/* Images inside slots */
+.slots img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+/* Hide descriptions by default */
+.golpes-list .description,
+input[type="checkbox"] ~ span {
+    display: none;
+    position: absolute;
+    background: rgba(0, 0, 0, 0.9);
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 1000;
+    white-space: nowrap;
+}
+
+/* Show on hover */
+input[type="checkbox"]:hover ~ span,
+.golpes-list li:hover .description {
+    display: block;
+}

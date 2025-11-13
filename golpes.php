@@ -13,6 +13,12 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
     $personagemInfo = $core->getDados('personagens', "WHERE id = " . $personagemData->idPersonagem);
     $characterLevel = $personagemInfo->nivel;
     
+    // ✅ Get currently learned golpes
+    $sql = "SELECT idGolpe FROM personagens_golpes WHERE idPersonagem = $idPersonagem";
+    $stmt = DB::prepare($sql);
+    $stmt->execute();
+    $learnedGolpes = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    
     // Validate each selected golpe
     $validGolpes = array();
     $invalidGolpes = array();
@@ -26,19 +32,21 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
         if($golpeData){
             // Check level requirement
             if($characterLevel >= $golpeData->level){
+                // ✅ Character CAN learn this - add to valid list
                 $validGolpes[] = $golpeId;
             } else {
+                // ❌ Character CANNOT learn this yet - add to error list
                 $invalidGolpes[] = $golpeData->nome . " (requer level " . $golpeData->level . ")";
             }
         }
     }
     
-    // Store error messages
+    // Show error messages only if there are invalid golpes
     if(!empty($invalidGolpes)){
         $errorMessages = $invalidGolpes;
     }
     
-    // Only proceed if we have valid golpes
+    // Save valid golpes even if there are some invalid ones
     if(!empty($validGolpes)){
         // Delete old golpes except Soco (ID 1)
         $core->delete('personagens_golpes', "idPersonagem = $idPersonagem AND idGolpe != 1");
@@ -54,10 +62,14 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
             }
         }
         
-        $successMessage = true;
+        // Only show success if ALL selected golpes were valid
+        if(empty($invalidGolpes)){
+            $successMessage = true;
+        }
     }
 }
 ?>
+
 
 <!-- ✅ BEAUTIFUL NOTIFICATION CONTAINER -->
 <?php if(!empty($errorMessages) || $successMessage): ?>
@@ -73,24 +85,68 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
         
         <div class="notification-content">
             <?php if($successMessage): ?>
-                <h3>✅ Sucesso!</h3>
+                <h3><i class="fas fa-check"></i> SUCESSO!</h3>
                 <p>Seus golpes foram salvos com sucesso!</p>
             <?php else: ?>
-                <h3>❌ Level Insuficiente!</h3>
+                <h3><i class="fas fa-times"></i> LEVEL INSUFICIENTE!</h3>
                 <p>Você não pode aprender os seguintes golpes:</p>
                 <ul>
                     <?php foreach($errorMessages as $msg): ?>
-                        <li><?php echo $msg; ?></li>
+                        <li><?php echo htmlspecialchars($msg); ?></li>
                     <?php endforeach; ?>
                 </ul>
             <?php endif; ?>
         </div>
         
-        <button class="notification-close" onclick="closeNotification()">
+        <button class="notification-close" type="button" aria-label="Fechar">
             <i class="fas fa-times"></i>
         </button>
     </div>
 </div>
+
+<script>
+function closeNotification() {
+    const overlay = document.getElementById('notification-overlay');
+    if(overlay){
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.3s ease';
+        setTimeout(function() {
+            overlay.remove();
+        }, 300);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('notification-overlay');
+    
+    if(overlay){
+        // Auto-close success after 3 seconds
+        if(overlay.querySelector('.notification-box.success')){
+            setTimeout(closeNotification, 3000);
+        }
+        
+        // Click background to close
+        overlay.addEventListener('click', function(e) {
+            if(e.target === this){
+                closeNotification();
+            }
+        });
+        
+        // Click X button to close
+        const closeBtn = overlay.querySelector('.notification-close');
+        if(closeBtn){
+            closeBtn.addEventListener('click', closeNotification);
+        }
+        
+        // ESC key to close
+        document.addEventListener('keydown', function(e) {
+            if(e.key === 'Escape'){
+                closeNotification();
+            }
+        });
+    }
+});
+</script>
 <?php endif; ?>
 
 <h2 class="title">Escolha aqui os golpes que irá usar nas batalhas</h2>
@@ -105,39 +161,3 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
         <?php $batalha->getListaGolpes($personagem->mana, $personagem->nivel); ?>
     </form>
 </ul>
-
-<script>
-function closeNotification() {
-    const overlay = document.getElementById('notification-overlay');
-    if(overlay){
-        overlay.style.animation = 'fadeOut 0.3s ease';
-        setTimeout(function() {
-            overlay.remove();
-        }, 300);
-    }
-}
-
-// Auto-close success messages after 3 seconds
-document.addEventListener('DOMContentLoaded', function() {
-    const overlay = document.getElementById('notification-overlay');
-    if(overlay && overlay.querySelector('.notification-box.success')){
-        setTimeout(function() {
-            closeNotification();
-        }, 3000);
-    }
-});
-
-// Close on clicking overlay background
-document.addEventListener('click', function(e) {
-    if(e.target.classList.contains('notification-overlay')){
-        closeNotification();
-    }
-});
-</script>
-
-<style>
-@keyframes fadeOut {
-    from { opacity: 1; }
-    to { opacity: 0; }
-}
-</style>

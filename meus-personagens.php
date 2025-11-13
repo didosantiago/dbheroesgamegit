@@ -13,6 +13,56 @@ $charactersList = ob_get_clean(); // Get the output
 $hasCharacters = (trim($charactersList) !== '');
 ?>
 
+<?php
+// ✅ HANDLE NOTIFICATIONS
+$showSuccessNotification = false;
+$showErrorNotification = false;
+$notificationMessage = '';
+$characterName = '';
+$shouldRedirect = false;
+
+// Check for error parameter
+if(isset($_GET['error']) && $_GET['error'] === 'no_character') {
+    $showErrorNotification = true;
+    $notificationMessage = 'Você precisa selecionar um personagem antes de jogar!';
+}
+
+// Check if character was just created
+if(isset($_SESSION['character_created']) && $_SESSION['character_created'] === true) {
+    $showSuccessNotification = true;
+    $characterName = isset($_SESSION['character_name']) ? $_SESSION['character_name'] : 'seu guerreiro';
+    $notificationMessage = '<strong>' . htmlspecialchars($characterName) . '</strong> foi criado com sucesso!';
+    unset($_SESSION['character_created']);
+    unset($_SESSION['character_name']);
+}
+
+// Handle character selection (JOGAR button)
+if(isset($_POST['jogar'])){
+    if(!empty($_POST['idPersonagem'])){
+        $idPersonagem = (int)$_POST['idPersonagem'];
+        
+        // Verify character belongs to user
+        $core = new Core();
+        $check = $core->getDados('usuarios_personagens', "WHERE id = {$idPersonagem} AND idUsuario = {$user->id}");
+        
+        if($check){
+            $_SESSION['PERSONAGEMID'] = $idPersonagem;
+            $showSuccessNotification = true;
+            $characterName = htmlspecialchars($check->nome);
+            $notificationMessage = 'Personagem <strong>' . $characterName . '</strong> selecionado com sucesso!';
+            $shouldRedirect = true;
+        } else {
+            $showErrorNotification = true;
+            $notificationMessage = 'Personagem inválido ou não encontrado!';
+        }
+    } else {
+        $showErrorNotification = true;
+        $notificationMessage = 'Você precisa selecionar um personagem antes de jogar!';
+    }
+}
+?>
+
+
 <div class="personagem-atual">
     <div class="foto-personagem">
         <img src="<?php echo BASE; ?>assets/guerreiro_blank.jpg" alt="Selecione seu Guerreiro" />
