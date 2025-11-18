@@ -224,7 +224,7 @@ class Inventario {
                 // Slot with item
                 $raridade_class = 'raridade-' . $slot->raridade;
                 echo '<li class="slots ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '">';
-                echo '<img src="' . BASE . 'assets/images/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
+                echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
             } else {
                 // Empty slot
@@ -240,15 +240,12 @@ class Inventario {
         $core = new Core();
         
         // Initialize slots if they don't exist
-        $sql = "SELECT * FROM personagens_itens_equipados 
-                WHERE idPersonagem = $idPersonagem 
-                AND adesivo = 0";
-        
+        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND adesivo = 0";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
         if($stmt->rowCount() == 0) {
-            // Create 8 slots: 3 emblems (1-3) + 5 normal (4-8)
+            // Create 8 slots: 3 emblems (1-3), 5 normal (4-8)
             for($i = 1; $i <= 8; $i++) {
                 $emblema = ($i <= 3) ? 1 : 0;
                 $campos = array(
@@ -256,56 +253,168 @@ class Inventario {
                     'slot' => $i,
                     'emblema' => $emblema,
                     'adesivo' => 0,
+                    'idItem' => 0,
                     'vazio' => 1
                 );
                 $core->insert('personagens_itens_equipados', $campos);
             }
         }
         
-        // Get equipped items
+        // Get equipped items - FETCH AS ASSOCIATIVE ARRAY
         $sql = "SELECT pie.*, i.nome, i.imagem, i.tipo, i.raridade 
                 FROM personagens_itens_equipados as pie 
                 LEFT JOIN itens as i ON i.id = pie.idItem 
-                WHERE pie.idPersonagem = $idPersonagem 
-                AND pie.adesivo = 0
+                WHERE pie.idPersonagem = $idPersonagem AND pie.adesivo = 0 
                 ORDER BY pie.slot ASC";
         
         $stmt = DB::prepare($sql);
         $stmt->execute();
-        $slots = $stmt->fetchAll();
+        $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // Separate emblems and equipped
-        $emblems = array_slice($slots, 0, 3);  // First 3 are emblems
+        $emblems = array_slice($slots, 0, 3); // First 3 are emblems
         $equipped = array_slice($slots, 3, 5); // Next 5 are equipped
         
         // Display emblems (top row)
         echo '<div class="emblems-row">';
         foreach($emblems as $slot) {
-            $this->renderSlot($slot, 'slot-emblema');
+            $this->renderSlot($slot, true); // true = is emblem
         }
         echo '</div>';
         
         // Display equipped items (bottom row)
         echo '<div class="equipped-row">';
         foreach($equipped as $slot) {
-            $this->renderSlot($slot, 'slot-equipado');
+            $this->renderSlot($slot, false); // false = is equipment
         }
         echo '</div>';
     }
 
     // Helper method to render a slot
-    private function renderSlot($slot, $slotClass) {
-        if($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
-            // Slot with item
-            $raridade_class = 'raridade-' . $slot->raridade;
-            echo '<li class="slots equipped ' . $slotClass . ' ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '">';
-            echo '<img src="' . BASE . 'assets/images/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
-            echo '</li>';
+    private function renderSlot($slot, $isEmblem) {
+        $slotClass = $isEmblem ? 'slot-emblema' : 'slot-equipado';
+        $emptyImage = $isEmblem ? 'slot-emblema.png' : 'slot-equipado.png';
+        
+        if(!empty($slot['idItem']) && $slot['idItem'] > 0 && !empty($slot['imagem'])) {
+            // Slot with equipped item
+            $raridadeclass = isset($slot['raridade']) ? 'raridade-'.$slot['raridade'] : '';
+            echo '<div class="slots equipped '.$slotClass.' '.$raridadeclass.' has-item" data-slot="'.$slot['slot'].'" data-item="'.$slot['idItem'].'">';
+            echo '<img src="'.BASE.'assets/itens/'.$slot['imagem'].'" alt="'.$slot['nome'].'" title="'.$slot['nome'].'" style="width: 100%; height: 100%; object-fit: contain;" />';
+            echo '</div>';
         } else {
-            // Empty slot - NO TEXT/NUMBER
-            echo '<li class="slots equipped ' . $slotClass . ' slot-vazio" data-slot="' . $slot->slot . '"></li>';
+            // Empty slot - show slot background image
+            echo '<div class="slots equipped '.$slotClass.' slot-vazio" data-slot="'.$slot['slot'].'">';
+            echo '<img src="'.BASE.'assets/'.$emptyImage.'" alt="Empty Slot" style="width: 100%; height: 100%; object-fit: contain;" />';
+            echo '</div>';
         }
     }
+
+
+
+    public function displayAdesivosPerfil($idPersonagem, $slots_array) {
+        // Get the adesivos data using your existing method
+        $adesivos = $this->getSlotsAdesivosPerfil($idPersonagem);
+        
+        // Display only the slots in the array
+        foreach($slots_array as $slot_number) {
+            $found = false;
+            
+            // Find the slot in the results
+            foreach($adesivos as $adesivo) {
+                if($adesivo['slot'] == $slot_number) {
+                    $found = true;
+                    
+                    // Check if slot has an item
+                    if(!empty($adesivo['idAdesivo']) && $adesivo['idAdesivo'] > 0 && $adesivo['vazio'] == 0) {
+                        // Slot has adesivo - get item details
+                        $sql = "SELECT * FROM itens WHERE id = ?";
+                        $stmt = DB::prepare($sql);
+                        $stmt->execute([$adesivo['idAdesivo']]);
+                        $item = $stmt->fetch();
+                        
+                        if($item) {
+                            $raridadeClass = 'raridade-'.$item['raridade'];
+                            echo '<li class="slots adesivo slot-amarelo has-item '.$raridadeClass.'" data-slot="'.$slot_number.'">';
+                            echo '<img src="'.BASE.'assets/itens/'.$item['imagem'].'" alt="'.$item['nome'].'" title="'.$item['nome'].'" />';
+                            echo '</li>';
+                        } else {
+                            // Item not found, show empty
+                            echo '<li class="slots adesivo slot-amarelo slot-vazio" data-slot="'.$slot_number.'">';
+                            echo '<div class="slot-content"></div>';
+                            echo '</li>';
+                        }
+                    } else {
+                        // Empty slot
+                        echo '<li class="slots adesivo slot-amarelo slot-vazio" data-slot="'.$slot_number.'">';
+                        echo '<div class="slot-content"></div>';
+                        echo '</li>';
+                    }
+                    break;
+                }
+            }
+            
+            // If slot doesn't exist in database, show empty
+            if(!$found) {
+                echo '<li class="slots adesivo slot-amarelo slot-vazio" data-slot="'.$slot_number.'">';
+                echo '<div class="slot-content"></div>';
+                echo '</li>';
+            }
+        }
+    }
+
+
+    public function displayAdesivosSlots($idPersonagem, $slots_array) {
+        $core = new Core();
+        
+        // Initialize adesivo slots if they don't exist
+        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = ? AND adesivo = 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        
+        if($stmt->rowCount() == 0) {
+            // Create 10 adesivo slots
+            for($i = 1; $i <= 10; $i++) {
+                $campos = array(
+                    'idPersonagem' => $idPersonagem,
+                    'slot' => $i,
+                    'emblema' => 0,
+                    'adesivo' => 1,
+                    'vazio' => 1
+                );
+                $core->insert('personagens_itens_equipados', $campos);
+            }
+        }
+        
+        // Get adesivo items for requested slots only
+        $placeholders = implode(',', array_fill(0, count($slots_array), '?'));
+        $sql = "SELECT pie.*, i.nome, i.imagem, i.tipo, i.raridade 
+                FROM personagens_itens_equipados as pie 
+                LEFT JOIN itens as i ON i.id = pie.idItem 
+                WHERE pie.idPersonagem = ? AND pie.adesivo = 1 AND pie.slot IN ($placeholders)
+                ORDER BY pie.slot ASC";
+        
+        $stmt = DB::prepare($sql);
+        $params = array_merge([$idPersonagem], $slots_array);
+        $stmt->execute($params);
+        $slots = $stmt->fetchAll();
+        
+        // Display adesivo slots
+        foreach($slots as $slot) {
+            if($slot['idItem'] && $slot['idItem'] > 0 && !empty($slot['imagem'])) {
+                // Slot with adesivo item
+                $raridadeclass = 'raridade-'.$slot['raridade'];
+                echo '<li class="slots adesivo slot-amarelo has-item '.$raridadeclass.'" data-slot="'.$slot['slot'].'" data-item="'.$slot['idItem'].'">';
+                echo '<img src="'.BASE.'assets/itens/'.$slot['imagem'].'" alt="'.$slot['nome'].'" title="'.$slot['nome'].'" />';
+                echo '</li>';
+            } else {
+                // Empty yellow slot
+                echo '<li class="slots adesivo slot-amarelo slot-vazio" data-slot="'.$slot['slot'].'">';
+                echo '<img src="'.BASE.'assets/slot-amarelo.png" alt="Slot Adesivo Vazio" />';
+                echo '</li>';
+            }
+        }
+    }
+
 
     public function getSlotsAdesivos($idPersonagem) {
         $core = new Core();
@@ -350,7 +459,7 @@ class Inventario {
                 // Slot with adesivo item - show the item image
                 $raridade_class = 'raridade-' . $slot->raridade;
                 echo '<li class="slots adesivo slot-amarelo has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '">';
-                echo '<img src="' . BASE . 'assets/images/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
+                echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
             } else {
                 // Empty yellow slot - show slot-amarelo.png image
@@ -360,6 +469,44 @@ class Inventario {
             }
         }
     }
+
+    public function getStatusEquipados($idPersonagem) {
+    // Get all equipped items (emblemas and regular equipped slots, excluding adesivos)
+    $sql = "SELECT i.forca, i.agilidade, i.habilidade, i.resistencia, i.sorte 
+            FROM personagens_itens_equipados as pie 
+            INNER JOIN itens as i ON i.id = pie.idItem 
+            WHERE pie.idPersonagem = $idPersonagem 
+            AND pie.adesivo = 0 
+            AND pie.vazio = 0";
+    
+    $stmt = DB::prepare($sql);
+    $stmt->execute();
+    $items = $stmt->fetchAll();
+    
+    // Calculate total stats from all equipped items
+    $total_forca = 0;
+    $total_agilidade = 0;
+    $total_habilidade = 0;
+    $total_resistencia = 0;
+    $total_sorte = 0;
+    
+    foreach($items as $item) {
+        $total_forca += intval($item->forca);
+        $total_agilidade += intval($item->agilidade);
+        $total_habilidade += intval($item->habilidade);
+        $total_resistencia += intval($item->resistencia);
+        $total_sorte += intval($item->sorte);
+    }
+    
+    // Return array with total stats
+    return array(
+        'forca' => $total_forca,
+        'agilidade' => $total_agilidade,
+        'habilidade' => $total_habilidade,
+        'resistencia' => $total_resistencia,
+        'sorte' => $total_sorte
+    );
+}
 
 
 

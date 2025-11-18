@@ -34,7 +34,7 @@
         <div class="modal-body">
             <p>Você não tem energia suficiente para batalhar.</p>
             <p><strong>Energia necessária:</strong> 10 pontos</p>
-            <p><strong>Sua energia atual:</strong> <span id="energiaAtual"><?php echo $energia_restante; ?></span> / <?php echo $personagem->energia; ?></p>
+            <p><strong>Sua energia atual: 0</strong>
             
             <div class="info-rest">
                 <i class="fas fa-bed"></i>
@@ -93,7 +93,7 @@ document.addEventListener('keydown', function(e) {
     font-size: 11px;
     line-height: 1.2;
     display: inline-block;
-    vertical-align: middle;
+    vertical-align: left;
 }
 
 .btn-sem-energia {

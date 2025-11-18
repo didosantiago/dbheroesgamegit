@@ -321,8 +321,9 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <div id="etapa-3">
-                <img class="img-success" src="<?php echo BASE; ?>assets/success.png" alt="Sucesso" />
-                <h4>Parabéns, clique no botão abaixo para concluir e Iniciar o Jogo</h4>
+                <img class="img-success" src="<?php echo BASE; ?>assets/success.gif" alt="Sucesso" />
+                <h4>Parabéns! clique no botão abaixo para concluir e iniciar a sua aventura!</h4>
+                <h6 style="color: #ff0000ff;">Observação: o personagem só é realmente criado após clicar no botão abaixo!</h6>
                 <input type="hidden" name="criar" value="1"/>
                 <button type="submit" id="criar" class="bts-form">Começar o Jogo <i class="fas fa-play"></i></button>
             </div>

@@ -67,16 +67,17 @@
     ?>
 
 <h2 class="title">Iniciar uma Caçada</h2>
+<div class="cacadas-banner"></div>
 
 <!-- Daily Hunt Time Status Alert -->
-<div class="hunt-time-status" style="background: <?php echo ($tempo_restante > 0) ? '#4CAF50' : '#f44336'; ?>; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: bold;">
+<div class="hunt-time-status" style="background: <?php echo ($tempo_restante > 0) ? '#000000ff' : '#f44336'; ?>; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: bold;">
     <?php if($tempo_restante > 0){ ?>
         ✅ Tempo de Caçada Hoje: <span style="color: #ffeb3b;"><?php echo $tempo_usado; ?> minutos usados</span> | 
         <span style="color: #8bc34a;"><?php echo $tempo_restante; ?> minutos restantes</span>
         <?php if($user->vip == 1){ ?>
-            <span style="background: #ff9800; padding: 5px 10px; border-radius: 5px; margin-left: 10px;">⭐ VIP: 2 Horas Diárias</span>
+            <span style="background: #3a0052ff; padding: 5px 10px; border-radius: 5px; margin-left: 10px;">⭐ VIP: 2 Horas Diárias</span>
         <?php } else { ?>
-            <span style="background: #ff5722; padding: 5px 10px; border-radius: 5px; margin-left: 10px;">Jogador Free: 1 Hora Diária</span>
+            <span style="background: #3a0052ff; padding: 5px 10px; border-radius: 5px; margin-left: 10px;">Jogador Free: 1 Hora Diária</span>
         <?php } ?>
     <?php } else { ?>
         ❌ Tempo de Caçada Esgotado Hoje! Você já usou <?php echo $tempo_usado; ?> minutos.

@@ -2,55 +2,74 @@
 $errorMessages = array();
 $successMessage = false;
 
-if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
-    
+if(isset($_POST['salvar']) && isset($_POST['golpes']) && !empty($_POST['golpes'])){
+
     $core = new Core();
     $batalha = new Batalha();
     $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
-    
-    // Get character level
+
+    // ✅ DEBUG: Get character level - try different column names
     $personagemData = $core->getDados('usuarios_personagens', "WHERE id = $idPersonagem");
     $personagemInfo = $core->getDados('personagens', "WHERE id = " . $personagemData->idPersonagem);
-    $characterLevel = $personagemInfo->nivel;
-    
+
+    // ✅ FIX: Check which column name exists (nivel, level, or lvl)
+    if(isset($personagemInfo->nivel)){
+        $characterLevel = (int)$personagemInfo->nivel;
+    } elseif(isset($personagemInfo->level)){
+        $characterLevel = (int)$personagemInfo->level;
+    } elseif(isset($personagemInfo->lvl)){
+        $characterLevel = (int)$personagemInfo->lvl;
+    } else {
+        // Fallback: get from $personagem object
+        $characterLevel = (int)$personagem->nivel;
+    }
+
+    // ✅ DEBUG: Log the character level (remove after testing)
+    error_log("Character Level: " . $characterLevel);
+
     // ✅ Get currently learned golpes
     $sql = "SELECT idGolpe FROM personagens_golpes WHERE idPersonagem = $idPersonagem";
     $stmt = DB::prepare($sql);
     $stmt->execute();
     $learnedGolpes = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
+
     // Validate each selected golpe
     $validGolpes = array();
     $invalidGolpes = array();
-    
+
     foreach($_POST['golpes'] as $golpeId){
         $golpeId = (int)$golpeId;
-        
+
         // Get golpe requirements
         $golpeData = $core->getDados('ataques', "WHERE id = $golpeId");
-        
+
         if($golpeData){
-            // Check level requirement
-            if($characterLevel >= $golpeData->level){
-                // ✅ Character CAN learn this - add to valid list
+            // ✅ DEBUG: Log comparison
+            error_log("Golpe: " . $golpeData->nome . " | Required Level: " . $golpeData->level . " | Character Level: " . $characterLevel);
+
+            // ✅ FIXED: Proper level comparison with explicit cast
+            if((int)$characterLevel >= (int)$golpeData->level){
+                // Character CAN learn this - add to valid list
                 $validGolpes[] = $golpeId;
+                error_log("✓ CAN learn: " . $golpeData->nome);
             } else {
-                // ❌ Character CANNOT learn this yet - add to error list
+                // Character CANNOT learn this yet - add to error list
                 $invalidGolpes[] = $golpeData->nome . " (requer level " . $golpeData->level . ")";
+                error_log("✗ CANNOT learn: " . $golpeData->nome);
             }
         }
     }
-    
+
     // Show error messages only if there are invalid golpes
     if(!empty($invalidGolpes)){
         $errorMessages = $invalidGolpes;
     }
-    
+
     // Save valid golpes even if there are some invalid ones
     if(!empty($validGolpes)){
         // Delete old golpes except Soco (ID 1)
         $core->delete('personagens_golpes', "idPersonagem = $idPersonagem AND idGolpe != 1");
-        
+
         // Insert valid golpes
         foreach($validGolpes as $golpeId){
             if(!$batalha->getGolpeExiste($golpeId, $idPersonagem)){
@@ -61,7 +80,7 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
                 $core->insert('personagens_golpes', $campos);
             }
         }
-        
+
         // Only show success if ALL selected golpes were valid
         if(empty($invalidGolpes)){
             $successMessage = true;
@@ -69,7 +88,6 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
     }
 }
 ?>
-
 
 <!-- ✅ BEAUTIFUL NOTIFICATION CONTAINER -->
 <?php if(!empty($errorMessages) || $successMessage): ?>
@@ -82,7 +100,7 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
                 <i class="fas fa-exclamation-triangle"></i>
             <?php endif; ?>
         </div>
-        
+
         <div class="notification-content">
             <?php if($successMessage): ?>
                 <h3><i class="fas fa-check"></i> SUCESSO!</h3>
@@ -95,9 +113,13 @@ if(isset($_POST['salvar']) && !empty($_POST['golpes'])){
                         <li><?php echo htmlspecialchars($msg); ?></li>
                     <?php endforeach; ?>
                 </ul>
+                <!-- ✅ DEBUG: Show character level -->
+                <p style="margin-top: 10px; font-size: 12px; color: #ffa726;">
+                    Debug: Seu nível atual é <?php echo $characterLevel; ?>
+                </p>
             <?php endif; ?>
         </div>
-        
+
         <button class="notification-close" type="button" aria-label="Fechar">
             <i class="fas fa-times"></i>
         </button>
@@ -118,26 +140,26 @@ function closeNotification() {
 
 document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('notification-overlay');
-    
+
     if(overlay){
         // Auto-close success after 3 seconds
         if(overlay.querySelector('.notification-box.success')){
             setTimeout(closeNotification, 3000);
         }
-        
+
         // Click background to close
         overlay.addEventListener('click', function(e) {
             if(e.target === this){
                 closeNotification();
             }
         });
-        
+
         // Click X button to close
         const closeBtn = overlay.querySelector('.notification-close');
         if(closeBtn){
             closeBtn.addEventListener('click', closeNotification);
         }
-        
+
         // ESC key to close
         document.addEventListener('keydown', function(e) {
             if(e.key === 'Escape'){

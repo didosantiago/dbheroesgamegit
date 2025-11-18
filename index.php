@@ -7,6 +7,23 @@
         $modulo = "home";
     }
 
+    if (
+        isset($_SESSION['npc']) && isset($_SESSION['npc_id']) &&
+        (!isset($modulo) || ($modulo !== 'npc' && $modulo !== 'conceder' && $modulo !== 'concluir'))
+    ) {
+        // Check if the current NPC battle is still active
+        $core = new Core();
+        $npc_battle = $core->getDados('npc', 'WHERE id = '.$_SESSION['npc_id']);
+        if ($npc_battle && $npc_battle->concluido == 0) {
+            header('Location: ' . BASE . 'npc/' . $_SESSION['npc_id']);
+            exit;
+        }
+        // Otherwise, allow user to go elsewhere
+    }
+
+
+
+
     if(Url::getURL(1) != ''){
         $acao = Url::getURL(1);
     } else {
@@ -105,40 +122,24 @@
                         exit;
                     }
                 ?>
-
+                
                 <?php if(isset($_SESSION['novo_nivel']) && $_SESSION['novo_nivel'] == true){ ?>
-                    <div class="float-msg" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #1a237e 0%, #0d47a1 50%, #01579b 100%); padding: 40px 60px; border-radius: 20px; z-index: 99999; box-shadow: 0 25px 50px rgba(0,0,0,0.8), 0 0 0 3px rgba(255,193,7,0.3); border: 3px solid #ffc107; text-align: center; min-width: 500px;">
-                        
-                        <div style="margin-bottom: 30px;">
-                            <div style="font-size: 60px; margin-bottom: 15px; animation: bounce 1s infinite;">🎊</div>
-                            <h2 style="color: #ffc107; font-size: 28px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 3px; text-shadow: 3px 3px 6px rgba(0,0,0,0.5), 0 0 20px rgba(255,193,7,0.4);">LEVEL UP!</h2>
-                            <p style="color: #fff; font-size: 22px; margin: 0;">Você alcançou o</p>
-                        </div>
-                        
-                        <div style="background: rgba(0,0,0,0.3); padding: 25px; border-radius: 15px; margin-bottom: 30px; border: 2px solid rgba(255,193,7,0.2);">
-                            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
-                                <span style="color: #fff; font-size: 24px;">Nível</span>
-                                <span style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #1a237e; font-size: 48px; font-weight: bold; padding: 15px 30px; border-radius: 15px; box-shadow: 0 8px 20px rgba(255,193,7,0.4), inset 0 2px 0 rgba(255,255,255,0.3);"><?php echo isset($_SESSION['nivel_atual']) ? $_SESSION['nivel_atual'] : ''; ?></span>
+                    <div class="backdrop-game"></div>
+                    <div class="lvup-cacada-overlay">
+                        <img class="lvup-cacada-img" src="assets/cacadasrewardupdated.gif" alt="Level Up Background" />
+                        <div class="lvup-cacada-content">
+                            <div class="lvup-cacada-number">
+                                <?php echo isset($_SESSION['nivel_atual']) ? $_SESSION['nivel_atual'] : ''; ?>
                             </div>
+                            <form method="post">
+                                <button type="submit" name="confirmarMSG" class="lvup-cacada-btn">CONTINUAR</button>
+                            </form>
                         </div>
-                        
-                        <form method="post" style="text-align: center;">
-                            <button type="submit" name="confirmarMSG" class="bts-form" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); color: #1a237e; padding: 18px 60px; border: none; border-radius: 50px; cursor: pointer; font-size: 20px; font-weight: bold; text-transform: uppercase; letter-spacing: 2px; transition: all 0.3s ease; box-shadow: 0 8px 20px rgba(255,193,7,0.4), inset 0 1px 0 rgba(255,255,255,0.3); display: inline-flex; align-items: center; gap: 10px;" onmouseover="this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 12px 30px rgba(255,193,7,0.6)';" onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.boxShadow='0 8px 20px rgba(255,193,7,0.4)';">
-                                <span style="font-size: 24px;">✓</span>
-                                CONFIRMAR
-                            </button>
-                        </form>
                     </div>
-                    
-                    <div class="backdrop-game" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 99998;"></div>
-                    
-                    <style>
-                        @keyframes bounce {
-                            0%, 100% { transform: translateY(0); }
-                            50% { transform: translateY(-10px); }
-                        }
-                    </style>
                 <?php } ?>
+
+                            
+
 
                 <?php 
                     // ============ UNIFIED ACTIVITY NOTIFICATION SYSTEM ============
@@ -233,15 +234,7 @@
                         </div>
                 <?php } ?>
 
-                <?php 
-                    // Show NPC battle notification if active
-                    if(isset($_SESSION['npc']) && isset($_SESSION['npc_id'])){
-                ?>
-                        <div class="npc-paused">
-                            <span>Você está em uma batalha do Torneio de Artes Marciais NPC, volte para o combate para finalizar.</span>
-                            <a href="<?php echo BASE; ?>npc/<?php echo $_SESSION['npc_id']; ?>" class="bts-form" id="voltarBatalha">Ir para Batalha</a>
-                        </div>
-                <?php } ?>
+
 
                 <?php 
                     // Show PVP penalty notification if active

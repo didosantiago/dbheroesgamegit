@@ -64,6 +64,7 @@ if(isset($_POST['jogar'])){
 
 
 <div class="personagem-atual">
+
     <div class="foto-personagem">
         <img src="<?php echo BASE; ?>assets/guerreiro_blank.jpg" alt="Selecione seu Guerreiro" />
     </div>

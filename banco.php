@@ -1,69 +1,80 @@
-<?php 
-    if(isset($_POST['depositar'])){ 
-        if(intval(addslashes($_POST['gold'])) <= $personagem->gold){
-            $campos = array(
-                'gold' => $personagem->gold - addslashes($_POST['gold']),
-                'gold_guardados' => $personagem->gold_guardados + addslashes($_POST['gold'])
-            );
+<?php
+$core = new Core();
 
-            $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
-
-            if($core->update('usuarios_personagens', $campos, $where)){
-                $core->msg('sucesso', 'Depósito Realizado.');
-                header('Location: '.BASE.'banco/');
-            } else {
-                $core->msg('error', 'Erro ao efetuar Depósito.');
-            }
-        } else {
-            $core->msg('error', 'Valor não Permitido');
-        }
-    }
+if(isset($_POST['depositar'])){
+    $gold_to_deposit = intval($_POST['gold']); // Convert to integer FIRST
     
-    if(isset($_POST['sacar'])){ 
-        if(intval(addslashes($_POST['gold'])) <= $personagem->gold_guardados){
-            $campos = array(
-                'gold' => $personagem->gold + addslashes($_POST['gold']),
-                'gold_guardados' => $personagem->gold_guardados - addslashes($_POST['gold'])
-            );
-
-            $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
-
-            if($core->update('usuarios_personagens', $campos, $where)){
-                $core->msg('sucesso', 'Saque Realizado.');
-                header('Location: '.BASE.'banco/');
-            } else {
-                $core->msg('error', 'Erro ao efetuar Saque.');
-            }
+    if($gold_to_deposit > 0 && $gold_to_deposit <= $personagem->gold){
+        $campos = array(
+            'gold' => $personagem->gold - $gold_to_deposit,
+            'gold_guardados' => $personagem->gold_guardados + $gold_to_deposit
+        );
+        
+        $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
+        
+        if($core->update('usuarios_personagens', $campos, $where)){
+            $core->msg('sucesso', 'Depósito Realizado.');
+            header('Location: '.BASE.'banco/');
         } else {
-            $core->msg('error', 'Valor não Permitido');
+            $core->msg('error', 'Erro ao efetuar Depósito.');
         }
+    } else {
+        $core->msg('error', 'Valor não Permitido');
     }
+}
+
+if(isset($_POST['sacar'])){
+    $gold_to_withdraw = intval($_POST['gold']); // Convert to integer FIRST
     
-    if(isset($_POST['vender'])){ 
-        if($core->isExists('personagens_inventario_itens', "WHERE id = ".addslashes($_POST['idVenda']))){
-            $dadosItem = $core->getDados('itens', 'WHERE id = '.addslashes($_POST['id']));
-
-            $campos = array(
-                'gold' => $personagem->gold + addslashes($_POST['valor']),
-            );
-
-            $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
-
-            $core->update('usuarios_personagens', $campos, $where);
-
-            if($core->delete('personagens_inventario_itens', "id = ".addslashes($_POST['idVenda']))){
-                $core->msg('sucesso', 'Item Vendido.');
-                header('Location: '.BASE.'banco/');
-            } else {
-                $core->msg('error', 'Erro ao vender item.');
-            }
+    if($gold_to_withdraw > 0 && $gold_to_withdraw <= $personagem->gold_guardados){
+        $campos = array(
+            'gold' => $personagem->gold + $gold_to_withdraw,
+            'gold_guardados' => $personagem->gold_guardados - $gold_to_withdraw
+        );
+        
+        $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
+        
+        if($core->update('usuarios_personagens', $campos, $where)){
+            $core->msg('sucesso', 'Saque Realizado.');
+            header('Location: '.BASE.'banco/');
         } else {
-            $core->msg('error', 'Erro ao buscar item.');
+            $core->msg('error', 'Erro ao efetuar Saque.');
         }
+    } else {
+        $core->msg('error', 'Valor não Permitido');
     }
+}
+
+if(isset($_POST['vender'])){
+    $idVenda = intval($_POST['idVenda']);
+    $idItem = intval($_POST['id']);
+    $valor = intval($_POST['valor']);
+    
+    if($core->isExists('personagens_inventario_itens', "WHERE id = ".$idVenda)){
+        $dadosItem = $core->getDados('itens', 'WHERE id = '.$idItem);
+        
+        $campos = array(
+            'gold' => $personagem->gold + $valor,
+        );
+        
+        $where = 'id="'.$_SESSION['PERSONAGEMID'].'"';
+        $core->update('usuarios_personagens', $campos, $where);
+        
+        if($core->delete('personagens_inventario_itens', "id = ".$idVenda)){
+            $core->msg('sucesso', 'Item Vendido.');
+            header('Location: '.BASE.'banco/');
+        } else {
+            $core->msg('error', 'Erro ao vender item.');
+        }
+    } else {
+        $core->msg('error', 'Erro ao buscar item.');
+    }
+}
 ?>
 
+<div class="kame-bank-banner"></div>
 <h2 class="title">Bem vindo ao Banco Central</h2>
+
 
 <div class="depositos">
     <h3>Depositar Gold</h3>

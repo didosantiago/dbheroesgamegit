@@ -1,6 +1,244 @@
 @import url("https://fonts.googleapis.com/css?family=Anton|Bungee");
 @import url("https://fonts.googleapis.com/css?family=Francois+One");
 
+/* ========================================
+   FRONT PAGE - HOME FIX
+   ======================================== */
+
+body.home {
+    background: #1b2838 url('bodytop.png') center top no-repeat;
+    min-height: 100vh;
+}
+
+body.home .stm-container {
+    width: 100%;
+    max-width: 1240px;
+    padding: 0 15px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Login Section */
+.secao-login {
+    display: block;
+    width: 100%;
+    padding: 0px 0;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.secao-login .stm-container {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+#formLogin {
+    display: flex;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    border-radius: 10px;
+}
+
+#formLogin .img-form {
+    flex: 1;
+    min-width: 350px;
+    text-align: center;
+    padding: 20px;
+}
+
+#formLogin .img-form img {
+    max-width: 90%;
+    height: auto;
+}
+
+#formLogin .box-form {
+    flex: 1;
+    min-width: 350px;
+    padding: 20px;
+}
+
+#formLogin .box-form h2 {
+    color: #FFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+#formLogin .campos {
+    margin-bottom: 20px;
+}
+
+#formLogin .campos input[type="text"],
+#formLogin .campos input[type="password"] {
+    width: 100%;
+    height: 55px;
+    padding: 0 15px;
+    background: #121A24;
+    border: 1px solid #000;
+    color: #CCC;
+    font-size: 16px;
+    box-shadow: 1px 1px 0px #45556c;
+    box-sizing: border-box;
+}
+
+#formLogin .campos input:focus {
+    outline: none;
+    border-color: #4f94bc;
+}
+
+#formLogin .botoes-form {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+#formLogin .botoes-form .recuperacao {
+    display: block;
+    width: 100%;
+    text-align: center;
+    color: #bc964f;
+    margin-bottom: 15px;
+}
+
+#formLogin .bt-login {
+    flex: 1;
+    height: 51px;
+    line-height: 51px;
+    color: #67c1f5;
+    background: rgba(103, 193, 245, 0.2);
+    text-align: center;
+    text-transform: uppercase;
+    border: 0;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+#formLogin .bt-login:hover {
+    background: rgba(103, 193, 245, 0.5);
+}
+
+#formLogin .bt-cadastrar {
+    flex: 1;
+    height: 51px;
+    line-height: 51px;
+    background: #40b700;
+    color: #FFF;
+    text-align: center;
+    text-transform: uppercase;
+    border: 0;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+#formLogin .bt-cadastrar:hover {
+    background: #7f5d00;
+}
+
+/* Destaques Section */
+.secao-destaques {
+    padding: 50px 0;
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.secao-destaques h2 {
+    color: #FFF;
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.slider-destaques {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.slider-destaques li {
+    flex: 1;
+    min-width: 300px;
+    max-width: 500px;
+    background: #000;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.slider-destaques .img-slider img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.slider-destaques .infos-slider {
+    padding: 20px;
+    text-align: center;
+}
+
+.slider-destaques .infos-slider h3 {
+    color: #FFF;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+.slider-destaques .infos-slider h4,
+.slider-destaques .infos-slider h5 {
+    color: #CCC;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+/* Jogadores Section */
+.secao-jogadores {
+    padding: 50px 0;
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+.secao-jogadores h2 {
+    color: #FFF;
+    font-size: 24px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.lista-personagens {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    #formLogin {
+        flex-direction: column;
+    }
+    
+    #formLogin .img-form,
+    #formLogin .box-form {
+        min-width: 100%;
+    }
+    
+    #formLogin .botoes-form {
+        flex-direction: column;
+    }
+    
+    #formLogin .bt-login,
+    #formLogin .bt-cadastrar {
+        width: 100%;
+    }
+}
+
+
+
 .top-bar {
   width: 300px;
   position: absolute;
@@ -467,8 +705,12 @@ header .user-logado strong {
 
 .menu-lateral .graduacao-patente img {
   display: block;
-  margin: 0 auto 10px auto
+  margin: 0 auto 10px auto;
+  width: 90px;
+  height: 90px;  /* Square image */
+  object-fit: contain;  /* Prevents distortion */
 }
+
 
 .menu-lateral .graduacao-patente span {
   display: block;
@@ -1692,7 +1934,7 @@ body.criar-personagem #wizard-personagem .contents-wizard #etapa-3 {
 
 body.criar-personagem #wizard-personagem .contents-wizard #etapa-3 .img-success {
   display: block;
-  width: 200px;
+  width: 400px;
   margin: 40px auto 20px auto
 }
 
@@ -1709,7 +1951,7 @@ body.criar-personagem #wizard-personagem .contents-wizard #etapa-3 #criar {
   height: 65px;
   line-height: 60px;
   background: #0ABF2A;
-  font-size: 16px;
+  font-size: 10px;
   margin: 20px auto;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
@@ -2387,6 +2629,43 @@ body.meus-personagens .lista-meus-personagens {
   -webkit-box-sizing: border-box;
   box-sizing: border-box
 }
+
+.cacadas-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/bg-cacadas.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.bonus-diario-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/bonus.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.kame-bank-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/kame-bank.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
 
 .cacada-running span {
   display: inline-block;
@@ -3941,8 +4220,8 @@ body.publico .infos-guerreiro .foto .minha-equipe a h2 {
 
 body.publico .infos-guerreiro .foto .emblema-vip {
   position: absolute;
-  top: 20px;
-  right: 40px;
+  top: 0px;
+  right: 10px;
   display: block;
   width: 80px
 }
@@ -4154,8 +4433,14 @@ body.publico .infos-guerreiro .foto .painel-guerreiro .foto-principal .graduacao
 
 body.publico .infos-guerreiro .foto .painel-guerreiro .foto-principal .graduacao-patente .graduacao_img img {
   display: block;
-  margin: 0 auto 5px auto
+  margin: 0 auto 5px auto;
+  width: 90px;
+  height: 90px;  /* Square image */
+  object-fit: contain;  /* Prevents distortion */
 }
+
+
+
 
 body.publico .infos-guerreiro .foto .painel-guerreiro .foto-principal .graduacao-patente .graduacao_img span {
   display: block;
@@ -4916,7 +5201,7 @@ body.missoes .missoes-list li .box-img {
 
 body.missoes .missoes-list li .box-img .content-img {
   width: 320px;
-  border: 2px solid #000;
+  border: 1px solid #000;
   overflow: hidden;
   -moz-border-radius: 20px;
   -webkit-border-radius: 20px;
@@ -5119,7 +5404,7 @@ body.torneio .conteudo {
 }
 
 body.torneio .conteudo .title {
-  color: #99ff23;
+  color: #FFF;
   font-size: 25px;
   padding-left: 0;
   text-align: center
@@ -5509,7 +5794,7 @@ body.creditos .botoes-doacao li {
   display: block;
   margin: 0 10px 0 10px;
   padding: 10px;
-  background: #251A13;
+  background: #1b2235;
   overflow: hidden;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -5518,7 +5803,7 @@ body.creditos .botoes-doacao li {
 
 body.doacao .botoes-doacao li.even,
 body.creditos .botoes-doacao li.even {
-  background: #413625
+  background: #203778
 }
 
 body.doacao .botoes-doacao li .img,
@@ -6458,7 +6743,7 @@ body.cacadas .informativo,
 body.cacadas .h-mobile {
     display: inline-block;
     width: auto;
-    max-width: 450px;
+    max-width: 510px;
     margin: -3px 0;
     padding: 15px 20px;
     background: rgba(30, 30, 30, 0.85);
@@ -6518,6 +6803,16 @@ body.cacadas .forms-cacadas #formCacada .campos {
   width: 50%;
   margin: 0
 }
+
+body.cacadas .conteudo {
+  height: 1043px;
+  background: #131d28;
+  /* background: url("../assets/bg-cacadas.jpg"); */
+  background-position: center center;
+  background-size: 186%;
+  background-repeat: no-repeat;
+}
+
 
 body.portal .conteudo {
   border: 0;
@@ -13840,7 +14135,7 @@ body.bonus-diario .conteudo {
 
 body.bonus-diario .title {
   text-align: center;
-  color: #AFAFAF;
+  color: #FFF;
   font-size: 22px;
   padding-left: 0
 }
@@ -14887,7 +15182,7 @@ body.loja .botoes-doacao li {
   display: block;
   margin: 0 10px 0 10px;
   padding: 10px;
-  background: #251A13;
+  background: #1b2235;
   overflow: hidden;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -14895,7 +15190,7 @@ body.loja .botoes-doacao li {
 }
 
 body.loja .botoes-doacao li.even {
-  background: #413625
+  background: #203778
 }
 
 body.loja .botoes-doacao li .img {
@@ -18225,31 +18520,9 @@ body.sorteios .conteudo .valor-frete span {
   transform: translateY(-50%)
 }
 
-.stm-main .stm-top-bar .right-menu {
-  position: absolute;
-  right: 0;
-  top: 0;
-  z-index: 6;
-  list-style: none;
-  padding: 0 0 0 1em;
-  height: 3.7em;
-  width: auto
-}
 
-.stm-main .stm-top-bar .right-menu li.iniciar-sessao {
-  display: inline-block;
-  height: 100%;
-  max-height: 51px;
-  background: #40b700;
-  color: #FFF;
-  padding: 0 1em;
-  line-height: 51px;
-  cursor: pointer;
-  -moz-transition: all .2s ease;
-  -o-transition: all .2s ease;
-  -webkit-transition: all .2s ease;
-  transition: all .2s ease
-}
+
+
 
 .stm-main .stm-top-bar .right-menu li.iniciar-sessao:hover {
   background: #2c7f00
@@ -18263,17 +18536,9 @@ body.sorteios .conteudo .valor-frete span {
   margin-right: 10px
 }
 
-.stm-main .stm-top-bar .right-menu li.iniciar-sessao p {
-  display: inline-block;
-  vertical-align: middle;
-  font-size: 14px;
-  text-transform: uppercase
-}
 
-.stm-main .stm-top-bar .right-menu li a {
-  display: block;
-  color: #FFF
-}
+
+
 
 body.login #ranking {
   padding: 50px 0;
@@ -18800,6 +19065,7 @@ body.sobre .stm-container {
   display: block;
   margin: 20px 0;
   padding: 10px;
+  
   background-color: rgba(0, 0, 0, 0.2);
   text-align: center;
   overflow: hidden
@@ -21663,7 +21929,7 @@ main > div > div i {
 .conteudo i[class*="crown"],
 .conteudo .fa-crown {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21671,7 +21937,7 @@ main > div > div i {
 .conteudo i[class*="store"]:not([class*="box"]),
 .conteudo .fa-store {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21681,7 +21947,7 @@ main > div > div i {
 .conteudo i[class*="bank"],
 .conteudo .fa-piggy-bank {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21692,7 +21958,7 @@ main > div > div i {
 .conteudo .fa-gift,
 .conteudo .fa-box {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21701,7 +21967,7 @@ main > div > div i {
 .conteudo i[class*="cart"],
 .conteudo .fa-shopping-cart {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21712,7 +21978,7 @@ main > div > div i {
 .conteudo .fa-male,
 .conteudo .fa-user-alt {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21727,7 +21993,7 @@ main > div > div i {
 .conteudo .fa-angle-up,
 .conteudo .fa-upload {
     color: #8fff45 !important; /* Bright orange */
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -21923,14 +22189,7 @@ i, .fa, .fas, .far, .fab {
     font-size: inherit !important;
 }
 
-/* PORTAL BOXES ONLY - Big colored icons */
-.conteudo > div > div i,
-.portal-boxes i,
-.menu-portal i {
-    font-size: 72px !important;
-    display: block !important;
-    margin: 20px auto !important;
-}
+
 
 /* TOP MENU - Medium size */
 .menu-superior i,
@@ -22011,18 +22270,7 @@ button i,
 }
 
 /* Fix all NPC/tournament buttons */
-.torneio button,
-.torneio a,
-.npc-battle button,
-.npc-battle a {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 10px 20px !important;
-    font-size: 12px !important;
-    white-space: nowrap !important;
-    min-width: 100px !important;
-}
+
 
 /* Icons in tournament buttons */
 .torneio button i,
@@ -22253,7 +22501,7 @@ table tbody tr:hover {
 .slots {
     width: 70px;
     height: 70px;
-    border: 2px solid #555;
+    border: 1px solid #555;
     display: inline-block;
     margin: 5px;
     position: relative;
@@ -22321,7 +22569,7 @@ table tbody tr:hover {
 .slots {
     width: 70px;
     height: 70px;
-    border: 2px solid #555;
+    border: 1px solid #555;
     display: inline-block;
     margin: 5px;
     background: #2a2a2a;
@@ -22332,24 +22580,64 @@ table tbody tr:hover {
 /* Empty slots */
 .slots.slot-vazio {
     background: #1a1a1a;
-    border: 2px dashed #444;
+    border: 1px dashed #444;
 }
+
+/* Equipment slots - force image display */
+.slots.equipped {
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+    position: relative;
+    background: transparent !important;
+}
+
+.slots.equipped img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+/* Remove any background color overrides */
+.slot-emblema {
+    background-color: transparent !important;
+}
+
+.slot-equipado {
+    background-color: transparent !important;
+}
+
+/* Layout for emblem and equipment rows */
+.emblems-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 10px;
+}
+
+.equipped-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
 
 /* RED border - Emblems */
 .slots.slot-emblema {
-    border: 3px solid #ff0000 !important;
+    border: 1px solid #644527 !important;
     background: #330000 !important;
 }
 
 /* PURPLE border - Equipped */
 .slots.slot-equipado {
-    border: 3px solid #9b30ff !important;
+    border: 1px solid #644527 !important;
     background: #1a0033 !important;
 }
 
 /* YELLOW border - Adesivos */
 .slots.slot-amarelo {
-    border: 3px solid #ffcc00 !important;
+    border: 1px solid #644527 !important;
     background: #332200 !important;
 }
 
@@ -22377,4 +22665,233 @@ input[type="checkbox"] ~ span {
 input[type="checkbox"]:hover ~ span,
 .golpes-list li:hover .description {
     display: block;
+}
+
+/* ========================================
+   TORNEIO/NPC RED BUTTON FIX
+   ======================================== */
+
+/* Red "ESTÁ PRONTO PARA A BATALHA" button */
+.bts-form,
+button.bts-form,
+input[type="submit"].bts-form {
+    padding: 0px 15px;
+    font-size: 11px;
+    white-space: normal;
+    line-height: 1.3;
+    min-height: 10px;
+    max-width: 150px;
+    overflow: hidden;
+    text-align: center;
+    word-wrap: break-word;
+}
+
+/* Or shorten the text to just "BATALHAR" */
+.torneio-card .bts-form::before {
+    content: "BATALHAR";
+}
+
+.torneio-card .bts-form {
+    font-size: 0; /* Hide original text */
+}
+
+.torneio-card .bts-form::before {
+    font-size: 13px; /* Show only "BATALHAR" */
+    font-weight: bold;
+}
+
+/* Profile character card with adesivo slots */
+.profile-character-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px auto;
+    max-width: 1200px;
+}
+
+.slots-adesivos-left {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.foto-principal {
+    flex-shrink: 0;
+}
+
+.slots-adesivos-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.slots-adsivos li {
+    width: 60px;
+    height: 60px;
+    list-style: none;
+}
+
+.slot-amarelo img {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+}
+
+.slots-adsivos li {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #d4af37;
+    background: transparent;
+}
+
+/* Portal page - keep pig icon large (60px) */
+body.portal .conteudo i.fa-piggy-bank,
+body.portal .conteudo i.piggy,
+body.portal .conteudo i.bank {
+    color: #8fff45 !important;
+    font-size: 60px !important;
+    display: block !important;
+    margin: 20px auto 10px auto !important;
+}
+
+/* Banco page - make pig icon smaller (35px) */
+body.banco .conteudo i.fa-piggy-bank,
+body.banco .conteudo i.piggy,
+body.banco .conteudo i.bank {
+    color: #8fff45 !important;
+    font-size: 35px !important;
+    display: inline-block !important;
+    margin: 0 10px 0 0 !important;
+    vertical-align: middle;
+}
+
+/* Banco page title/header styling */
+body.banco .conteudo .title {
+    text-align: center;
+    padding-left: 0;
+    color: #FFF;
+    font-size: 30px;
+    margin-top: 50px;
+}
+
+body.banco .conteudo .title i {
+    display: inline-block !important;
+    vertical-align: middle;
+    margin-right: 10px !important;
+}
+
+
+/* LEVEL UP - BANNER */
+
+
+.lvup-cacada-overlay {
+  position: fixed;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10010;
+  width: 600px; /* set to background image width */
+  height: 600px; /* set to background image height */
+  display: flex;
+  align-items: center; justify-content: center;
+}
+.lvup-cacada-img {
+  width: 100%; height: auto;
+  display: block;
+  border-radius: 0;
+  box-shadow: none;
+  pointer-events: none;
+}
+.lvup-cacada-content {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  pointer-events: auto; /* allow interactions */
+}
+.lvup-cacada-number {
+  position: absolute;
+  top: 373px; left: 0;
+  width: 100%;
+  text-align: center;
+  color: #50fffb;
+  font-size: 3.7rem;
+  /* font-family: 'Cinzel', serif; */
+  font-family: 'Bungee', cursive;
+  font-weight: 900;
+  text-shadow: 0 2px 16px #20202a, 0 0 5px #fff;
+  pointer-events: none;
+}
+.lvup-cacada-coin-xp {
+  position: absolute;
+  top: 375px;
+  left: 40%;          /* set how far from the left edge */
+  display: flex;
+  align-items: center;
+  gap: 80px;           /* controls the spacing between coin and xp blocks */
+  padding: 10px;
+  margin: 0;
+}
+.lvup-cacada-coin, .lvup-cacada-xp {
+  font-size: 2.2rem;   /* change to control the size of the numbers */
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+}
+.lvup-cacada-coin {
+  color: #ffd642; text-shadow: 1px 1px 4px #a25b01;
+}
+.lvup-cacada-xp {
+  color: #55ff38; text-shadow: 1px 1px 4px #198200;
+}
+
+
+.lvup-cacada-coin {
+  color: #ffd642; text-shadow: 1px 1px 4px #a25b01;
+  font-weight: bold; min-width: 60px; display: inline-block;
+  text-align: center;
+}
+.lvup-cacada-xp {
+  color: #55ff38; text-shadow: 1px 1px 4px #198200;
+  font-weight: bold; min-width: 60px; display: inline-block;
+  text-align: center;
+}
+.lvup-cacada-btn {
+  position: absolute;
+  left: 50%; top: 480px;
+  transform: translateX(-50%);
+  background: #fed530;
+  color: #702ba4;
+  border: 2px solid #8229ff;
+  font-size: 1.5rem;
+  font-family: 'Cinzel', serif;
+  font-weight: bold;
+  border-radius: 22px;
+  width: 180px; height: 48px;
+  box-shadow: 0 4px 20px #8029ff77;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s; /* removed 'transform' for stability */
+  pointer-events: auto;
+  letter-spacing: 2px;
+}
+
+.lvup-cacada-btn:hover {
+  background: #fff160;
+  color: #281050;
+  /* add a subtle scale if desired */
+  transform: translateX(-50%) scale(1.06);
+  transition: background 0.22s, color 0.22s, transform 0.18s;
+}
+
+
+.lista-meus-personagens .personagem-box:hover {
+    border: 2px solid #4effb3;
+    box-shadow: 0 0 6px 2px #78ffd6;
+    transition: border 0.2s, box-shadow 0.2s;
 }

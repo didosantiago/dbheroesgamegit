@@ -603,8 +603,10 @@ class Core {
     }
     
     public function sortearPorcentagem($porcentagem) {
-        return mt_rand(1, 100 / $porcentagem) === 1;
+        if($porcentagem <= 0) return false;
+        return mt_rand(1, (int)(100 / $porcentagem)) === 1;
     }
+
     
     public function setNotification($mensagem, $tipo, $idPersonagem, $url = 'portal'){
         $campos = array(

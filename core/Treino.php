@@ -622,103 +622,97 @@ class Treino {
         $itens = $stmt->fetchAll();
         
         $row = '';
-
         foreach ($itens as $key => $value) {
-            
             $hoje = '';
             $img = '';
             $conteudo = '';
             $disabled = '';
             $txtDia = '';
             $coletado = '';
-            $button = '<input type="submit" '.$disabled.' name="coletar" value="Coletar" />';
+            $button = '<input type="submit" name="coletar" value="Coletar">';
             
-            if($dia == $value->dia_semana){
+            // Convert array to object for consistent access
+            $value = (object) $value;
+            
+            // Check if this is today's bonus
+            if($dia == $value->diasemana){
                 $hoje = 'atual';
             } else {
                 $disabled = 'disabled';
-                $button = '<input type="submit" '.$disabled.' name="coletar" value="Indisponível" />';
+                $button = '<input type="submit" disabled name="coletar" value="Indisponível">';
             }
             
-            if($this->verifyBonusColetado($idPersonagem, $value->dia_semana)){
+            // Check if already collected today
+            if($this->verifyBonusColetado($idPersonagem, $value->id)){
                 $coletado = 'coletado';
                 $disabled = 'disabled';
                 $hoje = '';
-                $button = '<input type="submit" '.$disabled.' name="coletar" value="Coletado" />';
+                $button = '<input type="submit" disabled name="coletar" value="Coletado">';
             }
             
-            if($value->dia_semana == 'domingo'){
+            // Set day name
+            if($value->diasemana == 'domingo'){
                 $txtDia = 'Domingo';
-            } else if($value->dia_semana == 'segunda'){
+            } else if($value->diasemana == 'segunda'){
                 $txtDia = 'Segunda';
-            } else if($value->dia_semana == 'terca'){
+            } else if($value->diasemana == 'terca'){
                 $txtDia = 'Terça';
-            } else if($value->dia_semana == 'quarta'){
+            } else if($value->diasemana == 'quarta'){
                 $txtDia = 'Quarta';
-            } else if($value->dia_semana == 'quinta'){
+            } else if($value->diasemana == 'quinta'){
                 $txtDia = 'Quinta';
-            } else if($value->dia_semana == 'sexta'){
+            } else if($value->diasemana == 'sexta'){
                 $txtDia = 'Sexta';
-            } else if($value->dia_semana == 'sabado'){
+            } else if($value->diasemana == 'sabado'){
                 $txtDia = 'Sábado';
             }
             
+            // Set image and content
             if($value->premio == 'gold'){
                 $img = BASE.'assets/icones/gold.png';
                 $conteudo = '<h3>Receba '.$value->valor.' Golds</h3>';
             } else if($value->premio == 'item'){
-                $sql = "SELECT * FROM itens WHERE id = $value->valor";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $produto = $stmt->fetch();
+                $sql = "SELECT * FROM itens WHERE id = ".$value->valor;
+                $stmt2 = DB::prepare($sql);
+                $stmt2->execute();
+                $produto = $stmt2->fetch();
                 
-                $img = BASE.'assets/'.$produto->foto;
+                // Access as object using ->
+                $img = BASE.'assets/itens/'.$produto->imagem;
                 $conteudo = '<h3>Receba o item '.$produto->nome.'</h3>';
             }
             
-            $row .= '<li class="'.$hoje.' '.$coletado.'">';
-                $row .= '<h2>'.$txtDia.'</h2>';
-                $row .= '<form action="" method="post">';
-                    $row .= '<img src="'.$img.'" />';
-                    $row .= $conteudo;
-                    $row .= '<input type="hidden" name="id" value="'.$value->id.'" />';
-                    $row .= $button;
-                $row .= '</form>';
+            $row .= '<li class="'.$hoje.' '.$coletado.' '.$disabled.'">';
+            $row .= '<h2>'.$txtDia.'</h2>';
+            $row .= '<form action="" method="post">';
+            $row .= '<img src="'.$img.'">';
+            $row .= $conteudo;
+            $row .= '<input type="hidden" name="id" value="'.$value->id.'">';
+            $row .= $button;
+            $row .= '</form>';
             $row .= '</li>';
         }
         
-        echo $row;
+        return $row;
     }
-    
-    public function verifyBonusColetado($idPersonagem, $dia_semana){
-        $core = new Core();
+
+
+    public function verifyBonusColetado($idPersonagem, $idRecompensa){
+        $hoje = date('Y-m-d');
         
-        if($dia_semana == 'domingo'){
-            $dia = 1;
-        } else if($dia_semana == 'segunda'){
-            $dia = 2;
-        } else if($dia_semana == 'terca'){
-            $dia = 3;
-        } else if($dia_semana == 'quarta'){
-            $dia = 4;
-        } else if($dia_semana == 'quinta'){
-            $dia = 5;
-        } else if($dia_semana == 'sexta'){
-            $dia = 6;
-        } else if($dia_semana == 'sabado'){
-            $dia = 7;
-        }
-        
-        $datas_semana = $core->getSemanaAtual($dia);
-        
-        $sql = "SELECT * FROM personagens_recompensas WHERE data = '$datas_semana' AND idPersonagem = $idPersonagem ";
+        $sql = "SELECT * FROM personagens_recompensas 
+                WHERE idPersonagem = $idPersonagem 
+                AND idRecompensa = $idRecompensa 
+                AND data = '$hoje'";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
+        // If found = already collected = return TRUE
         if($stmt->rowCount() > 0){
             return true;
         } else {
             return false;
         }
     }
+
 }

@@ -244,50 +244,55 @@
                     </li>
                 <?php } ?>
             </ul>
-            
-            <ul class="slots-adesivos-left slots-adsivos">
-                <?php 
-                    $lista_itens_left = array(9,10,11,12,13);
-                    $inventario->getSlotsAdesivosPerfil($personagem->id, $lista_itens_left); 
-                ?>
-            </ul>
-            
-            <div class="foto-principal">
-                <?php $ft = str_replace('cards/', '', $personagem->foto); ?>
-                <img src="<?php echo BASE.'assets/cards/'.$ft; ?>" class="ft-guerreiro" alt="<?php echo $personagem->nome; ?>" />
-                <div class="graduacao-patente">
-                    <div class="graduacao_img">
-                        <h3 class="personagem-nome"><?php echo $personagem->nome; ?></h3>
-                        <div class="nivel-atual">
-                            <h4>LEVEL</h4>
-                            <span><?php echo $personagem->nivel; ?></span>
-                        </div>
-                        <?php $personagem->getGraduacao($personagem->nivel); ?>
-                        <?php $personagem->getGraduacaoTexto($personagem->nivel); ?>
-                        <div class="status-extra-graduacao">
-                            <span>Acrescenta </span>
-                            <div class="label-status">
-                                + <?php echo $status_extra_graduacao; ?>
+                        
+
+            <div class="profile-character-wrapper">
+                <ul class="slots-adesivos-left slots-adsivos">
+                    <?php for($i = 1; $i <= 5; $i++): ?>
+                        <li class="slots adesivo slot-amarelo slot-vazio" data-slot="<?php echo $i; ?>">
+                            <img src="<?php echo BASE; ?>assets/slot-amarelo.png" alt="Slot Adesivo <?php echo $i; ?>" />
+                        </li>
+                    <?php endfor; ?>
+                </ul>
+
+                <div class="foto-principal">
+                    <?php $ft = str_replace('cards/', '', $personagem->foto); ?>
+                    <img src="<?php echo BASE.'assets/cards/'.$ft; ?>" class="ft-guerreiro" alt="<?php echo $personagem->nome; ?>" />
+                    <div class="graduacao-patente">
+                        <div class="graduacao_img">
+                            <h3 class="personagem-nome"><?php echo $personagem->nome; ?></h3>
+                            <div class="nivel-atual">
+                                <h4>LEVEL</h4>
+                                <span><?php echo $personagem->nivel; ?></span>
                             </div>
-                            <span> de Status</span>
+                            <?php $personagem->getGraduacao($personagem->nivel); ?>
+                            <?php $personagem->getGraduacaoTexto($personagem->nivel); ?>
+                            <div class="status-extra-graduacao">
+                                <span>Acrescenta </span>
+                                <div class="label-status">
+                                    + <?php echo $status_extra_graduacao; ?>
+                                </div>
+                                <span> de Status</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <ul class="slots-adesivos-right slots-adsivos">
+                    <?php for($i = 6; $i <= 10; $i++): ?>
+                        <li class="slots adesivo slot-amarelo slot-vazio" data-slot="<?php echo $i; ?>">
+                            <img src="<?php echo BASE; ?>assets/slot-amarelo.png" alt="Slot Adesivo <?php echo $i; ?>" />
+                        </li>
+                    <?php endfor; ?>
+                </ul>
             </div>
-            
-            <ul class="slots-adesivos-right slots-adsivos">
-                <?php 
-                    $lista_itens_right = array(14,15,16,17,18);
-                    $inventario->getSlotsAdesivosPerfil($personagem->id, $lista_itens_right); 
-                ?>
-            </ul>
-        </div>
-        <ul class="equipamento">
-            <h4>Equipamento</h4>
-            <?php $inventario->getSlotsEquipados($idPersonagem); ?>
-        </ul>
-    </div>
-</div>
+
+                    <ul class="equipamento">
+                        <h4>Equipamento</h4>
+                        <?php $inventario->getSlotsEquipados($idPersonagem); ?>
+                    </ul>
+                </div>
+            </div>
 
 <ul class="status">
     <li>

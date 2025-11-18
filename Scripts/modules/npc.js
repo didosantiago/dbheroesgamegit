@@ -4,6 +4,8 @@ DBH.npc = (function() {
             verificaNPC();
             verificaAtaque();
             combateLog();
+
+
         }
     },
     verificaNPC = function() {
@@ -168,7 +170,47 @@ DBH.npc = (function() {
         }
     }
     
-    return {
+    ,
+
+    concluirBatalha = function() {
+        var btn = document.getElementById('btnConcluir');
+
+        if(!btn) {
+            console.error('Concluir button not found!');
+            return false;
+        }
+
+        if(btn) {
+            // Disable button immediately to prevent double-click
+            btn.disabled = true;
+            btn.value = 'Processando...';
+            if(btn.textContent) btn.textContent = 'Processando...';
+
+            var baseSite = $('#baseSite').val();
+            var currentUrl = window.location.href;
+
+            // Add concluir parameter to URL
+            var url = currentUrl + (currentUrl.indexOf('?') > -1 ? '&' : '?') + 'concluir=1';
+
+            // Send AJAX request
+            $.ajax({
+                type: "GET",
+                url: url,
+                success: function(res) {
+                    // Redirect to tournament page after processing
+                    window.location.href = baseSite + 'torneio';
+                },
+                error: function() {
+                    alert('Erro ao concluir batalha. Por favor, tente novamente.');
+                    btn.disabled = false;
+                    btn.value = 'Concluir';
+                    if(btn.textContent) btn.textContent = 'Concluir';
+                }
+            });
+        }
+    }
+
+	return {
         init: init,
         combateLog: combateLog
     }
