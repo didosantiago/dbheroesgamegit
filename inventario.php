@@ -63,29 +63,101 @@
 
 <!-- Temporary CSS to make slots visible -->
 <style>
+/* Inventory Slot Styles */
+/* Inventory Slot Styles */
 .content-inventory .itens ul li.slots,
 .content-inventory .equipados ul li.slots,
 .content-inventory .adesivos ul li.slots {
-    width: 70px !important;
-    height: 70px !important;
-    background: #3a2317 !important;
-    border: 2px solid #6b4423 !important;
-    display: inline-block !important;
-    margin: 5px !important;
-    position: relative !important;
-    vertical-align: top !important;
+    width: 70px;
+    height: 70px;
+    display: inline-block;
+    margin: 5px;
+    position: relative;
+    vertical-align: top;
+    cursor: pointer;
+    border: 2px solid #6b4423;
+    border-radius: 5px;
+    background-size: cover !important;
+    background-repeat: no-repeat !important;
 }
 
+/* Slot hover effects */
+.content-inventory .itens ul li.slots.slot-bau:hover {
+    background-image: url('./assets/slot-bau-hover.png') !important;
+    border-color: #ffa500;
+}
+
+.content-inventory .itens ul li.slots:hover {
+    border-color: #ffd700;
+    transform: scale(1.05);
+    transition: all 0.2s;
+}
+
+/* Empty slots */
 .content-inventory ul li.slot-vazio {
-    background: #2a1a0f !important;
-    border: 2px dashed #4a3323 !important;
+    background: #2a1a0f;
+    border: 2px dashed #4a3323;
+    cursor: default;
 }
 
-.content-inventory ul li.slots img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
+.content-inventory ul li.slot-vazio:hover {
+    border-color: #4a3323;
+    transform: none;
 }
+
+/* Item images */
+.content-inventory ul li.slots img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+/* Item info tooltip */
+.content-inventory .informacoes {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.95);
+    padding: 10px;
+    border-radius: 5px;
+    border: 2px solid #ffd700;
+    min-width: 150px;
+    z-index: 1000;
+    display: none;
+}
+
+.content-inventory .informacoes h3 {
+    margin: 0 0 5px 0;
+    color: #ffd700;
+    font-size: 14px;
+}
+
+.content-inventory .informacoes p {
+    margin: 3px 0;
+    color: #fff;
+    font-size: 12px;
+}
+
+/* Raridade colors */
+.raridade-1 { border-color: #888; } /* Common - Gray */
+.raridade-2 { border-color: #4caf50; } /* Uncommon - Green */
+.raridade-3 { border-color: #2196f3; } /* Rare - Blue */
+.raridade-4 { border-color: #9c27b0; } /* Epic - Purple */
+.raridade-5 { border-color: #ff9800; } /* Legendary - Orange */
+
+/* Adesivo slots (yellow) */
+.adesivos ul li.slot-amarelo {
+    background-color: #ffeb3b;
+    border-color: #fbc02d;
+}
+
+.adesivos ul li.slot-amarelo.slot-vazio {
+    background-image: url('./assets/slot-amarelo.png') !important;
+}
+
+
 </style>
 
 

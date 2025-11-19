@@ -81,27 +81,31 @@ class Core {
         }
     }
     
-    public function update($table, $params = array(), $where){
-        $args = array();
+    public function update($tabela, $campos, $where, $whereParams = array()) {
+        // Build SET clause with placeholders
+        $set = array();
+        $params = array();
         
-        foreach($params as $field=>$value){
-            $args[] = $field.'="'.$value.'"';
+        foreach($campos as $key => $value){
+            $set[] = $key . " = ?";
+            $params[] = $value;
         }
         
-        $sql = 'UPDATE '.$table.' SET '.implode(',',$args).' WHERE '.$where;
-        $this->gravaLog($sql, 'update');
+        $set = implode(', ', $set);
+        
+        // Combine SET params with WHERE params
+        if(is_array($whereParams)){
+            $params = array_merge($params, $whereParams);
+        }
+        
+        // Execute query
+        $sql = "UPDATE {$tabela} SET {$set} WHERE {$where}";
         $stmt = DB::prepare($sql);
+        $stmt->execute($params);
         
-        if($stmt->execute()){
-            if($stmt->rowCount() > 0){
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        return true;
     }
+
     
     public function select($table, $rows = '*', $join = null, $where = null, $order = null, $limit = null){
         $q = 'SELECT '.$rows.' FROM '.$table;

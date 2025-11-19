@@ -187,25 +187,25 @@ class Inventario {
             $this->getSlotsEquipados($idPersonagem);
         }
     }
-        
+                
     public function getSlots($idPersonagem) {
         $core = new Core();
         
-        // Get inventory slots - FIXED: Changed to i.imagem
-        $sql = "SELECT pi.*, pii.idItem, i.nome, i.imagem, i.tipo, i.raridade 
+        // Get inventory slots
+        $sql = "SELECT pi.*, pii.id as itemStorageId, pii.idItem, i.nome, i.imagem, i.tipo, i.raridade, i.adesivo, i.emblema
                 FROM personagens_inventario as pi 
                 LEFT JOIN personagens_inventario_itens as pii ON pii.idSlot = pi.id 
                 LEFT JOIN itens as i ON i.id = pii.idItem 
-                WHERE pi.idPersonagem = $idPersonagem 
+                WHERE pi.idPersonagem = ? 
                 ORDER BY pi.slot ASC";
         
         $stmt = DB::prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$idPersonagem]);
         $slots = $stmt->fetchAll();
         
-        if($stmt->rowCount() == 0) {
+        if(count($slots) == 0) {
             // Initialize inventory if doesn't exist
-            for($i = 1; $i <= 20; $i++) {
+            for($i = 1; $i <= 31; $i++) {
                 $campos = array(
                     'idPersonagem' => $idPersonagem,
                     'slot' => $i,
@@ -214,38 +214,266 @@ class Inventario {
                 $core->insert('personagens_inventario', $campos);
             }
             // Reload after initialization
-            $stmt->execute();
+            $stmt->execute([$idPersonagem]);
             $slots = $stmt->fetchAll();
         }
         
-        // Display slots - FIXED: Changed to $slot->imagem
+        // Display slots
         foreach($slots as $slot) {
             if($slot->idItem && $slot->idItem > 0) {
-                // Slot with item
+                // Determine if item is a bau (chest)
+                $isBau = (stripos($slot->nome, 'baú') !== false || stripos($slot->nome, 'bau') !== false);
+                $isConsumable = in_array($slot->tipo, [1, 3, 4]);
+                
+                // Set raridade class
                 $raridade_class = 'raridade-' . $slot->raridade;
-                echo '<li class="slots ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '">';
+                
+                // Set background image
+                if($isBau){
+                    $bg_image = 'slot-bau.png';
+                    $slot_class = 'slot-bau';
+                } else {
+                    $bg_image = 'slot-item.png';
+                    $slot_class = 'slot-item';
+                }
+
+                // CRITICAL: Add your unique dataidinventario attribute here for all items!
+                echo '<li class="slots ' . $slot_class . ' ' . $raridade_class . '" ';
+                echo 'data-slot="' . $slot->slot . '" ';
+                echo 'data-item="' . $slot->idItem . '" ';
+                echo 'dataid="' . $slot->id . '" ';
+                echo 'dataidItem="' . $slot->idItem . '" ';
+                echo 'dataadesivo="' . $slot->adesivo . '" ';
+                echo 'dataidinventario="' . $slot->itemStorageId . '" '; // <-- THIS IS IMPORTANT!
+                echo 'style="background-image: url(' . BASE . 'assets/' . $bg_image . '); background-size: cover;">';
+
+                if($isBau){
+                    echo '<span class="bau">';
+                } else {
+                    echo '<span>';
+                }
                 echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
+                echo '</span>';
+                
+                // Add item info tooltip
+                echo '<div class="informacoes" style="display: none;">';
+                echo '<h3>' . $slot->nome . '</h3>';
+                if($isConsumable){
+                    echo '<p><em>Consumível</em></p>';
+                }
+                if($isBau){
+                    echo '<p><em>Clique para abrir</em></p>';
+                }
+                echo '</div>';
+                
                 echo '</li>';
             } else {
                 // Empty slot
-                echo '<li class="slots slot-vazio" data-slot="' . $slot->slot . '">';
-                echo '<span class="slot-number">' . $slot->slot . '</span>';
+                echo '<li class="slots slot-vazio" data-slot="' . $slot->slot . '" ';
+                echo 'style="background-image: url(' . BASE . 'assets/slot-vazio.png); background-size: cover;">';
                 echo '</li>';
             }
         }
     }
 
+    /**
+     * Main method to equip/use items
+     */
+    // ADD THIS METHOD - Checks item slots properly
+    public function equiparItens($idItem, $idPersonagem, $idInventario) {
+        $core = new Core();
+        $personagem = new Personagens();
+
+        // Find the exact instance user clicked!
+        $sql = "SELECT pii.*, pi.slot as slotNum 
+                FROM personagens_inventario_itens as pii
+                INNER JOIN personagens_inventario as pi ON pi.id = pii.idSlot
+                WHERE pii.id = ? AND pii.idPersonagem = ? LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idInventario, $idPersonagem]);
+        $itemInventario = $stmt->fetch();
+
+        if(!$itemInventario) return false;
+            
+        // Type checking
+        $consumable_types = ['consumivel', 'capsula', 'comida', 'restauracao'];
+        
+        // Consumables
+        if(in_array(strtolower($item->tipo), $consumable_types)){
+            return $this->usarConsumivel($item, $itemInventario, $idPersonagem);
+        }
+        
+        // Adesivos
+        if(isset($item->adesivo) && $item->adesivo == 1){
+            return $this->equiparAdesivo($idItem, $idPersonagem);
+        }
+        
+        // Equipment and Emblems
+        return $this->equiparEquipamento($item, $itemInventario, $idPersonagem);
+    }
+
+    // CRITICAL: This properly detects emblems
+    private function equiparEquipamento($item, $itemInventario, $idPersonagem) {
+        $core = new Core();
+        
+        $isEmblem = 0;
+        if(strtolower($item->tipo) == 'emblema'){
+            $isEmblem = 1;
+        } else if(isset($item->emblema) && $item->emblema == 1){
+            $isEmblem = 1;
+        }
+        
+        $sql = "SELECT * FROM personagens_itens_equipados 
+                WHERE idPersonagem = ? AND adesivo = 0 AND emblema = ? AND vazio = 1 
+                ORDER BY slot ASC LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem, $isEmblem]);
+        $slotVazio = $stmt->fetch();
+        
+        if(!$slotVazio){
+            return false;
+        }
+        
+        $sql = "UPDATE personagens_itens_equipados SET idItem = ?, vazio = 0 WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$item->id, $slotVazio->id]);
+        
+        $sql = "DELETE FROM personagens_inventario_itens WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$itemInventario->id]);
+        
+        // AUTO-ORGANIZE INVENTORY AFTER EQUIP
+        $this->organizarInventario($idPersonagem);
+        
+        return true;
+    }
+
+
+
+        
+    private function usarConsumivel($item, $itemInventario, $idPersonagem) {
+        $core = new Core();
+        $personagem = new Personagens();
+        $personagem->getGuerreiro($idPersonagem);
+        
+        $level = $personagem->nivel;
+        $hp = $personagem->hp;
+        $ki_usado = $personagem->ki_usado;
+        $energia_usada = $personagem->energia_usada;
+        
+        $hp_level = 50;
+        $valor_hp_max = ($level * $hp_level) + 50;
+        
+        $new_hp = $hp;
+        $new_ki_usado = $ki_usado;
+        $new_energia_usada = $energia_usada;
+        
+        if(isset($item->efeito_hp) && $item->efeito_hp > 0){
+            $calc_hp = $item->efeito_hp / 100;
+            $diferenca_hp = ($valor_hp_max - $hp);
+            $total_hp = floor($diferenca_hp * $calc_hp);
+            $new_hp = min($hp + $total_hp, $valor_hp_max);
+        }
+        
+        if(isset($item->efeito_ki) && $item->efeito_ki > 0 && $ki_usado > 0){
+            $calc_ki = $item->efeito_ki / 100;
+            $total_ki = floor($ki_usado * $calc_ki);
+            $new_ki_usado = max($ki_usado - $total_ki, 0);
+        }
+        
+        if(isset($item->efeito_energia) && $item->efeito_energia > 0){
+            $new_energia_usada = max($energia_usada - $item->efeito_energia, 0);
+        }
+        
+        $campos = array(
+            'hp' => $new_hp,
+            'ki_usado' => $new_ki_usado,
+            'energia_usada' => $new_energia_usada
+        );
+        $where = 'id = "' . $idPersonagem . '"';
+        $core->update('usuarios_personagens', $campos, $where);
+        
+        $core->delete('personagens_inventario_itens', "id = " . $itemInventario->id);
+        
+        return true;
+    }
+
+
+    /**
+     * Equip adesivo from inventory to adesivo slot
+        */
+    /**
+     * Equip adesivo from inventory to adesivo slot
+     */
+    public function equiparAdesivo($idItem, $idPersonagem) {
+        $core = new Core();
+        
+        // Verify item is an adesivo
+        $sql = "SELECT * FROM itens WHERE id = ? AND adesivo = 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idItem]);
+        $item = $stmt->fetch();
+        
+        if(!$item){
+            return false; // Not an adesivo
+        }
+        
+        // Get item from inventory
+        $sql = "SELECT pii.* 
+                FROM personagens_inventario_itens as pii
+                WHERE pii.idItem = ? AND pii.idPersonagem = ? 
+                LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idItem, $idPersonagem]);
+        $itemInventario = $stmt->fetch();
+        
+        if(!$itemInventario){
+            return false; // Item not in inventory
+        }
+        
+        // Find empty adesivo slot
+        $sql = "SELECT * FROM personagens_itens_equipados 
+                WHERE idPersonagem = ? 
+                AND adesivo = 1 
+                AND vazio = 1 
+                ORDER BY slot ASC
+                LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $slotVazio = $stmt->fetch();
+        
+        if(!$slotVazio){
+            return false; // No empty adesivo slot
+        }
+        
+        // Equip adesivo to slot
+        $sql = "UPDATE personagens_itens_equipados 
+                SET idItem = ?, vazio = 0 
+                WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$item->id, $slotVazio->id]);
+        
+        // Remove from inventory using prepared statement
+        $sql = "DELETE FROM personagens_inventario_itens WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$itemInventario->id]);
+        
+        // AUTO-ORGANIZE INVENTORY
+        $this->organizarInventario($idPersonagem);
+        
+        return true;
+    }
+
+
 
     public function getSlotsEquipados($idPersonagem) {
         $core = new Core();
         
-        // Initialize slots if they don't exist
-        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = $idPersonagem AND adesivo = 0";
+        $sql = "SELECT * FROM personagens_itens_equipados WHERE idPersonagem = ? AND adesivo = 0";
         $stmt = DB::prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$idPersonagem]);
         
         if($stmt->rowCount() == 0) {
-            // Create 8 slots: 3 emblems (1-3), 5 normal (4-8)
             for($i = 1; $i <= 8; $i++) {
                 $emblema = ($i <= 3) ? 1 : 0;
                 $campos = array(
@@ -258,37 +486,188 @@ class Inventario {
                 );
                 $core->insert('personagens_itens_equipados', $campos);
             }
+        } else if($stmt->rowCount() < 8) {
+            $existing_slots = array();
+            $slots = $stmt->fetchAll();
+            foreach($slots as $slot) {
+                $existing_slots[] = $slot->slot;
+            }
+            
+            for($i = 1; $i <= 8; $i++) {
+                if(!in_array($i, $existing_slots)) {
+                    $emblema = ($i <= 3) ? 1 : 0;
+                    $campos = array(
+                        'idPersonagem' => $idPersonagem,
+                        'slot' => $i,
+                        'emblema' => $emblema,
+                        'adesivo' => 0,
+                        'idItem' => 0,
+                        'vazio' => 1
+                    );
+                    $core->insert('personagens_itens_equipados', $campos);
+                }
+            }
         }
         
-        // Get equipped items - FETCH AS ASSOCIATIVE ARRAY
         $sql = "SELECT pie.*, i.nome, i.imagem, i.tipo, i.raridade 
                 FROM personagens_itens_equipados as pie 
                 LEFT JOIN itens as i ON i.id = pie.idItem 
-                WHERE pie.idPersonagem = $idPersonagem AND pie.adesivo = 0 
+                WHERE pie.idPersonagem = ? AND pie.adesivo = 0 
                 ORDER BY pie.slot ASC";
         
         $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $slots = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute([$idPersonagem]);
+        $slots = $stmt->fetchAll();
         
-        // Separate emblems and equipped
-        $emblems = array_slice($slots, 0, 3); // First 3 are emblems
-        $equipped = array_slice($slots, 3, 5); // Next 5 are equipped
+        $emblems = array_slice($slots, 0, 3);
+        $equipped = array_slice($slots, 3, 5);
         
-        // Display emblems (top row)
         echo '<div class="emblems-row">';
         foreach($emblems as $slot) {
-            $this->renderSlot($slot, true); // true = is emblem
+            $this->renderEquippedSlot($slot, true);
         }
         echo '</div>';
         
-        // Display equipped items (bottom row)
         echo '<div class="equipped-row">';
         foreach($equipped as $slot) {
-            $this->renderSlot($slot, false); // false = is equipment
+            $this->renderEquippedSlot($slot, false);
         }
         echo '</div>';
     }
+
+    private function renderEquippedSlot($slot, $isEmblem) {
+        $slotClass = $isEmblem ? 'slot-emblema' : 'slot-equipado';
+        $emptyBgImage = $isEmblem ? 'slot-emblema.png' : 'slot-equipado.png';
+        
+        if(!empty($slot->idItem) && $slot->idItem > 0 && !empty($slot->imagem)) {
+            $raridadeClass = isset($slot->raridade) ? 'raridade-'.$slot->raridade : '';
+            
+            echo '<li class="slots equipped '.$slotClass.' '.$raridadeClass.' has-item" ';
+            echo 'data-slot="'.$slot->slot.'" ';
+            echo 'data-item="'.$slot->idItem.'" ';
+            echo 'dataid="'.$slot->id.'" ';
+            echo 'dataidItem="'.$slot->idItem.'" ';
+            echo 'style="background-image: url('.BASE.'assets/slot-item.png); background-size: cover;">';
+            echo '<img src="'.BASE.'assets/itens/'.$slot->imagem.'" alt="'.$slot->nome.'" title="'.$slot->nome.'" />';
+            echo '</li>';
+        } else {
+            echo '<li class="slots equipped '.$slotClass.' slot-vazio" ';
+            echo 'data-slot="'.$slot->slot.'" ';
+            echo 'style="background-image: url('.BASE.'assets/'.$emptyBgImage.'); background-size: cover;">';
+            echo '</li>';
+        }
+    }
+
+    /**
+     * Unequip adesivo and return to inventory
+     */
+    public function desequiparAdesivo($idSlotAdesivo, $idPersonagem) {
+        $core = new Core();
+        
+        // Get adesivo info from equipped slot
+        $sql = "SELECT * FROM personagens_itens_equipados 
+                WHERE id = ? AND idPersonagem = ? AND adesivo = 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idSlotAdesivo, $idPersonagem]);
+        $equipado = $stmt->fetch();
+        
+        if(!$equipado || $equipado->vazio == 1){
+            return false; // Slot is empty or not found
+        }
+        
+        $idItem = $equipado->idItem;
+        
+        // Find empty inventory slot
+        $sql = "SELECT pi.* 
+                FROM personagens_inventario as pi 
+                LEFT JOIN personagens_inventario_itens as pii ON pii.idSlot = pi.id
+                WHERE pi.idPersonagem = ? 
+                AND pii.id IS NULL
+                LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $slotVazio = $stmt->fetch();
+        
+        if(!$slotVazio){
+            return false; // Inventory full
+        }
+        
+        // Clear adesivo slot
+        $sql = "UPDATE personagens_itens_equipados 
+                SET idItem = 0, vazio = 1 
+                WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$equipado->id]);
+        
+        // Add back to inventory
+        $sql = "INSERT INTO personagens_inventario_itens (idItem, idSlot, idPersonagem) 
+                VALUES (?, ?, ?)";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idItem, $slotVazio->id, $idPersonagem]);
+        
+        // Auto-organize inventory
+        $this->organizarInventario($idPersonagem);
+        
+        return true;
+    }
+
+
+
+    /**
+     * Unequip item and return to inventory
+     */
+    public function desequiparItem($idSlotEquipado, $idPersonagem) {
+        $core = new Core();
+        
+        $sql = "SELECT * FROM personagens_itens_equipados WHERE id = ? AND idPersonagem = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idSlotEquipado, $idPersonagem]);
+        $equipado = $stmt->fetch();
+        
+        if(!$equipado || $equipado->vazio == 1){
+            return false;
+        }
+        
+        $idItem = $equipado->idItem;
+        
+        $sql = "SELECT pi.* 
+                FROM personagens_inventario as pi 
+                LEFT JOIN personagens_inventario_itens as pii ON pii.idSlot = pi.id
+                WHERE pi.idPersonagem = ? 
+                AND pii.id IS NULL
+                LIMIT 1";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $slotVazio = $stmt->fetch();
+        
+        if(!$slotVazio){
+            return false;
+        }
+        
+        // Clear equipped slot
+        $sql = "UPDATE personagens_itens_equipados 
+                SET idItem = 0, vazio = 1 
+                WHERE id = ?";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$equipado->id]);
+        
+        // Add to inventory
+        $campos = array(
+            'idItem' => $idItem,
+            'idSlot' => $slotVazio->id,
+            'idPersonagem' => $idPersonagem
+        );
+        $core->insert('personagens_inventario_itens', $campos);
+        
+        // AUTO-ORGANIZE INVENTORY AFTER UNEQUIP
+        $this->organizarInventario($idPersonagem);
+        
+        return true;
+    }
+
+
+
+
 
     // Helper method to render a slot
     private function renderSlot($slot, $isEmblem) {
@@ -415,21 +794,18 @@ class Inventario {
         }
     }
 
-
     public function getSlotsAdesivos($idPersonagem) {
         $core = new Core();
-        
+
         // Initialize adesivo slots if they don't exist
         $sql = "SELECT * FROM personagens_itens_equipados 
-                WHERE idPersonagem = $idPersonagem 
-                AND adesivo = 1";
-        
+                WHERE idPersonagem = ? AND adesivo = 1";
         $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        if($stmt->rowCount() == 0) {
+        $stmt->execute([$idPersonagem]);
+
+        if ($stmt->rowCount() == 0) {
             // Create 10 adesivo slots (yellow slots)
-            for($i = 1; $i <= 10; $i++) {
+            for ($i = 1; $i <= 10; $i++) {
                 $campos = array(
                     'idPersonagem' => $idPersonagem,
                     'slot' => $i,
@@ -439,26 +815,28 @@ class Inventario {
                 );
                 $core->insert('personagens_itens_equipados', $campos);
             }
+            // Re-query after insert
+            $stmt = DB::prepare($sql);
+            $stmt->execute([$idPersonagem]);
         }
-        
+
         // Get adesivo items
         $sql = "SELECT pie.*, i.nome, i.imagem, i.tipo, i.raridade 
                 FROM personagens_itens_equipados as pie 
                 LEFT JOIN itens as i ON i.id = pie.idItem 
-                WHERE pie.idPersonagem = $idPersonagem 
+                WHERE pie.idPersonagem = ? 
                 AND pie.adesivo = 1
                 ORDER BY pie.slot ASC";
-        
         $stmt = DB::prepare($sql);
-        $stmt->execute();
+        $stmt->execute([$idPersonagem]);
         $slots = $stmt->fetchAll();
-        
+
         // Display adesivo slots
-        foreach($slots as $slot) {
-            if($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
-                // Slot with adesivo item - show the item image
+        foreach ($slots as $slot) {
+            if ($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
+                // Slot with adesivo item - show the item image and all IDs  
                 $raridade_class = 'raridade-' . $slot->raridade;
-                echo '<li class="slots adesivo slot-amarelo has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '">';
+                echo '<li class="slots adesivo slot-amarelo has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '">';
                 echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
             } else {
@@ -469,6 +847,7 @@ class Inventario {
             }
         }
     }
+
 
     public function getStatusEquipados($idPersonagem) {
     // Get all equipped items (emblemas and regular equipped slots, excluding adesivos)
@@ -842,7 +1221,55 @@ class Inventario {
         }
     }
 
-    // ... rest of your Inventario class
+        /**
+     * Auto-organize inventory - moves all items to the front, eliminating gaps
+     */
+    public function organizarInventario($idPersonagem) {
+        $core = new Core();
+        
+        // Get all items currently in inventory with their slots
+        $sql = "SELECT pii.id, pii.idItem, pii.idSlot, pi.slot as slotNumber
+                FROM personagens_inventario_itens as pii
+                INNER JOIN personagens_inventario as pi ON pi.id = pii.idSlot
+                WHERE pii.idPersonagem = ?
+                ORDER BY pi.slot ASC";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $items = $stmt->fetchAll();
+        
+        if(count($items) == 0){
+            return true; // No items to organize
+        }
+        
+        // Get all inventory slots
+        $sql = "SELECT * FROM personagens_inventario 
+                WHERE idPersonagem = ? 
+                ORDER BY slot ASC";
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $slots = $stmt->fetchAll();
+        
+        // Reorganize: assign items to slots 1, 2, 3... without gaps
+        $slotIndex = 0;
+        foreach($items as $item) {
+            $targetSlot = $slots[$slotIndex];
+            
+            // If item is not in the correct slot, move it
+            if($item->idSlot != $targetSlot->id){
+                $sql = "UPDATE personagens_inventario_itens 
+                        SET idSlot = ? 
+                        WHERE id = ?";
+                $stmt = DB::prepare($sql);
+                $stmt->execute([$targetSlot->id, $item->id]);
+            }
+            
+            $slotIndex++;
+        }
+        
+        return true;
+    }
+
+
 }
 
-/* ... (rest of your file remains unchanged after this line) ... */
+

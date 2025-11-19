@@ -1,0 +1,42 @@
+Array
+(
+    [id] => 35
+    [idp] => 1898
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 35
+    [idp] => 1898
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 43
+    [idp] => 1895
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 35
+    [idp] => 1894
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 35
+    [idp] => 1898
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 35
+    [idp] => 1894
+    [idPersonagem] => 66
+)
+Array
+(
+    [id] => 7
+    [idp] => 1893
+    [idPersonagem] => 66
+)
