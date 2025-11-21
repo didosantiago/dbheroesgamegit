@@ -131,8 +131,9 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 <?php endif; ?>
 
-<h2 class="title">Adquira seu Bônus do Dia</h2>
 <div class="bonus-diario-banner"></div>
+<h2 class="title">Adquira seu Bônus do Dia</h2>
+
 
 <!-- COUNTDOWN TIMER -->
 <div class="bonus-timer">

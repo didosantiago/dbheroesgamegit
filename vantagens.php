@@ -1,3 +1,4 @@
+<div class="seja-vip-banner"></div>
 <h2 class="title">Vantagens VIP</h2>
 
 <table border="0" cellpadding="2" cellspacing="0">

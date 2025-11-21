@@ -7,9 +7,7 @@ require_once "../core/Core.php";
 require_once "../core/Inventario.php";
 require_once "../core/Personagens.php";
 
-
 $inventario = new Inventario();
-
 
 // Load display only (for page load)
 if(isset($_POST['loadOnly']) && $_POST['loadOnly'] == 1){
@@ -28,7 +26,6 @@ if(!isset($_SESSION['PERSONAGEMID'])){
 $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
 $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
 $idItem = isset($_POST['idItem']) ? (int)$_POST['idItem'] : 0;
-$idInventario = isset($_POST['idInventario']) ? (int)$_POST['idInventario'] : 0;
 
 // ============================================
 // UNEQUIP: both id and idItem are provided
@@ -36,7 +33,7 @@ $idInventario = isset($_POST['idInventario']) ? (int)$_POST['idInventario'] : 0;
 if($id > 0 && $idItem > 0){
     try {
         $result = $inventario->desequiparItem($id, $idPersonagem);
-
+        
         if($result){
             $inventario->getSlotsEquipados($idPersonagem);
         } else {
@@ -51,10 +48,9 @@ if($id > 0 && $idItem > 0){
 }
 
 // ============================================
-// EQUIP: always requires idInventario (instance) from JS!
+// EQUIP: only id is provided
 // ============================================
-if($id == 0 || $idInventario == 0){
-
+if($id == 0){
     echo '<div class="error">Item inválido</div>';
     $inventario->getSlotsEquipados($idPersonagem);
     exit;
@@ -66,35 +62,41 @@ try {
     $stmt = DB::prepare($sql);
     $stmt->execute([$id]);
     $item = $stmt->fetch();
-
+    
     if(!$item){
         echo '<div class="error">Item não encontrado</div>';
         $inventario->getSlotsEquipados($idPersonagem);
         exit;
     }
-
+    
+    // Define item type categories
     $consumable_types = ['consumivel', 'capsula', 'comida', 'restauracao'];
-
+    
+    // Handle consumables (use immediately)
     if(in_array(strtolower($item->tipo), $consumable_types)){
-        $result = $inventario->equiparItens($id, $idPersonagem, $idInventario);
+        $result = $inventario->equiparItens($id, $idPersonagem);
         $inventario->getSlotsEquipados($idPersonagem);
         exit;
     }
-
+    
+    // Handle adesivos (should use adesivos section)
     if(isset($item->adesivo) && $item->adesivo == 1){
         echo '<div class="error">Use a seção de Adesivos</div>';
         $inventario->getSlotsEquipados($idPersonagem);
         exit;
     }
-
-    $result = $inventario->equiparItens($id, $idPersonagem, $idInventario);
-
+    
+    // Handle equipment (chapeu, equipamento, emblema)
+    // This includes EMBLEMS - they will be detected by equiparItens()
+    $result = $inventario->equiparItens($id, $idPersonagem);
+    
     if($result){
         $inventario->getSlotsEquipados($idPersonagem);
     } else {
         echo '<div class="error">Sem slot disponível</div>';
         $inventario->getSlotsEquipados($idPersonagem);
     }
+    
 } catch(Exception $e) {
     echo '<div class="error">Erro: ' . htmlspecialchars($e->getMessage()) . '</div>';
     $inventario->getSlotsEquipados($idPersonagem);

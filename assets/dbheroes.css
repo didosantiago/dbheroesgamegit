@@ -2666,6 +2666,19 @@ body.meus-personagens .lista-meus-personagens {
   display: block;
 }
 
+.seja-vip-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/seja-vip.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+
 
 .cacada-running span {
   display: inline-block;
@@ -4804,7 +4817,7 @@ body.inventario .conteudo .box-inventario .content-inventory .itens ul li:not(.s
   vertical-align: top;
   width: 71px;
   height: 71px;
-  margin: 19px;
+  margin: 4px;
   cursor: pointer;
   position: relative;
   background: url("slot-item.png") no-repeat
@@ -22895,3 +22908,4 @@ body.banco .conteudo .title i {
     box-shadow: 0 0 6px 2px #78ffd6;
     transition: border 0.2s, box-shadow 0.2s;
 }
+

@@ -1,14 +1,14 @@
 DBH.inventario = (function() {
     var unequipInProgress = false;
-    var unequipAdesivoInProgress = false;
-
+    
     var init = function() {
         loadInventory();
-        loadEquipados();
+        loadEmblemas();
+        loadEquipamentos();
         loadAdesivos();
         selectItem();
     },
-
+    
     loadInventory = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
@@ -20,203 +20,194 @@ DBH.inventario = (function() {
             },
             error: function(xhr, status, error) {
                 console.error("Inventory load error:", error);
-                console.log("Response:", xhr.responseText);
             }
         });
     },
-
-    loadEquipados = function() {
+    
+    loadEmblemas = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
             type: "POST",
-            url: "ajax/ajaxInventarioEquipado.php",
+            url: "ajax/ajaxInventarioEmblemas.php",
             data: { idPersonagem: guerreiro, loadOnly: 1 },
             success: function (res) {
-                $(".equipados ul").html(res);
-            },
-            error: function(xhr, status, error) {
-                console.error("Equipados load error:", error);
+                $(".emblemas ul").html(res);
             }
         });
     },
-
+    
+    loadEquipamentos = function() {
+        var guerreiro = $('#personagemLogged').val();
+        $.ajax({
+            type: "POST",
+            url: "ajax/ajaxInventarioEquipamentos.php",
+            data: { idPersonagem: guerreiro, loadOnly: 1 },
+            success: function (res) {
+                $(".equipamentos ul").html(res);
+            }
+        });
+    },
+    
     loadAdesivos = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
             type: "POST",
-            url: "ajax/ajaxAdesivos.php",
+            url: "ajax/ajaxInventarioAdesivos.php",
             data: { idPersonagem: guerreiro, loadOnly: 1 },
             success: function (res) {
                 $(".adesivos ul").html(res);
-            },
-            error: function(xhr, status, error) {
-                console.error("Adesivos load error:", error);
             }
         });
     },
     
-    selectItem = function(){
-        // Hover tooltips
-        $(document).on('mouseover', '.content-inventory .itens ul li', function(){
-            $(this).find('.informacoes').show();
-        });
-        
-        $(document).on('mouseout', '.content-inventory .itens ul li', function(){
-            $(this).find('.informacoes').hide();
-        });
-        
-
-        // ============================================
-        // EQUIP FROM INVENTORY
-        // ============================================
-        $(document).on('click', '.content-inventory .itens ul li', function(event){
-            if(!$(this).hasClass('slot-vazio')){
-                // Don't intercept bau (chest) clicks
-                if($(this).find('span').hasClass('bau')){
-                    return;
-                }
-                
-                event.preventDefault();
-                event.stopPropagation();
-                
-                var guerreiro = $('#personagemLogged').val();
-                var id = $(this).attr('dataidItem');
-                var dataid = $(this).attr('dataid');
-                var dataAdesivo = $(this).attr('dataadesivo');
-                var idInventario = $(this).attr('dataidinventario');  // <-- ADD THIS LINE!
-                
-                // INCLUDE idInventario in the POST data
-               var idInventario = $(this).attr('dataidinventario');  // <-- make sure this line exists
-                var data_string = 'id=' + id + '&idp=' + dataid + '&idInventario=' + idInventario + '&idPersonagem=' + guerreiro;
-
-                
-                console.log('Equipping item - ID:', id, 'Adesivo:', dataAdesivo, 'idInventario:', idInventario);
-                
+    selectItem = function() {
+        $(document).on('click', '.content-inventory .itens ul li', function() {
+            var id = $(this).attr('dataid');
+            var dataAdesivo = $(this).attr('dataadesivo');
+            var dataEmblema = $(this).attr('dataemblema');
+            var dataConsumivel = $(this).attr('dataconsumivel');
+            
+            console.log("Item clicked:", {id, dataAdesivo, dataEmblema, dataConsumivel}); // DEBUG
+            
+            if (typeof id !== 'undefined' && id !== false) {
                 if(dataAdesivo == 1){
-                    // Equip to adesivos
+                    // Equipar Adesivo
+                    console.log("Equipando adesivo..."); // DEBUG
                     $.ajax({
                         type: "POST",
-                        url: "ajax/ajaxAdesivos.php",
-                        data: data_string,
+                        url: "ajax/ajaxInventarioAdesivos.php",
+                        data: { id: id },
                         success: function (res) {
                             $(".adesivos ul").html(res);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Adesivo equip error:", error);
-                            console.log("Response:", xhr.responseText);
+                            loadInventory();
                         }
                     });
-                    setTimeout(function(){ loadInventory(); }, 400);
-                } else {
-                    // Equip to equipment/emblem slots
+                } else if(dataEmblema == 1){
+                    // Equipar Emblema
+                    console.log("Equipando emblema..."); // DEBUG
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxInventarioEmblemas.php",
+                        data: { id: id },
+                        success: function (res) {
+                            $(".emblemas ul").html(res);
+                            loadInventory();
+                        }
+                    });
+                } else if(dataConsumivel == 1){
+                    // Consumível - usar item
+                    console.log("Usando consumível..."); // DEBUG
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioEquipado.php",
-                        data: data_string,
+                        data: { id: id },
                         success: function (res) {
-                            $(".equipados ul").html(res);
-                        },
-                        error: function(xhr, status, error) {
-                            console.error("Item equip error:", error);
-                            console.log("Response:", xhr.responseText);
+                            loadInventory();
                         }
                     });
-                    setTimeout(function(){ loadInventory(); }, 400);
+                } else {
+                    // Equipar Equipamento Normal
+                    console.log("Equipando equipamento..."); // DEBUG
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax/ajaxInventarioEquipamentos.php",
+                        data: { id: id },
+                        success: function (res) {
+                            $(".equipamentos ul").html(res);
+                            loadInventory();
+                        }
+                    });
                 }
             }
         });
-
         
-        // ============================================
-        // UNEQUIP FROM EQUIPPED SLOTS
-        // ============================================
-        $(document).on('click', '.equipados ul li.equipped', function(event){
-            event.preventDefault();
-            event.stopPropagation();
-            
-            if($(this).hasClass('slot-vazio') || unequipInProgress){
-                return;
-            }
-            
+        // Desequipar Emblemas
+        $(document).on('click', '.emblemas ul li.emblema', function() {
+            if (unequipInProgress) return;
             unequipInProgress = true;
-            var $slot = $(this);
-            $slot.css('opacity', '0.5');
             
-            var guerreiro = $('#personagemLogged').val();
-            var id = $slot.attr('dataid');
-            var idItem = $slot.attr('dataidItem');
+            var idSlot = $(this).attr('dataid');
+            console.log("Desequipando emblema slot:", idSlot); // DEBUG
             
-            console.log('Unequipping - Slot ID:', id, 'Item ID:', idItem);
-            
-            var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;
-            
-            $.ajax({
-                type: "POST",
-                url: "ajax/ajaxEquipado.php",
-                data: data_string,
-                success: function (res) {
-                    $(".equipados ul").html(res);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Unequip error:", error);
-                    console.log("Response:", xhr.responseText);
-                    $slot.css('opacity', '1');
-                },
-                complete: function() {
-                    setTimeout(function() {
-                        unequipInProgress = false;
+            if (typeof idSlot !== 'undefined' && idSlot !== false) {
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxEmblemas.php",
+                    data: { idSlot: idSlot },
+                    success: function (res) {
+                        $(".emblemas ul").html(res);
                         loadInventory();
-                    }, 500);
-                }
-            });
+                        unequipInProgress = false;
+                    },
+                    error: function() {
+                        unequipInProgress = false;
+                    }
+                });
+            } else {
+                unequipInProgress = false;
+            }
         });
         
-        // ============================================
-        // UNEQUIP ADESIVOS
-        // ============================================
-        $(document).on('click', '.adesivos ul li.adesivo', function(event){
-            event.preventDefault();
-            event.stopPropagation();
+        // Desequipar Equipamentos
+        $(document).on('click', '.equipamentos ul li.equipped', function() {
+            if (unequipInProgress) return;
+            unequipInProgress = true;
             
-            if($(this).hasClass('slot-vazio') || unequipAdesivoInProgress){
-                return;
-            }
+            var idSlot = $(this).attr('dataid');
+            console.log("Desequipando equipamento slot:", idSlot); // DEBUG
             
-            unequipAdesivoInProgress = true;
-            var $slot = $(this);
-            $slot.css('opacity', '0.5');
-            
-            var guerreiro = $('#personagemLogged').val();
-            var id = $slot.attr('dataid');
-            var idItem = $slot.attr('dataidItem');
-            
-            console.log('Unequipping adesivo - Slot ID:', id, 'Item ID:', idItem);
-            
-            var data_string = 'id=' + id + '&idItem=' + idItem + '&idPersonagem=' + guerreiro;
-            
-            $.ajax({
-                type: "POST",
-                url: "ajax/ajaxAdesivos.php",
-                data: data_string,
-                success: function (res) {
-                    $(".adesivos ul").html(res);
-                },
-                error: function(xhr, status, error) {
-                    console.error("Adesivo unequip error:", error);
-                    console.log("Response:", xhr.responseText);
-                    $slot.css('opacity', '1');
-                },
-                complete: function() {
-                    setTimeout(function() {
-                        unequipAdesivoInProgress = false;
+            if (typeof idSlot !== 'undefined' && idSlot !== false) {
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxEquipamentos.php",
+                    data: { idSlot: idSlot },
+                    success: function (res) {
+                        $(".equipamentos ul").html(res);
                         loadInventory();
-                    }, 500);
-                }
-            });
+                        unequipInProgress = false;
+                    },
+                    error: function() {
+                        unequipInProgress = false;
+                    }
+                });
+            } else {
+                unequipInProgress = false;
+            }
+        });
+        
+        // Desequipar Adesivos
+        $(document).on('click', '.adesivos ul li.adesivo', function() {
+            if (unequipInProgress) return;
+            unequipInProgress = true;
+            
+            var idSlot = $(this).attr('dataid');
+            console.log("Desequipando adesivo slot:", idSlot); // DEBUG
+            
+            if (typeof idSlot !== 'undefined' && idSlot !== false) {
+                $.ajax({
+                    type: "POST",
+                    url: "ajax/ajaxAdesivos.php",
+                    data: { idSlot: idSlot },
+                    success: function (res) {
+                        $(".adesivos ul").html(res);
+                        loadInventory();
+                        unequipInProgress = false;
+                    },
+                    error: function() {
+                        unequipInProgress = false;
+                    }
+                });
+            } else {
+                unequipInProgress = false;
+            }
         });
     };
     
     return {
-        init: init
+        init: init,
+        loadInventory: loadInventory,
+        loadEmblemas: loadEmblemas,
+        loadEquipamentos: loadEquipamentos,
+        loadAdesivos: loadAdesivos
     };
 })();

@@ -3,8 +3,9 @@
         header('Location: '.BASE.'portal');
     }
 ?>
+<div class="seja-vip-banner"></div>
+<h2 class="title">DBHeroes V.I.P</h2>
 
-<h2 class="title">Seja VIP</h2>
 
 <div class="detalhes-vip">
     <p>O DB HEREOS RPG é um jogo gratuito e sem fins lucrativos, e por isso a contribuição de seus jogadores é fundamental para que, cada dia mais, o jogo se desenvolva e melhore suas funcionalidades. Qualquer tipo de arrecadação ou doações feitas ao DB Heroes serão revertidas em manutenção e melhorias ao site, bem como divulgação deste e do anime. E contribuindo com sua doação ao jogo, além de nos ajudar a cada dia melhorar o DB Heroes, você, jogador, passa a ser um Jogador VIP, com acesso à vantagens exclusivas.</p>

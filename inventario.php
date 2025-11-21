@@ -44,25 +44,68 @@
 
         <div class="separador"></div>
 
-        <div class="equipados">
-            <h2>Itens Equipados</h2>
+        <!-- EMBLEMAS (3 slots superiores) -->
+        <div class="emblemas">
+            <h2>Emblemas Equipados</h2>
+            <ul style="list-style: none; padding: 10px;">
+                <?php $inventario->getSlotsEmblemas($_SESSION['PERSONAGEMID']); ?>
+            </ul>
+        </div>
+
+        <!-- EQUIPAMENTOS (5 slots) -->
+        <div class="equipamentos">
+            <h2>Equipamentos</h2>
             <ul style="list-style: none; padding: 10px;">
                 <?php $inventario->getSlotsEquipados($_SESSION['PERSONAGEMID']); ?>
             </ul>
         </div>
-        
+
+        <!-- ADESIVOS -->
         <div class="adesivos">
             <h2>Adesivos Equipados</h2>
             <ul style="list-style: none; padding: 10px;">
                 <?php $inventario->getSlotsAdesivos($_SESSION['PERSONAGEMID']); ?>
             </ul>
-        </div>
-    </div>
-    <?php $inventario->setViewInventory($_SESSION['PERSONAGEMID']); ?>
 </div>
+
 
 <!-- Temporary CSS to make slots visible -->
 <style>
+
+    /* Emblema slots (purple border) */
+.emblemas ul li.slot-emblema {
+    background-color: #6a1b9a;
+    border-color: #9c27b0;
+}
+
+.emblemas ul li.slot-emblema.slot-vazio {
+    background-image: url('./assets/slot-emblema.png') !important;
+    background-color: #4a148c;
+}
+
+.emblemas ul li.emblema:hover {
+    border-color: #ce93d8;
+    transform: scale(1.05);
+    transition: all 0.2s;
+}
+
+/* Equipment slots (blue border) */
+.equipamentos ul li.slot-equipado {
+    background-color: #1565c0;
+    border-color: #2196f3;
+}
+
+.equipamentos ul li.slot-equipado.slot-vazio {
+    background-image: url('./assets/slot-equipado.png') !important;
+    background-color: #0d47a1;
+}
+
+.equipamentos ul li.equipped:hover {
+    border-color: #64b5f6;
+    transform: scale(1.05);
+    transition: all 0.2s;
+}
+
 /* Inventory Slot Styles */
 /* Inventory Slot Styles */
 .content-inventory .itens ul li.slots,
@@ -84,11 +127,11 @@
 /* Slot hover effects */
 .content-inventory .itens ul li.slots.slot-bau:hover {
     background-image: url('./assets/slot-bau-hover.png') !important;
-    border-color: #ffa500;
+    border-color: #00ff40ff;
 }
 
 .content-inventory .itens ul li.slots:hover {
-    border-color: #ffd700;
+    border-color: #00ff40ff;
     transform: scale(1.05);
     transition: all 0.2s;
 }
@@ -113,7 +156,7 @@
     pointer-events: none;
 }
 
-/* Item info tooltip */
+/* Item info tooltip 
 .content-inventory .informacoes {
     position: absolute;
     bottom: 80px;
@@ -126,7 +169,7 @@
     min-width: 150px;
     z-index: 1000;
     display: none;
-}
+}*/
 
 .content-inventory .informacoes h3 {
     margin: 0 0 5px 0;

@@ -65,9 +65,9 @@
             exit;
         }
     ?>
-
-<h2 class="title">Iniciar uma Caçada</h2>
 <div class="cacadas-banner"></div>
+<h2 class="title">Iniciar uma Caçada</h2>
+
 
 <!-- Daily Hunt Time Status Alert -->
 <div class="hunt-time-status" style="background: <?php echo ($tempo_restante > 0) ? '#000000ff' : '#f44336'; ?>; color: white; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-size: 16px; font-weight: bold;">
