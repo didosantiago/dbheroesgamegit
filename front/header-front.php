@@ -1,3 +1,4 @@
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <div class="stm-main">
     <div class="stm-top-bar">
@@ -40,16 +41,7 @@
         </ul>
         
         <ul class="right-menu">
-            <li class="iniciar-sessao desktop">
-                <a href="<?php echo BASE; ?>portal">
-                    <i class="far fa-play-circle"></i>
-                    <?php if(!isset($_SESSION['username'])){ ?>
-                        <p>Iniciar Jogo</p>
-                    <?php } else { ?>
-                        <p>Voltar ao Jogo</p>
-                    <?php } ?>
-                </a>
-            </li>
+
             <li class="iniciar-sessao mobile">
                 <a href="<?php echo BASE; ?>cadastro">
                     <i class="far fa-play-circle"></i>
