@@ -1,6 +1,7 @@
 <?php switch($acao) {
     default: ?>
-    <h2 class="title">Tabela de Experiência</h2>
+    <div class="tabela-de-exp-banner"></div>
+    <h2 class="title">Confira abaixo</h2>
     
     <table class="tableList">
         <thead>

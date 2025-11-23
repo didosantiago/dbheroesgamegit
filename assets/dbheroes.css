@@ -2678,6 +2678,30 @@ body.meus-personagens .lista-meus-personagens {
   display: block;
 }
 
+.tabela-de-exp-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/tabela-de-exp.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.feira-do-rolo-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/seja-vip.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
 
 
 .cacada-running span {
@@ -3435,6 +3459,11 @@ body.profile .indicadores {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box
+}
+.status-attributes {
+  text-align: center;
+  color: #FFF;
+
 }
 
 body.profile .indicadores h2 {
@@ -4599,6 +4628,7 @@ body.publico .equipamento li .informacoes p strong {
 body.publico .status {
   margin: 0 auto;
   padding: 20px 0
+
 }
 
 body.publico .status li {
@@ -4609,8 +4639,8 @@ body.publico .status li {
 body.publico .status li p {
   display: inline-block;
   vertical-align: middle;
-  width: 60%;
-  padding-right: 30px;
+  width: 55%;
+  padding-right: 0px;
   text-align: right;
   color: #FFF
 }
@@ -10415,11 +10445,11 @@ body.golpes .lista-golpes li {
 }
 
 body.golpes .lista-golpes li.ativo {
-  background: #244F5F
+  background: #6300e5
 }
 
 body.golpes .lista-golpes li.ativo p {
-  background: #2d6477
+  background: #1C1A1A
 }
 
 body.golpes .lista-golpes li.inativo {
@@ -12421,7 +12451,7 @@ body.market .conteudo .nome-item {
 }
 
 body.market .conteudo .market_header_bg {
-  background-color: #46602a;
+  background-color: #e50015;
   width: 100%
 }
 
@@ -12449,7 +12479,7 @@ body.market .conteudo .market_header_bg #BG_top>.betaicon {
 body.market .conteudo .market_header_bg #BG_top>.user_info {
   position: absolute;
   height: 51px;
-  padding: 13px 13px 0 13px;
+  padding: 13px -13px 0 13px;
   background-color: #1B1B1B;
   border: 1px solid #39393A;
   border-right: 1px solid #0F0F0F;
@@ -12463,10 +12493,17 @@ body.market .conteudo .market_header_bg #BG_top>.user_info {
   top: 29px
 }
 
-body.market .conteudo .market_header_bg #BG_top .avatarIcon img {
+body.market .conteudo .market_header_bg #BG_top .avatarIcon {
+
+  position: relative;
+  margin: 0 auto;
   display: block;
-  width: 38px;
-  height: 38px
+  background-image: url("h2-menu.png");
+  background-repeat: no-repeat;
+  height: 38px;
+  width: 38px
+
+  
 }
 
 body.market .conteudo .market_header_bg #BG_top .user_info_text {
@@ -12492,7 +12529,7 @@ body.market .conteudo .market_header_bg .market_header .market_header_logo {
   position: relative;
   margin: 0 auto;
   display: block;
-  background-image: url("market_banner.jpg");
+  background-image: url("banners/feira-do-rolo.png");
   background-repeat: no-repeat;
   height: 121px;
   width: 949px
@@ -12508,12 +12545,12 @@ body.market .conteudo .market_header_bg .market_header .market_header_logo .mark
 body.market .conteudo .market_header_bg .market_header .market_header_logo .market_header_text .market_title_text {
   font-family: "Motiva Sans", Sans-serif;
   font-weight: 300;
-  font-size: 34px;
+  font-size: 0px;
   color: #ffffff
 }
 
 body.market .conteudo .market_header_bg .market_header .market_header_logo .market_header_text .market_subtitle_text {
-  font-size: 14px;
+  font-size: 0px;
   color: #9dc473
 }
 
@@ -22909,3 +22946,34 @@ body.banco .conteudo .title i {
     transition: border 0.2s, box-shadow 0.2s;
 }
 
+.pagina-scroll-publico {
+    max-height: 88vh;
+    overflow-y: auto;
+    padding-right: 12px;
+    scroll-behavior: smooth;
+    /* Optionally match the menu's scrollbar style: */
+    /* scrollbar-width: thin; */
+}
+
+.pagina-scroll-publico::-webkit-scrollbar {
+    width: 12px;
+    background: #181b27;
+}
+.pagina-scroll-publico::-webkit-scrollbar-thumb {
+    background: #556;
+    border-radius: 8px;
+}
+
+
+.item-tooltip {
+  background: #253243;
+  color: #fff;
+  border-radius: 8px;
+  padding: 12px 18px;
+  border: 2px solid #3faac8;
+  font-size: 15px;
+  pointer-events: none;
+  box-shadow: 2px 2px 12px #000b;
+  min-width: 180px;
+  max-width: 240px;
+}

@@ -1101,13 +1101,13 @@
                         </div>
                     </a>
                 </h2>
-
-                <div class="user_info">
-                    <span class="iconHolder_offline" style="display: inline-block">
-                        <span class="avatarIcon">
-                            <img src="<?php echo BASE.$user->foto; ?>" srcset="<?php echo BASE.$user->foto; ?>">
+                     <div class="user_info">
+                        <span class="iconHolder_offline" style="display: inline-block">
+                            <span class="avatarIcon"></span>
+                                <img src="<?php echo BASE.$user->foto; ?>" srcset="<?php echo BASE.$user->foto; ?>">
                         </span>
-                    </span>
+                    </div>
+
                     <span class="user_info_text">
                         <a id="marketWalletBalance" href="<?php echo BASE; ?>profile">Saldo na Carteira: <span id="marketWalletBalanceAmount"><?php echo $personagem->gold; ?> golds</span></a>
                         <br>

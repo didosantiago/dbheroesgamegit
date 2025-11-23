@@ -210,4 +210,42 @@ DBH.inventario = (function() {
         loadEquipamentos: loadEquipamentos,
         loadAdesivos: loadAdesivos
     };
+
+    
 })();
+
+    function attachInventoryTooltips() {
+        document.querySelectorAll('.slot-item').forEach(function(el){
+            el.onmouseenter = function(e){
+                document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
+                var itemId = this.getAttribute('data-item');
+                var data = window.INVENTORY_ITEMS[itemId];
+                if (!data) return;
+                var tip = document.createElement("div");
+                tip.className = "item-tooltip";
+                tip.innerHTML =
+                    "<strong>"+data.nome+"</strong><br>"
+                    +(data.forca ? "Força: <span style='color:#5b5'>+"+data.forca+"</span><br>" : "")
+                    +(data.agilidade ? "Agilidade: <span style='color:#5b5'>+"+data.agilidade+"</span><br>" : "")
+                    +(data.habilidade ? "Habilidade: <span style='color:#5b5'>+"+data.habilidade+"</span><br>" : "")
+                    +(data.resistencia ? "Resistência: <span style='color:#5b5'>+"+data.resistencia+"</span><br>" : "")
+                    +(data.sorte ? "Sorte: <span style='color:#5b5'>+"+data.sorte+"</span><br>" : "");
+                document.body.appendChild(tip);
+                function moveTooltip(ev){
+                    tip.style.position='fixed';
+                    tip.style.left = (ev.clientX+20)+'px';
+                    tip.style.top = (ev.clientY+20)+'px';
+                    tip.style.zIndex=10000;
+                }
+                moveTooltip(e);
+                el.onmousemove = moveTooltip;
+                el.onmouseleave = function() {
+                    tip.remove();
+                    el.onmousemove = null;
+                    el.onmouseleave = null;
+                };
+            };
+        });
+    }
+
+
