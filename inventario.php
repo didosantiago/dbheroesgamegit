@@ -296,12 +296,23 @@ function attachInventoryTooltips() {
         };
     });
 }
+
 // Call on page load
 attachInventoryTooltips();
+
 // Remove tooltip on inventory area mouseleave
 document.querySelector('.content-inventory').addEventListener('mouseleave', () => {
     document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
 });
+
+// ✅ NEW: Auto-reattach tooltips when inventory HTML changes
+const inventoryUL = document.querySelector('.content-inventory .itens ul');
+if (inventoryUL) {
+    const observer = new MutationObserver(function() {
+        setTimeout(attachInventoryTooltips, 100);
+    });
+    observer.observe(inventoryUL, { childList: true });
+}
 
 $(document).ready(function() {
     $(document).off('click', '.content-inventory .itens ul li.slots');
@@ -328,7 +339,6 @@ $(document).ready(function() {
             data: { id: idInventario },
             success: function(response) {
                 $(targetDiv).html(response);
-                // FIX INSERTION: attach tooltip after updates
                 attachInventoryTooltips();
                 setTimeout(function() {
                     $.ajax({
@@ -337,7 +347,7 @@ $(document).ready(function() {
                         data: { idPersonagem: guerreiro },
                         success: function(res) {
                             $('.content-inventory .itens ul').html(res);
-                            attachInventoryTooltips();
+                            // MutationObserver will auto-call attachInventoryTooltips()
                         }
                     });
                 }, 300);
@@ -367,7 +377,7 @@ $(document).ready(function() {
                         data: { idPersonagem: guerreiro },
                         success: function(res) {
                             $('.content-inventory .itens ul').html(res);
-                            attachInventoryTooltips();
+                            // MutationObserver will auto-call attachInventoryTooltips()
                         }
                     });
                 }, 300);
@@ -397,7 +407,7 @@ $(document).ready(function() {
                         data: { idPersonagem: guerreiro },
                         success: function(res) {
                             $('.content-inventory .itens ul').html(res);
-                            attachInventoryTooltips();
+                            // MutationObserver will auto-call attachInventoryTooltips()
                         }
                     });
                 }, 300);
@@ -405,6 +415,13 @@ $(document).ready(function() {
         });
     });
 
-    // You can also add a similar block for adesivos if needed
+    // === 2. AUTO SCROLL SCRIPT ===
+    // Scroll down 520px on page load
+    // =============================
+    const pixelsToScroll = 390; 
+    window.scrollTo({
+        top: pixelsToScroll,
+        behavior: "smooth"
+    });
 });
 </script>

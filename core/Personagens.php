@@ -247,55 +247,67 @@ class Personagens {
     
     public function getGuerreiro($id){
         
-        if($id != ''){
-            $sql = "SELECT up.*, pn.nome as planeta, p.raca "
-                 . "FROM usuarios_personagens as up "
-                 . "INNER JOIN personagens as p ON p.id = up.idPersonagem "
-                 . "INNER JOIN planetas as pn ON pn.id = up.idPlaneta "
-                 . "WHERE up.id = '$id'";
+        $id = (int)$id; // garante que é número
+
+        if($id > 0){
+            $sql = "SELECT up.*, pn.nome as planeta, p.raca
+                    FROM usuarios_personagens as up
+                    INNER JOIN personagens as p ON p.id = up.idPersonagem
+                    INNER JOIN planetas as pn ON pn.id = up.idPlaneta
+                    WHERE up.id = ?";
 
             $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $row = $stmt->fetch();
-            
-            $this->id = $row->id;
-            $this->idUsuario = $row->idUsuario;
-            $this->planeta = $row->planeta;
-            $this->idPlaneta = $row->idPlaneta;
-            $this->persona = $row->idPersonagem;
-            $this->data_cadastro = $row->data_cadastro;
-            $this->boneco = $row->idPersonagem;
-            $this->nome = $row->nome;
-            $this->raca = $row->raca;
-            $this->foto = $row->foto;
-            $this->hp = $row->hp;
-            $this->mana = $row->mana;
-            $this->ki_usado = $row->ki_usado;
-            $this->energia = $row->energia;
-            $this->energia_usada = $row->energia_usada;
-            $this->graduacao = $this->getGraduacaoName($row->nivel);
-            $this->graduacao_id = $row->graduacao;
-            $this->nivel = $row->nivel;
-            $this->gold = $row->gold;
-            $this->gold_total = $row->gold_total;
-            $this->forca = $row->forca;
-            $this->agilidade = $row->agilidade;
-            $this->habilidade = $row->habilidade;
-            $this->resistencia = $row->resistencia;
-            $this->sorte = $row->sorte;
-            $this->gold_guardados = $row->gold_guardados;
-            $this->vitorias_pvp = $row->vitorias_pvp;
-            $this->derrotas = $row->derrotas;
-            $this->pp_creditos = $row->pp_creditos;
-            $this->pontos = $row->pontos;
-            $this->exp = $row->exp;
-            $this->tam = $row->tam;
-            $this->time_stamina = $row->time_stamina;
-            $this->time_ki = $row->time_ki;
-            $this->time_hp = $row->time_hp;
-            $this->time_invasao = $row->time_invasao;
+            $stmt->execute([$id]);
+
+            // Só continua se encontrou o personagem
+            if ($stmt->rowCount() > 0) {
+                $row = $stmt->fetch(PDO::FETCH_OBJ);
+
+                // Mantendo TODAS as suas atribuições:
+                $this->id             = $row->id;
+                $this->idUsuario      = $row->idUsuario;
+                $this->planeta        = $row->planeta;
+                $this->idPlaneta      = $row->idPlaneta;
+                $this->persona        = $row->idPersonagem;
+                $this->data_cadastro  = $row->data_cadastro;
+                $this->boneco         = $row->idPersonagem;
+                $this->nome           = $row->nome;
+                $this->raca           = $row->raca;
+                $this->foto           = $row->foto;
+                $this->hp             = $row->hp;
+                $this->mana           = $row->mana;
+                $this->ki_usado       = $row->ki_usado;
+                $this->energia        = $row->energia;
+                $this->energia_usada  = $row->energia_usada;
+                $this->graduacao      = $this->getGraduacaoName($row->nivel);
+                $this->graduacao_id   = $row->graduacao;
+                $this->nivel          = $row->nivel;
+                $this->gold           = $row->gold;
+                $this->gold_total     = $row->gold_total;
+                $this->forca          = $row->forca;
+                $this->agilidade      = $row->agilidade;
+                $this->habilidade     = $row->habilidade;
+                $this->resistencia    = $row->resistencia;
+                $this->sorte          = $row->sorte;
+                $this->gold_guardados = $row->gold_guardados;
+                $this->vitorias_pvp   = $row->vitorias_pvp;
+                $this->derrotas       = $row->derrotas;
+                $this->pp_creditos    = $row->pp_creditos;
+                $this->pontos         = $row->pontos;
+                $this->exp            = $row->exp;
+                $this->tam            = $row->tam;
+                $this->time_stamina   = $row->time_stamina;
+                $this->time_ki        = $row->time_ki;
+                $this->time_hp        = $row->time_hp;
+                $this->time_invasao   = $row->time_invasao;
+            } else {
+                // Não encontrou: zera idUsuario para público.php poder detectar erro
+                $this->id        = null;
+                $this->idUsuario = null;
+            }
         }
     }
+
     
     public function getOponente($id){
         if($id != ''){

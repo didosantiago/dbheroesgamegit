@@ -72,7 +72,7 @@ if(isset($_POST['vender'])){
 }
 ?>
 
-<div class="kame-bank-banner"></div>
+<div class="banco-shenlong-banner"></div>
 <h2 class="title">Bem vindo ao Banco Central</h2>
 
 

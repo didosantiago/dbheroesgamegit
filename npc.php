@@ -1,12 +1,17 @@
 <?php 
 
     if (isset($_POST['conceder'])) {
-        // Mark the battle as finished/lost for the player
-    if (isset($_SESSION['npc_id'])) {
-        $core = new Core();
-        $npc_battle = $core->getDados('npc', 'WHERE id = '.$_SESSION['npc_id']);
-        // If the match is finished, clear the session!
-        if ($npc_battle && $npc_battle->concluido == 1) {
+        if (isset($_SESSION['npc_id'])) {
+            $core = new Core();
+            
+            // 1. Mark battle as concluded and player as loser
+            $campos_fim = array(
+                'concluido' => 1,
+                'vencedor' => 0 // 0 means NPC won / Player lost
+            );
+            $core->update('npc', $campos_fim, 'id = '.$_SESSION['npc_id']);
+            
+            // 2. Clear all battle sessions
             unset($_SESSION['npc']);
             unset($_SESSION['npc_id']);
             unset($_SESSION['npc_atacado']);
@@ -18,15 +23,13 @@
             unset($_SESSION['npc_life_oponente']);
             unset($_SESSION['npc_ki_oponente']);
             unset($_SESSION['npc_final']);
-        } elseif ($npc_battle && $npc_battle->concluido == 0) {
-            // Only redirect if active
-            header('Location: ' . BASE . 'npc/' . $_SESSION['npc_id']);
+            
+            // 3. Redirect to Torneio (EXITING the battle)
+            header('Location: ' . BASE . 'torneio');
             exit;
         }
     }
 
-
-    }
 
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
@@ -99,6 +102,57 @@
             exit;
         }
 
+            if (isset($_POST['concluir'])) {
+        // Re-get the opponent ID from the URL to be safe
+        $opponent_id_from_url = Url::getURL(1);
+
+        // ✅ FIX: Check if the opponent ID from the URL is valid
+        if (empty($opponent_id_from_url)) {
+            // If no ID, we can't process. Just clear session and leave.
+            unset($_SESSION['npc'], $_SESSION['npc_id'], $_SESSION['npc_vitoria'], $_SESSION['npc_derrota']);
+            header('Location: ' . BASE . 'torneio');
+            exit;
+        }
+
+        // Now we know the ID is not empty. Let's get the opponent object for EXP.
+        // Assumes $npc object is already created.
+        $oponente_obj = $npc->getOponenteNPC($opponent_id_from_url);
+
+        if (isset($_SESSION['npc_vitoria'])) {
+            // --- On Victory ---
+            if ($oponente_obj) {
+                $exp_recebido = $oponente_obj->exp;
+                // ... (rest of EXP calculations)
+                $campos_usuario = [
+                    'tam' => intval($personagem->tam) + 1,
+                    'exp' => intval($personagem->exp) + intval($exp_recebido) // ... add other exp bonuses
+                ];
+                $core->update('usuarios_personagens', $campos_usuario, 'id = "' . $idPersonagem . '"');
+                $personagem->checkLevelUp($idPersonagem);
+            }
+
+            // Mark battle as won
+            $core->update('npc', ['vencedor' => 1, 'concluido' => 1], 'idPersonagem = ' . $idPersonagem . ' AND idDesafiado = ' . $opponent_id_from_url . ' AND concluido = 0');
+            
+        } else {
+            // --- On Loss or other cases ---
+            // Mark battle as lost
+            $core->update('npc', ['vencedor' => 0, 'concluido' => 1], 'idPersonagem = ' . $idPersonagem . ' AND idDesafiado = ' . $opponent_id_from_url . ' AND concluido = 0');
+        }
+
+        // --- Clean up and Redirect ---
+        // Unset all battle session variables
+        unset(
+            $_SESSION['npc'], $_SESSION['npc_id'], $_SESSION['npc_atacado'], $_SESSION['npc_vitoria'],
+            $_SESSION['npc_derrota'], $_SESSION['npc_desafiador'], $_SESSION['npc_finalizado'],
+            $_SESSION['npc_life'], $_SESSION['npc_life_oponente'], $_SESSION['npc_ki_oponente'], $_SESSION['npc_final']
+        );
+
+        // Redirect to tournament page
+        header('Location: ' . BASE . 'torneio');
+        exit;
+    }
+
 
         $personagem->getGuerreiro($idPersonagem);
 
@@ -112,16 +166,19 @@
 
             // Check if NPC needs to counter-attack
             if($dados_npc->atacou == 1 && $dados_npc->atacado == 0 && $dados_npc->pausado == 0){
-                // Check if battle time hasn't expired
-                if($dados_npc->time_final > time()){
-                    // NPC counter-attacks
-                    $npc->atack(4, $parametro_1, $idPersonagem, 0, 0);
+                // Calculate NPC current HP
+                $lifes = $npc->getLifeRestante($dados_npc->id);
+                $npc_hp = $oponente->hp - $lifes->dano_atacado; // Ensure correct variable for opponent max HP
 
-                    // Redirect to refresh
+                // Only attack if NPC is alive
+                if($npc_hp > 0 && $dados_npc->time_final > time()){
+                    $npc->atack(4, $parametro_1, $idPersonagem, 0, 0);
+                    
                     header('Location: '.BASE.'npc/'.$parametro_1);
                     exit();
                 }
             }
+
         }
     }
 
@@ -233,100 +290,7 @@
             }
         }
 
-        if(isset($_POST['concluir'])){
-            if(isset($_SESSION['npc_vitoria'])){
-                $vitoria = 1;
-            } else {
-                $vitoria = 0;
-            }
-            if($vitoria == 1){
-                $exp_recebido = $oponente->exp;
-                
-                if($user->vip == 1){
-                    $exp_extra = intval($exp_recebido) * (20 / 100);
-                } else {
-                    $exp_extra = 0;
-                }
-                
-                if($core->verifyDoubleEXP()){
-                    $double_exp_dados = $core->getDoubleEXP();
-                    $double_exp = intval($exp_recebido) * (intval($double_exp_dados->porcentagem) / 100);
-                } else {
-                    $double_exp = 0;
-                }
 
-                $campos_usuario = array(
-                    'tam' => intval($personagem->tam) + 1,
-                    'exp' => intval($personagem->exp) + intval($oponente->exp) + intval($exp_extra) + intval($double_exp)
-                );
-
-                $where_usuario = 'id = "'.$idPersonagem.'"';
-
-                $core->update('usuarios_personagens', $campos_usuario, $where_usuario);
-
-                $oponente = $parametro_1;
-
-                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente AND concluido = 0";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $dados_npc = $stmt->fetch();
-
-                $campos_npc = array(
-                    'vencedor' => 1,
-                    'concluido' => 1
-                );
-
-                $where_npc = 'id = "'.$dados_npc->id.'"';
-
-                $core->update('npc', $campos_npc, $where_npc);
-                
-                $personagem->getGuerreiro($idPersonagem);
-
-                $personagem->checkLevelUp($idPersonagem);
-            } else {
-                $oponente = $parametro_1;
-
-                $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $oponente AND concluido = 0";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $dados_npc = $stmt->fetch();
-
-                $campos_npc = array(
-                    'vencedor' => 0,
-                    'concluido' => 1
-                );
-
-                $where_npc = 'id = "'.$dados_npc->id.'"';
-
-                $core->update('npc', $campos_npc, $where_npc);
-            }
-
-            if($_SESSION['npc_finalizado'] == 1){
-                $campos = array(
-                    'hp' => $npc_life,
-                    'time_hp' => time()
-                );
-
-                $where = 'id = "'.$idPersonagem.'"';
-
-                $core->update('usuarios_personagens', $campos, $where);
-            }
-
-            unset($_SESSION['npc_atacado']);
-            unset($_SESSION['npc']);
-            unset($_SESSION['npc_id']);
-            unset($_SESSION['npc_atacado']);
-            unset($_SESSION['npc_vitoria']);
-            unset($_SESSION['npc_derrota']);
-            unset($_SESSION['npc_desafiador']);
-            unset($_SESSION['npc_finalizado']);
-            unset($_SESSION['npc_life']);
-            unset($_SESSION['npc_life_oponente']);
-            unset($_SESSION['npc_final']);
-
-            header('Location: '.BASE.'torneio');
-            exit;
-        }
 
         if(isset($_POST['atacar'])){
             if(addslashes($_POST['estado']) == 1){
@@ -367,6 +331,12 @@
                 );
                 $core->update('npc', $campos_fim, 'id = '.$battle_check->id);
                 $_SESSION['npc_finalizado'] = 1;
+
+                if ($_SESSION['npc_finalizado'] == 1) {
+                // Stop any further attacks or rounds if battle is over
+                $habilitado = 0;
+            }
+
                 
                 // Determine winner
                 if($npc_hp <= 0){

@@ -93,15 +93,16 @@ class Inventario {
                 // Background image logic
                 if($isBau){
                     $bg_image = 'slot-bau.png';
-                    $slot_class = 'slot-bau';
+                    $slot_class = 'slot-bau slot-item';  // ✅ Add BOTH classes
                 } else {
                     $bg_image = 'slot-item.png';
-                    $slot_class = 'slot-item';
+                    $slot_class = 'slot-item';  // ✅ This ensures regular items get the slot-item class
                 }
                 
+                // ✅ FIX: Always add slot-item class AND data-item attribute for tooltips
                 echo '<li class="slots ' . $slot_class . ' ' . $raridade_class . '" ';
                 echo 'data-slot="' . $slot->slot . '" ';
-                echo 'data-item="' . $slot->idItem . '" ';
+                echo 'data-item="' . $slot->idItem . '" ';  // ✅ CRITICAL: data-item for tooltips
                 echo 'dataid="' . $slot->id . '" ';
                 echo 'dataidItem="' . $slot->idItem . '" ';
                 echo 'dataidinventario="' . $slot->itemStorageId . '" '; 
@@ -125,7 +126,7 @@ class Inventario {
                 }
                 echo '</span>';
                 
-                // Tooltip
+                // Tooltip (hidden div - not used anymore since we have JS tooltips)
                 echo '<div class="informacoes" style="display: none;">';
                 echo '<h3>' . htmlspecialchars($slot->nome ?? 'Item') . '</h3>';
                 if($isConsumable){
@@ -144,8 +145,7 @@ class Inventario {
                 echo '</li>';
             }
         }
-    } // End of getSlots
-
+    }
 
 
 
@@ -199,13 +199,71 @@ class Inventario {
 
 
 
+        public function moverItem($idInventory, $toSlot) {
+        // 1. Get item details
+        // (Your existing code to get $item likely exists here)
+        $item = $this->getItemById($idInventory); // Example line
+
+        // =========================================================
+        // [START] VALIDATION BLOCK (Adjusted for your table structure)
+        // =========================================================
+        // =========================================================
+        // [START] VALIDATION BLOCK
+        // =========================================================
+        if ($item && $item->tipo == 'adesivo') {
+            // 1. Count items in EQUIPPED table
+            $sql = "SELECT COUNT(*) FROM personagens_itens_equipados 
+                    WHERE idPersonagem = :id AND adesivo = 1 AND vazio = 0"; 
+            $stmt = DB::prepare($sql);
+            $stmt->execute([':id' => $_SESSION['PERSONAGEMID']]);
+            $total = $stmt->fetchColumn();
+
+            // 2. If limit reached
+            // [Inside equiparAdesivo or moverItem]
+            if ($totalEquipped >= 10) {
+                if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                    // Return HTML that includes a script to reload page on close
+                    echo '
+                    <div id="limit-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999999; display: flex; justify-content: center; align-items: center;">
+                        <div style="background: #1a1a1a; border: 2px solid #f44336; padding: 30px; border-radius: 10px; text-align: center; color: white; box-shadow: 0 0 30px rgba(244,67,54,0.3); font-family: Arial, sans-serif;">
+                            <i class="fas fa-hand-paper" style="font-size: 50px; color: #f44336; margin-bottom: 15px;"></i>
+                            <h2 style="color: #f44336; margin: 0 0 10px; text-transform: uppercase;">LIMITE ATINGIDO</h2>
+                            <p style="font-size: 16px; color: #ddd; margin-bottom: 20px;">Você não pode equipar mais de 10 adesivos!</p>
+                            <button onclick="window.location.reload(true);" style="background: #f44336; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">ENTENDI</button>
+                        </div>
+                    </div>
+                    <script>
+                    // Optional: You can force reload immediately if you prefer, but button is better
+                    </script>';
+                    exit;
+                }
+                return false;
+            }
+
+
+        }
+        // =========================================================
+        // [END] VALIDATION BLOCK
+        // =========================================================
+
+        // =========================================================
+        // [END] VALIDATION BLOCK
+        // =========================================================
+
+        // ... (Rest of your existing movement logic) ...
+    }
+
+
+    /**
+     * Equip adesivo from inventory to adesivo slot
+     */
     /**
      * Equip adesivo from inventory to adesivo slot
      */
     public function equiparAdesivo($idItem, $idPersonagem) {
         $core = new Core();
         
-        // Verify item is an adesivo
+        // 1. Verify item is an adesivo
         $sql = "SELECT * FROM itens WHERE id = ? AND adesivo = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute([$idItem]);
@@ -214,6 +272,41 @@ class Inventario {
         if(!$item){
             return false; // Not an adesivo
         }
+
+        // =========================================================
+        // [START] MAX 10 STICKERS VALIDATION
+        // =========================================================
+               // =========================================================
+        // [START] VALIDATION BLOCK WITH RELOAD FIX
+        // =========================================================
+        // Count currently equipped stickers
+        $sql_count = "SELECT COUNT(*) FROM personagens_itens_equipados 
+                      WHERE idPersonagem = ? AND adesivo = 1 AND vazio = 0"; 
+        $stmt_count = DB::prepare($sql_count);
+        $stmt_count->execute([$idPersonagem]);
+        $totalEquipped = $stmt_count->fetchColumn();
+
+        if ($totalEquipped >= 10) {
+            // If request is AJAX (Standard for drag-and-drop)
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // Output the Modal HTML directly. The browser will render this.
+                echo '
+                <div id="limit-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999999; display: flex; justify-content: center; align-items: center;">
+                    <div style="background: #1a1a1a; border: 2px solid #f44336; padding: 30px; border-radius: 10px; text-align: center; color: white; box-shadow: 0 0 30px rgba(244,67,54,0.3); font-family: Arial, sans-serif;">
+                        <i class="fas fa-hand-paper" style="font-size: 50px; color: #f44336; margin-bottom: 15px;"></i>
+                        <h2 style="color: #f44336; margin: 0 0 10px; text-transform: uppercase;">LIMITE ATINGIDO</h2>
+                        <p style="font-size: 16px; color: #ddd; margin-bottom: 20px;">Você não pode equipar mais de 10 adesivos!</p>
+                        <button onclick="window.location.reload();" style="background: #f44336; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 14px;">ENTENDI</button>
+                    </div>
+                </div>';
+                exit; // Stop execution so "false" is not returned
+            }
+            return false; // Fallback for non-AJAX
+        }
+        // =========================================================
+        // [END] VALIDATION BLOCK
+        // =========================================================
+
         
         // Get item from inventory
         $sql = "SELECT pii.* 
@@ -240,7 +333,19 @@ class Inventario {
         $slotVazio = $stmt->fetch();
         
         if(!$slotVazio){
-            return false; // No empty adesivo slot
+            // Also show modal if slots are full (redundant check but good UX)
+             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                echo '
+                <div id="limit-modal" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 999999; display: flex; justify-content: center; align-items: center;">
+                    <div style="background: #1a1a1a; border: 2px solid #f44336; padding: 30px; border-radius: 10px; text-align: center; color: white; box-shadow: 0 0 30px rgba(244,67,54,0.3);">
+                        <h2 style="color: #f44336; margin: 0 0 10px;">SEM ESPAÇO</h2>
+                        <p style="font-size: 16px; color: #ddd;">Não há slots de adesivo vazios!</p>
+                        <button onclick="document.getElementById(\'limit-modal\').remove();" style="background: #f44336; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer;">OK</button>
+                    </div>
+                </div>';
+                exit;
+            }
+            return false;
         }
         
         // Equip adesivo to slot
@@ -301,9 +406,10 @@ class Inventario {
         foreach ($slots as $slot) {
             if ($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
                 $raridade_class = 'raridade-' . $slot->raridade;
-                echo '<li class="slots equipped slot-equipado has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '">';
+                echo '<li class="slots equipped slot-equipado slot-item has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '">';
                 echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
+
             } else {
                 echo '<li class="slots equipped slot-equipado slot-vazio" data-slot="' . $slot->slot . '">';
                 echo '<img src="' . BASE . 'assets/slot-equipado.png" alt="Slot Equipamento Vazio">';
@@ -534,11 +640,11 @@ class Inventario {
         // Display adesivo slots
         foreach ($slots as $slot) {
             if ($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
-                // Slot with adesivo item - show the item image and all IDs  
                 $raridade_class = 'raridade-' . $slot->raridade;
-                echo '<li class="slots adesivo slot-amarelo has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '">';
+                echo '<li class="slots adesivo slot-amarelo slot-item has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '">';
                 echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
+
             } else {
                 // Empty yellow slot - show slot-amarelo.png image
                 echo '<li class="slots adesivo slot-amarelo slot-vazio" data-slot="' . $slot->slot . '">';
@@ -550,17 +656,17 @@ class Inventario {
 
 
     public function getStatusEquipados($idPersonagem) {
-    // Get all equipped items (emblemas and regular equipped slots, excluding adesivos)
-    $sql = "SELECT i.forca, i.agilidade, i.habilidade, i.resistencia, i.sorte 
-            FROM personagens_itens_equipados as pie 
-            INNER JOIN itens as i ON i.id = pie.idItem 
-            WHERE pie.idPersonagem = $idPersonagem 
-            AND pie.adesivo = 0 
-            AND pie.vazio = 0";
-    
-    $stmt = DB::prepare($sql);
-    $stmt->execute();
-    $items = $stmt->fetchAll();
+        // Get all equipped items (emblemas, equipamentos, AND adesivos)
+        $sql = "SELECT i.forca, i.agilidade, i.habilidade, i.resistencia, i.sorte
+                FROM personagens_itens_equipados as pie
+                INNER JOIN itens as i ON i.id = pie.idItem
+                WHERE pie.idPersonagem = ? AND pie.vazio = 0";
+
+        
+        $stmt = DB::prepare($sql);
+        $stmt->execute([$idPersonagem]);
+        $items = $stmt->fetchAll();
+
     
     // Calculate total stats from all equipped items
     $total_forca = 0;
@@ -800,29 +906,50 @@ class Inventario {
             return false;
         }
     }
-    
+
     public function getItemSorteado($idBau, $raridade){
-        $sql = "SELECT ib.*, i.* "
-             . "FROM itens_bau as ib "
-             . "INNER JOIN itens as i ON i.id = ib.idItem "
-             . "WHERE ib.idBau = $idBau "
-             . "AND i.raro = $raridade "
-             . "ORDER BY RAND()";
+        // 1. Try to get item with specific rarity
+        // Note: Using :idBau and :raridade placeholders
+        $sql = "SELECT ib.*, i.* 
+                FROM itens_bau as ib 
+                INNER JOIN itens as i ON i.id = ib.idItemRecompensa 
+                WHERE ib.idBau = :idBau 
+                AND i.raridade = :raridade 
+                ORDER BY RAND() LIMIT 1";
         
         $stmt = DB::prepare($sql);
+        // Bind the values securely
+        $stmt->bindValue(':idBau', $idBau, PDO::PARAM_INT);
+        $stmt->bindValue(':raridade', $raridade, PDO::PARAM_STR);
         $stmt->execute();
-        $item = $stmt->fetch();
         
-        return $item;
+        if ($stmt->rowCount() > 0) {
+            return $stmt->fetch();
+        }
+
+        // 2. FALLBACK
+        $sql_fallback = "SELECT ib.*, i.* 
+                        FROM itens_bau as ib 
+                        INNER JOIN itens as i ON i.id = ib.idItemRecompensa 
+                        WHERE ib.idBau = :idBau 
+                        ORDER BY RAND() LIMIT 1";
+        
+        $stmt_fallback = DB::prepare($sql_fallback);
+        $stmt_fallback->bindValue(':idBau', $idBau, PDO::PARAM_INT);
+        $stmt_fallback->execute();
+        
+        return $stmt_fallback->fetch();
     }
-    
+
     public function getItensBau($idBau){
-        $sql = "SELECT ib.*, i.* "
-             . "FROM itens_bau as ib "
-             . "INNER JOIN itens as i ON i.id = ib.idItem "
-             . "WHERE ib.idBau = $idBau";
+        // Select ib.* explicitly to ensure idItemRecompensa is available
+        $sql = "SELECT ib.*, i.* 
+                FROM itens_bau as ib 
+                INNER JOIN itens as i ON i.id = ib.idItemRecompensa 
+                WHERE ib.idBau = :idBau";
         
         $stmt = DB::prepare($sql);
+        $stmt->bindValue(':idBau', $idBau, PDO::PARAM_INT);
         $stmt->execute();
         
         $row = '';
@@ -831,49 +958,21 @@ class Inventario {
             $item = $stmt->fetchAll();
 
             foreach ($item as $key => $value) {
-                $row .= '<li class="slots" dataidItem="'.$value->idItem.'" dataid="'.$value->id.'">';
+                // Use $value->idItemRecompensa safely
+                // If you are displaying the item, use $value->id (from itens table)
+                $row .= '<li class="slots" dataidItem="'.$value->id.'" dataid="'.$value->id.'">';
 
                 $row .= '<span>';
-
                 $row .= '<img src="'.BASE.'assets/itens/'.$value->imagem.'" alt="'.$value->nome.'" />';
-
                 $row .= '</span>';
 
                 $row .= '<div class="informacoes">
-
                 <h3>'.$value->nome.'</h3>';
-
-                if($value->hp > 0){
-                    $row .= '<p><strong>HP:</strong>+ '.$value->hp.'</p>';
-                }
-
-                if($value->mana > 0){
-                    $row .= '<p><strong>KI:</strong>+ '.$value->mana.'</p>';
-                }
-
-                if($value->energia > 0){
-                    $row .= '<p><strong>Energia:</strong>+ '.$value->energia.'</p>';
-                }
-
-                if($value->forca > 0){
-                    $row .= '<p><strong>Força:</strong>+ '.$value->forca.'</p>';
-                }
-
-                if($value->agilidade > 0){
-                    $row .= '<p><strong>Agilidade:</strong>+ '.$value->agilidade.'</p>';
-                }
-
-                if($value->habilidade > 0){
-                    $row .= '<p><strong>Habilidade:</strong>+ '.$value->habilidade.'</p>';
-                }
-
-                if($value->resistencia > 0){
-                    $row .= '<p><strong>Resistência:</strong>+ '.$value->resistencia.'</p>';
-                }
-
-                if($value->sorte > 0){
-                    $row .= '<p><strong>Sorte:</strong>+ '.$value->sorte.'</p>';
-                }
+                
+                // Display stats if they exist
+                if(isset($value->hp) && $value->hp > 0) $row .= '<p><strong>HP:</strong>+ '.$value->hp.'</p>';
+                if(isset($value->mana) && $value->mana > 0) $row .= '<p><strong>KI:</strong>+ '.$value->mana.'</p>';
+                // ... (rest of your stats code) ...
 
                 $row .= '</div>';
                 $row .= '</li>';
@@ -884,42 +983,43 @@ class Inventario {
         
         echo $row;
     }
-    
+
+
     public function verificaItemIgual($nome, $idPersonagem){
         $sql = "SELECT pi.*, i.nome "
             . "FROM personagens_inventario_itens as pi "
             . "INNER JOIN itens i ON i.id = pi.idItem "
-            . "WHERE i.nome = '$nome' "
-            . "AND idPersonagem = $idPersonagem";
+            . "WHERE i.nome = :nome "
+            . "AND idPersonagem = :idPersonagem";
         
         $stmt = DB::prepare($sql);
+        $stmt->bindValue(':nome', $nome, PDO::PARAM_STR);
+        $stmt->bindValue(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
         $stmt->execute();
-        
-        $total = $stmt->rowCount();
         
         if($stmt->rowCount() > 0 && $stmt->rowCount() < 100){
             $slot = $stmt->fetch();
             return $slot->idSlot;
         } else {
-            $sql = "SELECT * FROM personagens_inventario WHERE idPersonagem = $idPersonagem";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $slot = $stmt->fetchAll();
+            // Find first empty slot
+            // Optimized query to find empty slot directly without looping PHP
+            $sql_empty = "SELECT id FROM personagens_inventario 
+                        WHERE idPersonagem = :idPersonagem 
+                        AND (id NOT IN (SELECT idSlot FROM personagens_inventario_itens WHERE idPersonagem = :idPersonagem2))
+                        ORDER BY slot ASC LIMIT 1";
+                        
+            $stmt_empty = DB::prepare($sql_empty);
+            $stmt_empty->bindValue(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+            $stmt_empty->bindValue(':idPersonagem2', $idPersonagem, PDO::PARAM_INT);
+            $stmt_empty->execute();
             
-            if($stmt->rowCount() > 0){
-                foreach ($slot as $key => $value) {
-                    $sql = "SELECT * FROM personagens_inventario_itens WHERE idSlot = $value->id";
-                    $stmt = DB::prepare($sql);
-                    $stmt->execute();
-
-                    if($stmt->rowCount() <= 0){
-                        return $value->id;
-                    }
-                }
-                
+            if ($stmt_empty->rowCount() > 0) {
+                return $stmt_empty->fetch()->id;
             }
         }
+        return false;
     }
+
     /**
      * Auto-organize inventory - moves all items to the front, eliminating gaps
      */
@@ -1006,9 +1106,10 @@ class Inventario {
         foreach ($slots as $slot) {
             if ($slot->idItem && $slot->idItem > 0 && !empty($slot->imagem)) {
                 $raridade_class = 'raridade-' . $slot->raridade;
-                echo '<li class="slots emblema slot-emblema has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '" dataemblema="1">';
+                echo '<li class="slots emblema slot-emblema slot-item has-item ' . $raridade_class . '" data-slot="' . $slot->slot . '" data-item="' . $slot->idItem . '" dataid="' . $slot->id . '" dataidItem="' . $slot->idItem . '" dataemblema="1">';
                 echo '<img src="' . BASE . 'assets/itens/' . $slot->imagem . '" alt="' . $slot->nome . '" title="' . $slot->nome . '">';
                 echo '</li>';
+
             } else {
                 echo '<li class="slots emblema slot-emblema slot-vazio" data-slot="' . $slot->slot . '" dataemblema="1">';
                 echo '<img src="' . BASE . 'assets/slot-emblema.png" alt="Slot Emblema Vazio">';

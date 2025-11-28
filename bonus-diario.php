@@ -194,6 +194,19 @@ function updateCountdown() {
 
 // Update every second
 setInterval(updateCountdown, 1000);
+
+// 2. AUTO SCROLL SCRIPT
+document.addEventListener("DOMContentLoaded", function() {
+    // == CHANGE THIS VALUE TO SCROLL MORE OR LESS ==
+    const pixelsToScroll = 520; 
+    // ==============================================
+
+    // Scroll the window down
+    window.scrollTo({
+        top: pixelsToScroll,
+        behavior: "smooth"
+    });
+});
 </script>
 
 <style>
@@ -227,4 +240,152 @@ setInterval(updateCountdown, 1000);
     font-family: 'Courier New', monospace;
     margin-left: 5px;
 }
+
+/* --- MODERN DAILY BONUS STYLE (Targets existing HTML) --- */
+
+/* 1. Grid Layout for the List */
+ul.dias-lista {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    list-style: none;
+    margin: 0 auto;
+    max-width: 1100px;
+}
+
+/* 2. Card Style (The 'li' elements) */
+ul.dias-lista li {
+    background: linear-gradient(145deg, #1a1c24 0%, #121318 100%);
+    border: 1px solid #2a2d35;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px; /* Uniform height */
+}
+
+/* Hover Effect: Lift Up */
+ul.dias-lista li:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.5), 0 0 15px rgba(0, 200, 255, 0.1);
+    border-color: #4a90e2;
+    z-index: 10;
+}
+
+/* 3. Day Title (h3 or strong inside li) */
+ul.dias-lista li h3, 
+ul.dias-lista li strong {
+    color: #4a90e2;
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    display: block;
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+/* 4. Images */
+ul.dias-lista li img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    margin: 10px auto;
+    filter: drop-shadow(0 5px 10px rgba(0,0,0,0.5));
+    transition: transform 0.5s ease;
+}
+
+ul.dias-lista li:hover img {
+    transform: scale(1.15) rotate(5deg);
+    filter: drop-shadow(0 8px 15px rgba(74, 144, 226, 0.4));
+}
+
+/* 5. Reward Text (p tag) */
+ul.dias-lista li p {
+    color: #aaa;
+    font-size: 13px;
+    margin: 10px 0;
+    min-height: 40px; /* align buttons */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 6. Buttons (Forms and Inputs) */
+ul.dias-lista li form {
+    width: 100%;
+    margin-top: auto;
+}
+
+ul.dias-lista li button, 
+ul.dias-lista li input[type="submit"],
+ul.dias-lista li .btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 10px;
+    background: #333;
+    color: #fff;
+}
+
+/* === THEME 2: DIVINE GOLD === */
+body#bonus-diario { background: radial-gradient(circle at center, #2b2000, #000); }
+
+ul.dias-lista {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; list-style: none; max-width: 1100px; margin: 0 auto;
+}
+
+ul.dias-lista li {
+    background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+    border: 1px solid #665500;
+    border-top: 3px solid #ffd700; /* Golden Top Bar */
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: 0.4s;
+}
+
+/* Shine Effect on Hover */
+ul.dias-lista li::before {
+    content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    transition: 0.5s;
+}
+ul.dias-lista li:hover::before { left: 100%; }
+
+ul.dias-lista li:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+}
+
+/* Titles */
+ul.dias-lista li h3 {
+    background: -webkit-linear-gradient(#ffd700, #bf953f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+/* Available Button */
+ul.dias-lista li button:not(.indisponivel):not(.coletado) {
+    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    color: #000; font-weight: bold; border: 1px solid #fff;
+    box-shadow: 0 0 15px #b8860b;
+}
+
+
 </style>

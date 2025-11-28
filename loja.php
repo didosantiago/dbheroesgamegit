@@ -82,7 +82,7 @@
         $loja->marcarFotoLoja($listaAnuncios->id);
     }
 ?>
-
+<div class="loja-de-itens-banner"></div>
 <ul class="menu-loja">
     <li>
         <a href="<?php echo BASE; ?>portal">Voltar ao Jogo</a>

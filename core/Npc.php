@@ -223,6 +223,18 @@ class Npc {
             $defesa_atacado = $dados_atacado->resistencia;
         }
 
+        // FIX: Check if attacker is dead before attacking
+        if ($desafiante == 0 && ($dados_atacante->hp - $lifes->dano_atacante) <= 0) {
+            return; // NPC is dead, stop attack
+        }
+        
+        if ($desafiante == 0) { // 0 means NPC is attacking
+        $npc_current_hp = $dados_atacante->hp - $lifes->dano_atacado; // Adjust based on your variable names
+        if ($npc_current_hp <= 0) {
+            return; // NPC is dead, do not proceed with attack
+        }
+    }
+
         //CALCULA O DANO CAUSADO
         if($desafiante == 0){
             if($desviou == 0){

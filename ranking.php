@@ -21,8 +21,8 @@
         <select name="planeta" id="planeta">
             <option disabled selected>Selecione</option>
             <option value="1">Terra</option>
-            <option value="2">Vegeta</option>
-            <option value="3">Namekusei</option>
+            <option value="2">Namekusei</option>
+            <option value="3">Vegeta</option>
         </select>
     </div>
     

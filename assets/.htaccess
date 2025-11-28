@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /dbheroes/
+
+# If the request is a real file or directory, serve it directly
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Otherwise, redirect to index.php
+RewriteRule . index.php [L]
+
+php_value memory_limit 128M
+php_value upload_max_filesize 64M
+php_value post_max_size 64M

@@ -2654,17 +2654,30 @@ body.meus-personagens .lista-meus-personagens {
   display: block;
 }
 
-.kame-bank-banner {
+.banco-shenlong-banner {
   width: 100%;
   max-width: 950px;       /* Or your desired max */
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/kame-bank.png") center center no-repeat;
+  background: url("../assets/banners/banco-shenlong.png") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
 }
+
+.loja-de-itens-banner {
+  width: 100%;
+  max-width: 1250px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/loja-de-itens.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
 
 .seja-vip-banner {
   width: 100%;
@@ -4274,7 +4287,7 @@ body.publico .infos-guerreiro .foto .painel-guerreiro {
 }
 
 body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico {
-  margin: 20px auto;
+  margin: 40px auto;
   text-align: center;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -4349,6 +4362,7 @@ body.publico .infos-guerreiro .foto .painel-guerreiro .slots-adsivos li {
   cursor: pointer;
   position: relative;
   background: url("slot-amarelo.png") no-repeat
+
 }
 
 body.publico .infos-guerreiro .foto .painel-guerreiro .slots-adsivos li:hover .informacoes {
@@ -4641,7 +4655,7 @@ body.publico .status li p {
   vertical-align: middle;
   width: 55%;
   padding-right: 0px;
-  text-align: right;
+  text-align: left;
   color: #FFF
 }
 
@@ -5678,7 +5692,8 @@ body.bau .conteudo .box-inventario .content-inventory .itens .imagem-bau img {
   display: inline-block;
   vertical-align: middle;
   margin-right: 10px;
-  width: 200px
+  width: 71px
+
 }
 
 body.bau .conteudo .box-inventario .content-inventory .itens .imagem-bau h2 {
@@ -5686,10 +5701,12 @@ body.bau .conteudo .box-inventario .content-inventory .itens .imagem-bau h2 {
   vertical-align: middle;
   width: auto;
   margin: 0;
-  color: #4f4e4e;
+  color: #9eff34;
   text-transform: uppercase;
   text-align: center;
   font-weight: 500;
+  font-family: 'Bungee', cursive;
+  font-size: 28 px;
   letter-spacing: 2px
 }
 
@@ -7517,7 +7534,7 @@ body.minhas-fotos .fotos-personagem li {
   width: 232px;
   height: 232px;
   padding: 5px;
-  margin: 0 5px 10px 5px;
+  margin: 0 10px 15px 5px;
   background: #555;
   cursor: pointer;
   position: relative;
@@ -14198,7 +14215,7 @@ body.bonus-diario .dias-lista li {
   display: inline-block;
   vertical-align: top;
   width: 200px;
-  height: 340px;
+  height: 220px;
   padding: 10px;
   margin: 0 5px 10px 5px;
   border: 1px solid #314660;
@@ -14240,7 +14257,7 @@ body.bonus-diario .dias-lista li h3 {
   height: 40px;
   text-align: center;
   color: #FFFFFF;
-  font-size: 16px;
+  font-size: 12px;
   font-weight: normal;
   line-height: 20px;
   margin: 0 0 10px 0
@@ -14254,7 +14271,6 @@ body.bonus-diario .dias-lista li input[type="submit"] {
   background: #ce000d;
   color: #FFF;
   text-align: center;
-  line-height: 50px;
   text-transform: uppercase;
   font-size: 16px;
   cursor: initial;
@@ -22050,9 +22066,9 @@ main > div > div i {
 
 /* 8. EQUIPES - Teal Users */
 .conteudo i[class*="users"],
-.conteudo .fa-users {
+.conteudo .fa-archive {
     color: #8fff45 !important;
-    font-size: 80px !important;
+    font-size: 60px !important;
     display: block !important;
     margin: 20px auto 10px auto !important;
 }
@@ -22322,14 +22338,6 @@ button i,
 /* Fix all NPC/tournament buttons */
 
 
-/* Icons in tournament buttons */
-.torneio button i,
-.torneio a i,
-.npc-battle button i,
-.npc-battle a i {
-    font-size: 14px !important;
-    margin-right: 5px !important;
-}
 
 
 /* ========================================
@@ -22643,10 +22651,12 @@ table tbody tr:hover {
 }
 
 .slots.equipped img {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
+   display: block;
+    width: 71px;
+    height: 71px;
+    cursor: pointer;
+    position: relative;
+    background: url("slot-equipado.png") no-repeat
 }
 
 /* Remove any background color overrides */
@@ -22977,3 +22987,15 @@ body.banco .conteudo .title i {
   min-width: 180px;
   max-width: 240px;
 }
+
+
+.box-inventario .content-inventory .error {
+    text-align: center !important;
+    display: block !important;
+    color: red;
+    width: 100% !important;
+    margin: 10px 0 20px 0 !important;
+    clear: both;
+}
+
+

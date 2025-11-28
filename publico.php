@@ -1,53 +1,74 @@
 <?php 
-    if(!isset($_SESSION['PERSONAGEMID'])){
-        header('Location: '.BASE.'portal');
+    ini_set('display_errors', 1);
+    ini_set('display_startup_errors', 1);
+    error_reporting(E_ALL);
+
+    // Precisa estar logado
+    if (!isset($_SESSION['PERSONAGEMID'])) {
+        header('Location: ' . BASE . 'portal');
+        exit;
     }
 
-    if(Url::getURL(1) != null){
-        if(Url::getURL(1) != 'ajax'){
-            $idPersonagem = Url::getURL(1);
-            $idUserP = $core->getDados('usuarios_personagens', 'WHERE id = '.$idPersonagem);
+    // ID vindo da URL: /publico/ID
+    $url_param = Url::getURL(1);
+
+    if ($url_param !== null && is_numeric($url_param)) {
+        $idPersonagem = (int)$url_param;
+
+        // Confirma se o personagem existe
+        $idUserP = $core->getDados('usuarios_personagens', 'WHERE id = '.$idPersonagem);
+        if (!$idUserP) {
+            $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
         }
     } else {
-        $idPersonagem = $_SESSION['PERSONAGEMID'];
+        // Se não tiver ID válido na URL, mostra o próprio personagem logado
+        $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
     }
 
+    // Carrega dados do personagem
     $personagem->getGuerreiro($idPersonagem);
-    $dadosUser = $core->getDados('usuarios', 'WHERE id = '.$personagem->idUsuario);
 
-    //STATUS EXTRA DAS EQUIPES
-    $status_extra = intval($equipes->getStatusExtra($personagem->id));
-    $status_extra_graduacao = intval($core->getStatusGraduacao($personagem->graduacao_id));
-    $status_equipados = $inventario->getStatusEquipados($personagem->id);
+    if (empty($personagem->idUsuario)) {
+        echo "Erro: Personagem não encontrado.";
+        exit;
+    }
 
-    $forca_equipados = intval($status_equipados['forca']);
-    $agilidade_equipados = intval($status_equipados['agilidade']);
-    $habilidade_equipados = intval($status_equipados['habilidade']);
-    $resistencia_equipados = intval($status_equipados['resistencia']);
-    $sorte_equipados = intval($status_equipados['sorte']);
+    $dadosUser = $core->getDados('usuarios', 'WHERE id = ' . $personagem->idUsuario);
 
-    $forca = $personagem->forca + $status_extra + $status_extra_graduacao + $forca_equipados;
-    $agilidade = $personagem->agilidade + $status_extra + $status_extra_graduacao + $agilidade_equipados;
-    $habilidade = $personagem->habilidade + $status_extra + $status_extra_graduacao + $habilidade_equipados;
+    // STATUS EXTRA DAS EQUIPES
+    $status_extra           = (int)$equipes->getStatusExtra($personagem->id);
+    $status_extra_graduacao = (int)$core->getStatusGraduacao($personagem->graduacao_id);
+    $status_equipados       = $inventario->getStatusEquipados($personagem->id);
+
+    $forca_equipados        = (int)$status_equipados['forca'];
+    $agilidade_equipados    = (int)$status_equipados['agilidade'];
+    $habilidade_equipados   = (int)$status_equipados['habilidade'];
+    $resistencia_equipados  = (int)$status_equipados['resistencia'];
+    $sorte_equipados        = (int)$status_equipados['sorte'];
+
+    $forca       = $personagem->forca       + $status_extra + $status_extra_graduacao + $forca_equipados;
+    $agilidade   = $personagem->agilidade   + $status_extra + $status_extra_graduacao + $agilidade_equipados;
+    $habilidade  = $personagem->habilidade  + $status_extra + $status_extra_graduacao + $habilidade_equipados;
     $resistencia = $personagem->resistencia + $status_extra + $status_extra_graduacao + $resistencia_equipados;
-    $sorte = $personagem->sorte + $status_extra + $status_extra_graduacao + $sorte_equipados;
+    $sorte       = $personagem->sorte       + $status_extra + $status_extra_graduacao + $sorte_equipados;
 
-    $porcentagem_forca = $treino->getPorcentagemForca($forca, $agilidade, $habilidade, $resistencia, $sorte);
-    $porcentagem_agilidade = $treino->getPorcentagemAgilidade($forca, $agilidade, $habilidade, $resistencia, $sorte);
-    $porcentagem_habilidade = $treino->getPorcentagemHabilidade($forca, $agilidade, $habilidade, $resistencia, $sorte);
+    $porcentagem_forca       = $treino->getPorcentagemForca($forca, $agilidade, $habilidade, $resistencia, $sorte);
+    $porcentagem_agilidade   = $treino->getPorcentagemAgilidade($forca, $agilidade, $habilidade, $resistencia, $sorte);
+    $porcentagem_habilidade  = $treino->getPorcentagemHabilidade($forca, $agilidade, $habilidade, $resistencia, $sorte);
     $porcentagem_resistencia = $treino->getPorcentagemResistencia($forca, $agilidade, $habilidade, $resistencia, $sorte);
-    $porcentagem_sorte = $treino->getPorcentagemSorte($forca, $agilidade, $habilidade, $resistencia, $sorte);
+    $porcentagem_sorte       = $treino->getPorcentagemSorte($forca, $agilidade, $habilidade, $resistencia, $sorte);
 
-    if(isset($_POST['adicionar'])){
-        if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], Url::getURL(1))){
-            if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], Url::getURL(1))){
+    // Amizades
+    if (isset($_POST['adicionar'])) {
+        if (!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)) {
+            if (!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)) {
                 $campos = array(
                     'idPersonagem' => $_SESSION['PERSONAGEMID'],
-                    'idAmigo' => Url::getURL(1)
+                    'idAmigo'      => $idPersonagem
                 );
-                if($core->insert('personagens_amigos', $campos)){
+                if ($core->insert('personagens_amigos', $campos)) {
                     $core->msg('sucesso', 'Adicionado aos Amigos.');
-                    header('Location: '.BASE.'amigos');
+                    header('Location: ' . BASE . 'amigos');
                 } else {
                     $core->msg('error', 'Erro ao adicionar aos Amigos.');
                 }
@@ -55,18 +76,18 @@
                 $core->msg('error', 'Já existe uma solicitação de amizade pendente.');
             }
         } else {
-            $core->msg('error', 'Este amigo já esta em sua lista.');
+            $core->msg('error', 'Este amigo já está em sua lista.');
         }
     }
 
-    if(isset($_POST['desfazer'])){
-        if($core->isExists('personagens_amigos', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND idAmigo = '.$idPersonagem)){
-            $core->delete('personagens_amigos', "idPersonagem = ".$_SESSION['PERSONAGEMID']." AND idAmigo = ".$idPersonagem);
+    if (isset($_POST['desfazer'])) {
+        if ($core->isExists('personagens_amigos', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND idAmigo = '.$idPersonagem)) {
+            $core->delete('personagens_amigos', 'idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND idAmigo = '.$idPersonagem);
             $core->msg('sucesso', 'Removido da Lista de Amigos.');
         }
 
-        if($core->isExists('personagens_amigos', 'WHERE idAmigo = '.$idPersonagem.' AND idAmigo = '.$_SESSION['PERSONAGEMID'])){
-            $core->delete('personagens_amigos', "idAmigo = ".$idPersonagem." AND idAmigo = ".$_SESSION['PERSONAGEMID']);
+        if ($core->isExists('personagens_amigos', 'WHERE idAmigo = '.$idPersonagem.' AND idAmigo = '.$_SESSION['PERSONAGEMID'])) {
+            $core->delete('personagens_amigos', 'idAmigo = '.$idPersonagem.' AND idAmigo = '.$_SESSION['PERSONAGEMID']);
             $core->msg('sucesso', 'Removido da Lista de Amigos.');
         }
     }
@@ -102,7 +123,7 @@
             </li>
             <li class="alter">
                 <?php 
-                    if($personagem->nivel > 1){
+                    if ($personagem->nivel > 1) {
                         $nivel_hp = 100 + ((intval($personagem->nivel) - 1) * 50);
                     } else {
                         $nivel_hp = 100;
@@ -111,7 +132,7 @@
                 <div class="titulo-coluna">HP</div>
                 <div class="resultado-coluna campo-vip">
                 <?php 
-                    if($user->vip == 1){
+                    if ($user->vip == 1) {
                         echo $personagem->hp.'/'.$nivel_hp;
                     } else {
                         echo '(Somente VIP)';
@@ -123,7 +144,7 @@
                 <div class="titulo-coluna">Energia</div>
                 <div class="resultado-coluna campo-vip">
                 <?php 
-                    if($user->vip == 1){
+                    if ($user->vip == 1) {
                         echo $personagem->energia - $personagem->energia_usada.'/'.$personagem->energia;
                     } else {
                         echo '(Somente VIP)';
@@ -135,7 +156,7 @@
                 <div class="titulo-coluna">KI</div>
                 <div class="resultado-coluna campo-vip">
                 <?php 
-                    if($user->vip == 1){
+                    if ($user->vip == 1) {
                         echo $personagem->mana - $personagem->ki_usado.'/'.$personagem->mana;
                     } else {
                         echo '(Somente VIP)';
@@ -151,7 +172,7 @@
                 <div class="titulo-coluna">Gold em Mãos</div>
                 <div class="resultado-coluna campo-vip">
                 <?php 
-                    if($user->vip == 1){
+                    if ($user->vip == 1) {
                         echo $personagem->gold;
                     } else {
                         echo '(Somente VIP)';
@@ -185,6 +206,7 @@
             </li>
         </ul>
     </div>
+
     <div class="foto">
         <?php if($equipes->existsInEquipe($personagem->id)){ ?>
             <?php $dadosEquipe = $equipes->printEquipe($personagem->id); ?>
@@ -202,8 +224,8 @@
         <div class="painel-guerreiro">
             <ul class="botoes-publico">
 <?php if(!$personagem->verificaPersonagem($idPersonagem, $user->id)){ ?>
-    <?php if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], Url::getURL(1))){ ?>
-        <?php if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], Url::getURL(1))){ ?>
+    <?php if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
+        <?php if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
             <li>
                 <form id="AdicionarAmigo" method="post">
                     <input type="hidden" name="adicionar" value="" />
@@ -241,8 +263,6 @@
 <?php } ?>
 </ul>
 
-                <!-- ... your button forms ... -->
-            </ul>
             <div class="profile-character-wrapper" 
                 style="border: 4px solid #7bff00ff;
                 border-radius: 18px;
@@ -257,18 +277,15 @@
                 <div class="foto-principal" style="margin: 0 17px;">
                     <?php $ft = str_replace('cards/', '', $personagem->foto); ?>
                     <div class="profile-picture-frame" style="position:relative; width:300px; height:300px; margin:0 auto;">
-                        <!-- Your profile image -->
                         <img src="<?php echo BASE.'assets/cards/'.$ft; ?>" 
                             class="ft-guerreiro" 
                             alt="<?php echo $personagem->nome; ?>" 
                             style="width:100%; height:100%; object-fit:cover; z-index:1; position:relative;" />
-                        <!-- The border overlay -->
-                        <img src="<?php echo BASE.'assets/borders/border-001.png'; ?>" 
+                        <img src="<?php echo BASE.'assets/borders/1000180173.png'; ?>" 
                             class="profile-border" 
                             alt="profile border" 
-                            style="position:absolute; left:-50px; top:-75px; width:400px; height:430px; z-index:2; pointer-events:none;" />
+                            style="position:absolute; left:-50px; top:-76px; width:400px; height:430px; z-index:2; pointer-events:none;" />
                     </div>
-                    <!-- Graduation and status as before -->
                     <div class="graduacao-patente">
                         <div class="graduacao_img">
                             <h3 class="personagem-nome"><?php echo $personagem->nome; ?></h3>
@@ -289,7 +306,6 @@
                     </div>
                 </div>
 
-
                 <ul class="slots-adesivos-right slots-adsivos" style="display: flex; flex-direction: column; gap: 5px;">
     
                 </ul>
@@ -307,43 +323,44 @@
             <li>
                 <p>Aumenta o dano nos ataques do seu guerreiro</p>
                 <div class="meter animate <?php $treino->setCorBarra($porcentagem_forca); ?>">
-                    <em>Força <?php echo $personagem->forca + $forca_equipados + $status_extra + $status_extra_graduacao; ?></em>
+                    <em>FORÇA <?php echo $personagem->forca; ?></em>
                     <span style="width: <?php echo $porcentagem_forca; ?>%"><span></span></span>
                 </div>
-                <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+                <em style="color: #5b5;">+ [<?php echo $forca_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
             <li>
                 <p>Aumenta taxa de desvio contra o ataque de um inimigo</p>
                 <div class="meter animate <?php $treino->setCorBarra($porcentagem_agilidade); ?>">
-                    <em>Agilidade <?php echo $personagem->agilidade + $agilidade_equipados + $status_extra + $status_extra_graduacao; ?></em>
+                    <em>AGILIDADE <?php echo $personagem->agilidade; ?></em>
                     <span style="width: <?php echo $porcentagem_agilidade; ?>%"><span></span></span>
                 </div>
-                <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+                <em style="color: #5b5;">+ [<?php echo $agilidade_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
             <li>
                 <p>Aumenta a chance em acerto de ataques críticos</p>
                 <div class="meter animate <?php $treino->setCorBarra($porcentagem_habilidade); ?>">
-                    <em>Habilidade <?php echo $personagem->habilidade + $habilidade_equipados + $status_extra + $status_extra_graduacao; ?></em>
+                    <em>HABILIDADE <?php echo $personagem->habilidade; ?></em>
                     <span style="width: <?php echo $porcentagem_habilidade; ?>%"><span></span></span>
                 </div>
-                <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+                <em style="color: #5b5;">+ [<?php echo $habilidade_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
             <li>
                 <p>Aumenta sua resistência a ataques</p>
                 <div class="meter animate <?php $treino->setCorBarra($porcentagem_resistencia); ?>">
-                    <em>Resistência <?php echo $personagem->resistencia + $resistencia_equipados + $status_extra + $status_extra_graduacao; ?></em>
+                    <em>RESISTÊNCIA <?php echo $personagem->resistencia; ?></em>
                     <span style="width: <?php echo $porcentagem_resistencia; ?>%"><span></span></span>
                 </div>
-                <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+                <em style="color: #5b5;">+ [<?php echo $resistencia_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
             <li>
                 <p>Este atributo te dara sorte extra em cair baús nas Missões</p>
                 <div class="meter animate <?php $treino->setCorBarra($porcentagem_sorte); ?>">
-                    <em>Sorte <?php echo $personagem->sorte + $sorte_equipados + $status_extra + $status_extra_graduacao; ?></em>
+                    <em>SORTE <?php echo $personagem->sorte; ?></em>
                     <span style="width: <?php echo $porcentagem_sorte; ?>%"><span></span></span>
                 </div>
-                <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+                <em style="color: #5b5;">+ [<?php echo $sorte_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
+
         </ul>
     </div>
     <!-- EQUIPADOS COLUMN -->
@@ -400,7 +417,8 @@
                             $bg = 'url('.BASE.'assets/slot-amarelo.png)';
                             if($ad->vazio == 0 && $ad->idItem > 0){
                                 echo '<li style="width: 71px; height: 71px; background-image: '.$bg.'; background-size: cover; position: relative;" class="raridade-'.$ad->raridade.'">';
-                                echo '<img src="'.BASE.'assets/itens/'.$ad->imagem.'" width="100%" height="100%" style="object-fit: contain;">';
+                                $img = !empty($ad->imagem) ? $ad->imagem : 'sem-imagem.png';
+                                echo '<img src="'.BASE.'assets/itens/'.$img.'" width="100%" height="100%" style="object-fit: contain;">';
                                 echo '</li>';
                             } else {
                                 echo '<li style="width: 71px; height: 71px; background-image: '.$bg.'; background-size: cover;"></li>';
@@ -421,3 +439,15 @@
     <h2>Estatísticas de Missões</h2>
     <?php echo $missoes->getCountMissoes($personagem->id); ?>
 </ul>
+
+<script>
+// === 2. AUTO SCROLL SCRIPT ===
+// Scroll down 520px on page load
+// =============================
+const pixelsToScroll = 350; 
+window.scrollTo({
+    top: pixelsToScroll,
+    behavior: "smooth"
+});
+
+</script>

@@ -231,6 +231,11 @@ if(isset($_SESSION['error_message'])) {
     border-color: #ff4444;
     transform: rotate(90deg) scale(1.1);
 }
+
+
+
+
+
 </style>
 
 <script>

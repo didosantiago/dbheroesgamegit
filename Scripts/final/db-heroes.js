@@ -379,14 +379,14 @@ DBH.common = {
         };  
     },
     audioTema = function(){
-//        $(document).on('click', '#playTema', function(){
-//            console.log('cliquei');
-//            document.getElementById("intro").volume-=0.9;
-//
-//            var x = document.getElementById("intro"); 
-//
-//            x.play(); 
-//        }); 
+        $(document).on('click', '#playTema', function(){
+            console.log('cliquei');
+            document.getElementById("intro").volume-=0.9;
+
+            var x = document.getElementById("intro"); 
+
+            x.play(); 
+        }); 
     },
     playTema = function(){
         $('#playTema').trigger('click');
@@ -516,6 +516,59 @@ DBH.common = {
     }
 },
 
+
+    // ==================================================
+    // FIX: BATTLE ATTACK HANDLER (Prevents Page Refresh)
+    // ==================================================
+    $(document).on('submit', '.form-ataque', function(e) {
+        e.preventDefault(); // 🛑 THIS STOPS THE PAGE REFRESH
+        
+        var form = $(this);
+        var btn = form.find('.bt-atacar');
+        
+        // Prevent double clicks
+        if(btn.prop('disabled')) return false;
+        btn.prop('disabled', true);
+        
+        var idAtack = form.find('input[name="idAtack"]').val();
+        var estado = form.find('input[name="estado"]').val();
+        
+        // Determine if PVP or NPC battle
+        var isPvp = $('body').hasClass('combate');
+        var url = isPvp ? 'ajax/ajaxAtacar.php' : 'ajax/ajaxAtacarNPC.php';
+        
+        // Fix URL path if needed
+        var baseSite = $('#baseSite').val();
+        if (baseSite && url.indexOf(baseSite) === -1) {
+            url = baseSite + url;
+        }
+
+        // Get battle data
+        var idOponente = $('#idOponente').val();
+        
+        $.ajax({
+            type: 'POST',
+            url: url,
+            data: {
+                idAtack: idAtack,
+                estado: estado,
+                idGuerreiro: idOponente
+            },
+            success: function(res) {
+                // Update battle log and status bars without refreshing
+                if(isPvp) {
+                    startCountdownPVP(res);
+                } else {
+                    startCountdownNPC(res); // or update logic for NPC
+                    location.reload(); // Temporary fix to show updated HP/Logs
+                }
+            },
+            error: function(err) {
+                console.error("Erro no ataque:", err);
+                btn.prop('disabled', false);
+            }
+        });
+    });
 
 
 

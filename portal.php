@@ -176,10 +176,10 @@
         </a>
     </li>
     <li class="h-mobile">
-        <a href="<?php echo BASE; ?>equipes">
-            <i class="fas fa-users"></i>
-            <span>Equipes</span>
-            <p>Crie ou participe de Equipes e aumente seus Atributos</p>
+        <a href="<?php echo BASE; ?>inventario">
+            <i class="fas fa-archive"></i>
+            <span>Inventário</span>
+            <p>Acesso ao seus itens em seu inventário</p>
         </a>
     </li>
 </ul>
