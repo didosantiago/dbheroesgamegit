@@ -1,13 +1,14 @@
 DBH.npc = (function() {
+    var attackInitiated = false; // ✅ ADD THIS FLAG
+    
     var init = function() {
         if($('body').hasClass('npc')){
             verificaNPC();
             verificaAtaque();
             combateLog();
-
-
         }
     },
+    // ... rest of the code
     verificaNPC = function() {
         var id = $('#personagemLogged').val();
         var data_string = 'id=' + id;
@@ -30,10 +31,11 @@ DBH.npc = (function() {
             }
         });
     },
+    
+
     startCountdownNPC = function(tempo){
         // Se o tempo não for zerado
         if(tempo > 0){
-            
             var min = parseInt(tempo/60);
             var horas = parseInt(min/60);
             min = min % 60;
@@ -55,8 +57,8 @@ DBH.npc = (function() {
 
             // Cria a variável para formatar no estilo hora/cronômetro
             horaImprimivel = min + ':' + seg;
-            //JQuery pra setar o valor
             
+            //JQuery pra setar o valor
             if($('.npc-vitoria').length > 0 || $('.npc-derrota').length > 0){
                 $(".contador-batalha .cronometro").html('00:00');
             } else {
@@ -71,17 +73,18 @@ DBH.npc = (function() {
             }, 1000);
 
         } else {
+            // ✅ TIMER REACHED 0
             $(".contador-batalha .cronometro").html('00:00');
+            
             var finalizado = $('#finalizado').val();
-            var round = $('#round').val();
-
-            if(round == 0){
-                if(finalizado == 0){
-                    atacar();
-                    $('#round').val('3');
-                } else {
-                    $(".contador-batalha .cronometro").html('00:00');
-                }
+            
+            // ✅ ONLY attack once if battle is active and we haven't attacked yet
+            if(finalizado == 0 && !attackInitiated){
+                attackInitiated = true; // ✅ Prevent multiple calls
+                atacar();
+            } else if(finalizado == 1) {
+                // Battle is finished, show message
+                $(".contador-batalha .cronometro").html('FIM');
             }
         }
     },
@@ -149,20 +152,35 @@ DBH.npc = (function() {
         var idAtaque = 4;
         var data_string = 'id=' + idAtaque + '&idGuerreiro=' + idGuerreiro + '&idPersonagem=' + idPersonagem + '&round=' + round + '&finalizado=' + finalizado;
         var baseSite = $('#baseSite').val();
-
+        
         $.ajax({
             type: "POST",
             url: baseSite+"ajax/ajaxAtacarNPC.php",
             data: data_string,
-            success: function (res) {
-                // REMOVED location.reload(true) - this was causing constant page refresh
-                // Instead, reload only after a delay to show the attack result
+            dataType: 'json',
+            success: function (response) {
+                // ✅ Check if battle ended
+                if(response.battle_ended === true){
+                    // Battle ended, reload immediately
+                    alert('Batalha finalizada!');
+                    location.reload(true);
+                } else {
+                    // ✅ Battle continues - DON'T reload, just start new timer
+                    console.log('Attack successful, waiting for next round...');
+                    // The timer will handle the next attack automatically
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Attack error:', error);
+                // On error, reload to refresh state
                 setTimeout(function() {
                     location.reload(true);
                 }, 1500);
             }
         });
     },
+
+
     combateLog = function(){
         const container = document.querySelector('.log');
         if(container) {

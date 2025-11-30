@@ -123,13 +123,24 @@ class Treino {
                 
                 $nova_graduacao = $personagem->getGraduacaoNumber($level);
                 
+                // ✅ Calculate new max values
+                $hp_max_novo = intval($valor_recovery_hp) + 50;
+                $ki_max_novo = intval($ki) + 50;
+                
+                // ✅ Preserve current HP and KI usage from battle
+                $current_hp = intval($dados_personagem->hp);
+                $current_ki_usado = intval($dados_personagem->ki_usado);
+                
+                // ✅ Only restore HP if player is dead (HP <= 0), otherwise keep current damaged HP
+                $new_hp = ($current_hp <= 0) ? $hp_max_novo : $current_hp;
+                
                 $campos = array(
                     'nivel' => $level,
                     'graduacao' => $nova_graduacao,
-                    'hp' => intval($valor_recovery_hp) + 50,
-                    'mana' => intval($ki) + 50,
-                    'ki_usado' => 0,
-                    'energia_usada' => 0,
+                    'hp' => $new_hp,  // ✅ Preserve battle damage (or revive if dead)
+                    'mana' => $ki_max_novo,  // ✅ Increase max KI
+                    'ki_usado' => $current_ki_usado,  // ✅ Preserve KI usage from battle
+                    'energia_usada' => 0,  // ✅ Reset energy (OK for battles)
                     'pontos' => intval($dados_personagem->pontos) + 1,
                     'forca' => intval($dados_personagem->forca) + 1,
                     'agilidade' => intval($dados_personagem->agilidade) + 1,
@@ -142,7 +153,6 @@ class Treino {
 
                 $core->update('usuarios_personagens', $campos, $where);
                 
-                
                 //ADICIONA OS GOLPES DO LEVEL
                 $this->newUpGolpes($level, $idPersonagem);
                 
@@ -150,6 +160,8 @@ class Treino {
                 $this->newUpGraduation($nova_graduacao, $graduacao, $idPersonagem);
             }
         }
+
+
         
         $du = $core->getDados('usuarios_personagens', 'WHERE id ='.$idPersonagem);
         

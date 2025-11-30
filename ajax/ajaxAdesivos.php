@@ -23,50 +23,25 @@ if(!isset($_SESSION['PERSONAGEMID'])){
 }
 
 $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
-$id = isset($_POST['id']) ? (int)$_POST['id'] : 0;          // slot ID (personagens_itens_equipados.id)
-$idItem = isset($_POST['idItem']) ? (int)$_POST['idItem'] : 0;
+$idSlot = isset($_POST['idSlot']) ? (int)$_POST['idSlot'] : 0;
 
-// ======= CASE: Unequip adesivo =======
-if($id > 0 && $idItem > 0){
-    try {
-        $result = $inventario->desequiparAdesivo($id, $idPersonagem);
-        if($result){
-            $inventario->getSlotsAdesivos($idPersonagem);
-        } else {
-            echo '<div class="error">Erro: Inventário cheio</div>';
-            $inventario->getSlotsAdesivos($idPersonagem);
-        }
-    } catch(Exception $e) {
-        echo '<div class="error">Erro: ' . htmlspecialchars($e->getMessage()) . '</div>';
-        $inventario->getSlotsAdesivos($idPersonagem);
-    }
-    exit;
-}
-
-// ======= CASE: Equip adesivo from inventory =======
-if($id == 0){
-    echo '<div class="error">Item inválido</div>';
+if($idSlot == 0){
+    // Just show slots, don't show error on initial load
     $inventario->getSlotsAdesivos($idPersonagem);
     exit;
 }
 
 try {
-    $sql = "SELECT * FROM itens WHERE id = ? AND adesivo = 1";
-    $stmt = DB::prepare($sql);
-    $stmt->execute([$id]);
-    $item = $stmt->fetch();
-    if(!$item){
-        echo '<div class="error">Item não é adesivo</div>';
-        $inventario->getSlotsAdesivos($idPersonagem);
-        exit;
-    }
-    $result = $inventario->equiparAdesivo($id, $idPersonagem);
+    // ✅ Unequip adesivo from slot
+    $result = $inventario->desequiparAdesivo($idSlot, $idPersonagem);
+    
     if($result){
         $inventario->getSlotsAdesivos($idPersonagem);
     } else {
-        echo '<div class="error">Sem slot disponível para adesivos</div>';
+        echo '<div class="error">Erro: Inventário cheio ou slot vazio</div>';
         $inventario->getSlotsAdesivos($idPersonagem);
     }
+    
 } catch(Exception $e) {
     echo '<div class="error">Erro: ' . htmlspecialchars($e->getMessage()) . '</div>';
     $inventario->getSlotsAdesivos($idPersonagem);

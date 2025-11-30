@@ -466,7 +466,7 @@ class Npc {
         $graduacao_atacado = $personagem->getGraduacaoBatalha($dados_atacado->nivel);
         $graduacao_texto_atacado = $personagem->getGraduacaoTextoBatalha($dados_atacado->nivel);
 
-        $equipamentos_atacante = $personagem->getEquipamentos($idPersonagem);
+        $equipamentos_atacante = $personagem->getEquipamentosBatalha($idPersonagem);
 
         $ki_restante = $ki - $dados_atacante->ki_usado;
 

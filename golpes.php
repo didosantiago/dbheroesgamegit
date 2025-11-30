@@ -183,3 +183,165 @@ document.addEventListener('DOMContentLoaded', function() {
         <?php $batalha->getListaGolpes($personagem->mana, $personagem->nivel); ?>
     </form>
 </ul>
+
+
+
+<style>
+/* === DIVINE GOLD THEME FOR GOLPES === */
+body.golpes { 
+    background: radial-gradient(circle at center, #2b2000, #000); 
+}
+
+/* Grid Layout */
+body.golpes .lista-golpes {
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+    gap: 20px; 
+    padding: 20px; 
+    list-style: none; 
+    max-width: 1100px; 
+    margin: 0 auto;
+}
+
+/* Card Styling */
+body.golpes .lista-golpes li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left; /* Fix text alignment */
+    background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+    border: 1px solid #665500;
+    border-top: 3px solid #ffd700; /* Golden Top Bar */
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+/* Shine Effect on Hover */
+body.golpes .lista-golpes li::before {
+    content: ''; 
+    position: absolute; 
+    top: 0; 
+    left: -100%; 
+    width: 100%; 
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    transition: 0.5s;
+    pointer-events: none;
+}
+
+body.golpes .lista-golpes li:hover::before { 
+    left: 100%; 
+}
+
+body.golpes .lista-golpes li:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+}
+
+/* Golpe Image */
+body.golpes .lista-golpes li img {
+    display: inline-block;
+    vertical-align: middle;
+    width: 60px;
+    margin-right: 0px;
+    border: 1px solid #ffd700; /* Gold border */
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+body.golpes .lista-golpes li:hover img {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+    transform: scale(1.1);
+}
+
+/* Golpe Name/Title */
+body.golpes .lista-golpes li h3,
+body.golpes .lista-golpes li strong {
+    background: -webkit-linear-gradient(#ffd700, #bf953f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    font-weight: 800;
+    font-size: 1.1em;
+    margin-bottom: 10px;
+}
+
+/* Golpe Details */
+body.golpes .lista-golpes li p,
+body.golpes .lista-golpes li span {
+    color: #ccc;
+    font-size: 0.9em;
+    margin: 5px 0;
+}
+
+/* Checkbox Styling */
+body.golpes .lista-golpes li input[type="checkbox"] {
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ffd700;
+    border-radius: 3px;
+    background: #1a1a1a;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+body.golpes .lista-golpes li input[type="checkbox"]:checked {
+    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    border-color: #fff;
+    box-shadow: 0 0 15px #ffd700;
+}
+
+body.golpes .lista-golpes li input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #000;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+/* Submit Button */
+body.golpes button[type="submit"],
+body.golpes .btn-salvar {
+    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    color: #000; 
+    font-weight: bold; 
+    border: 1px solid #fff;
+    box-shadow: 0 0 15px #b8860b;
+    padding: 12px 30px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+body.golpes button[type="submit"]:hover,
+body.golpes .btn-salvar:hover {
+    background: linear-gradient(to bottom, #ffed4e, #ffd700);
+    box-shadow: 0 0 25px #ffd700;
+    transform: translateY(-2px);
+}
+
+/* Disabled/Locked Golpes */
+body.golpes .lista-golpes li.bloqueado {
+    opacity: 0.5;
+    border-color: #333;
+    border-top-color: #555;
+}
+
+body.golpes .lista-golpes li.bloqueado:hover {
+    transform: none;
+    box-shadow: none;
+}
+</style>

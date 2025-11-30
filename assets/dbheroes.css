@@ -2715,6 +2715,42 @@ body.meus-personagens .lista-meus-personagens {
   display: block;
 }
 
+.troca-de-personagem-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/troca-de-personagem.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.tabela-de-graduacao-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/tabela-de-graduacao.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.missoes-do-guerreiro-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/missoes-do-guerreiro.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
 
 
 .cacada-running span {
@@ -10462,7 +10498,7 @@ body.golpes .lista-golpes li {
 }
 
 body.golpes .lista-golpes li.ativo {
-  background: #6300e5
+  background: #8437ff7d
 }
 
 body.golpes .lista-golpes li.ativo p {
@@ -10478,18 +10514,24 @@ body.golpes .lista-golpes li img {
   display: inline-block;
   vertical-align: middle;
   width: 60px;
-  margin-right: 20px
+  margin-right: 0px;
+  border: 1px solid #28fb42; /* ✅ Add 1px black border */
+  
 }
+
 
 body.golpes .lista-golpes li span {
   display: inline-block;
   vertical-align: middle;
   margin: 0 10px;
-  color: #FFF
+  color: #FFF;
+  font-size: 14px;
+  
 }
 
 body.golpes .lista-golpes li span strong {
   color: #10B700
+  
 }
 
 body.golpes .lista-golpes li input {
@@ -21681,12 +21723,12 @@ a {
 .title {
   text-align: center;
   display: block;
-  margin: 30px auto;
+  margin: 0px auto;
   color: #fff;
   font-size: 32px;
   text-transform: uppercase;
   font-weight: 800;
-  padding: 15px 30px;
+  padding: 10px 30px;
   background: rgba(0, 0, 0, 0.6);
   border: 3px solid #52fd4d;
   border-radius: 10px;
@@ -21697,7 +21739,7 @@ a {
     2px 2px 4px rgba(0, 0, 0, 0.9),
     0 0 10px rgba(0, 255, 30, 0.7);
   letter-spacing: 3px;
-  max-width: 600px;
+  max-width: 1200px;
 }
 
 
@@ -22996,6 +23038,48 @@ body.banco .conteudo .title i {
     width: 100% !important;
     margin: 10px 0 20px 0 !important;
     clear: both;
+}
+
+
+.equip-section-title {
+    color: #FFD700;
+    font-size: 14px;
+    margin: 10px 0 5px 0;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.equipamentos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+    justify-content: center;
+}
+
+.equipamentos-list li.slot-item {
+    width: 50px;
+    height: 50px;
+    background: rgba(0,0,0,0.5);
+    border: 2px solid #444;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.equipamentos-list li.slot-item img {
+    max-width: 45px;
+    max-height: 45px;
+    object-fit: contain;
+}
+
+.equipamentos-container {
+    max-width: 100%;
+    padding: 10px;
 }
 
 

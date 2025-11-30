@@ -2082,6 +2082,100 @@ class Personagens {
     }
 
 
+    public function getEquipamentosBatalha($idPersonagem){
+        $row = '';
+        
+        // 1. GET EMBLEMAS
+        $sql = "SELECT i.*, pie.slot "
+             . "FROM personagens_itens_equipados as pie "
+             . "INNER JOIN itens as i ON i.id = pie.idItem "
+             . "WHERE pie.idPersonagem = $idPersonagem "
+             . "AND pie.emblema = 1 AND pie.vazio = 0 "
+             . "ORDER BY pie.slot ASC";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $emblemas = $stmt->fetchAll();
+        
+        // 2. GET EQUIPAMENTOS
+        $sql = "SELECT i.*, pie.slot "
+             . "FROM personagens_itens_equipados as pie "
+             . "INNER JOIN itens as i ON i.id = pie.idItem "
+             . "WHERE pie.idPersonagem = $idPersonagem "
+             . "AND pie.emblema = 0 AND pie.adesivo = 0 AND pie.vazio = 0 "
+             . "ORDER BY pie.slot ASC";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $equipamentos = $stmt->fetchAll();
+        
+        // 3. GET ADESIVOS
+        $sql = "SELECT i.*, pie.slot "
+             . "FROM personagens_itens_equipados as pie "
+             . "INNER JOIN itens as i ON i.id = pie.idItem "
+             . "WHERE pie.idPersonagem = $idPersonagem "
+             . "AND pie.adesivo = 1 AND pie.vazio = 0 "
+             . "ORDER BY pie.slot ASC";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $adesivos = $stmt->fetchAll();
+        
+        // Helper function to generate tooltip HTML (to avoid repeating code)
+        $buildItemHtml = function($item) {
+            // Note: Changed path to 'assets/itens/' based on previous fixes
+            $html = '<li class="slot-item">';
+            $html .= '<img src="'.BASE.'assets/itens/'.$item->imagem.'" alt="'.$item->nome.'" />';
+            
+            // --- TOOLTIP START ---
+            $html .= '<div class="info">';
+            $html .= '<h3>'.$item->nome.'</h3>';
+            
+            if($item->hp > 0)          $html .= '<span><strong>HP: </strong> +'.$item->hp.'</span>';
+            if($item->mana > 0)        $html .= '<span><strong>KI: </strong> +'.$item->mana.'</span>';
+            if($item->energia > 0)     $html .= '<span><strong>Energia: </strong> +'.$item->energia.'</span>';
+            if($item->forca > 0)       $html .= '<span><strong>Força: </strong> +'.$item->forca.'</span>';
+            if($item->agilidade > 0)   $html .= '<span><strong>Agilidade: </strong> +'.$item->agilidade.'</span>';
+            if($item->habilidade > 0)  $html .= '<span><strong>Habilidade:</strong> +'.$item->habilidade.'</span>';
+            if($item->resistencia > 0) $html .= '<span><strong>Resistência: </strong> +'.$item->resistencia.'</span>';
+            if($item->sorte > 0)       $html .= '<span><strong>Sorte: </strong> +'.$item->sorte.'</span>';
+            
+            $html .= '</div>';
+            // --- TOOLTIP END ---
+            
+            $html .= '</li>';
+            return $html;
+        };
+
+        // Build sections
+        if(count($emblemas) > 0){
+            $row .= '<h4 class="equip-section-title">Emblemas</h4>';
+            $row .= '<ul class="equipamentos-list emblemas-list">';
+            foreach($emblemas as $item){
+                $row .= $buildItemHtml($item);
+            }
+            $row .= '</ul>';
+        }
+        
+        if(count($equipamentos) > 0){
+            $row .= '<h4 class="equip-section-title">Equipamentos</h4>';
+            $row .= '<ul class="equipamentos-list equipamentos-list">';
+            foreach($equipamentos as $item){
+                $row .= $buildItemHtml($item);
+            }
+            $row .= '</ul>';
+        }
+        
+        if(count($adesivos) > 0){
+            $row .= '<h4 class="equip-section-title">Adesivos</h4>';
+            $row .= '<ul class="equipamentos-list adesivos-list">';
+            foreach($adesivos as $item){
+                $row .= $buildItemHtml($item);
+            }
+            $row .= '</ul>';
+        }
+        
+        return $row;
+    }
+
+
     
     public function checkLevelUp($idPersonagem){
         $core = new Core();

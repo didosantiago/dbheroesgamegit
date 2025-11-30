@@ -95,8 +95,8 @@ DBH.inventario = (function() {
                         }
                     });
                 } else if(dataConsumivel == 1){
-                    // Consumível - usar item
-                    console.log("Usando consumível..."); // DEBUG
+                    // ConsumÃ­vel - usar item
+                    console.log("Usando consumÃ­vel..."); // DEBUG
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioEquipado.php",
@@ -225,10 +225,10 @@ DBH.inventario = (function() {
                 tip.className = "item-tooltip";
                 tip.innerHTML =
                     "<strong>"+data.nome+"</strong><br>"
-                    +(data.forca ? "Força: <span style='color:#5b5'>+"+data.forca+"</span><br>" : "")
+                    +(data.forca ? "ForÃ§a: <span style='color:#5b5'>+"+data.forca+"</span><br>" : "")
                     +(data.agilidade ? "Agilidade: <span style='color:#5b5'>+"+data.agilidade+"</span><br>" : "")
                     +(data.habilidade ? "Habilidade: <span style='color:#5b5'>+"+data.habilidade+"</span><br>" : "")
-                    +(data.resistencia ? "Resistência: <span style='color:#5b5'>+"+data.resistencia+"</span><br>" : "")
+                    +(data.resistencia ? "ResistÃªncia: <span style='color:#5b5'>+"+data.resistencia+"</span><br>" : "")
                     +(data.sorte ? "Sorte: <span style='color:#5b5'>+"+data.sorte+"</span><br>" : "");
                 document.body.appendChild(tip);
                 function moveTooltip(ev){
@@ -247,5 +247,4 @@ DBH.inventario = (function() {
             };
         });
     }
-
 

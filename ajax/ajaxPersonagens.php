@@ -15,7 +15,11 @@
     
     $treino->recoveryEnergia($id, $user->vip);
     $treino->recoveryKI($id, $user->vip);
-    $treino->recoveryHP($id, $user->vip);
+    
+    // ✅ Only recover HP if player is NOT in any battle (NPC or PVP)
+    if(!isset($_SESSION['npc']) && !isset($_SESSION['pvp'])){
+        $treino->recoveryHP($id, $user->vip);
+    }
     
     $personagem->getGuerreiro($id);
     

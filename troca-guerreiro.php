@@ -27,7 +27,7 @@
         }
     }
 ?>
-
+<div class="troca-de-personagem-banner"></div>
 <h2 class="title">Escolha o guerreiro</h2>
 
 <form id="formTrocaPersonagem" class="forms" action="" method="post">

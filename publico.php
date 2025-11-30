@@ -281,7 +281,7 @@
                             class="ft-guerreiro" 
                             alt="<?php echo $personagem->nome; ?>" 
                             style="width:100%; height:100%; object-fit:cover; z-index:1; position:relative;" />
-                        <img src="<?php echo BASE.'assets/borders/1000180173.png'; ?>" 
+                        <img src="<?php echo BASE.'assets/borders/border-blue.png'; ?>" 
                             class="profile-border" 
                             alt="profile border" 
                             style="position:absolute; left:-50px; top:-76px; width:400px; height:430px; z-index:2; pointer-events:none;" />

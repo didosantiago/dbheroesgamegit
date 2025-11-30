@@ -72,6 +72,8 @@
         <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
         <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
         <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
+        <script src="assets/js/inventario.js"></script> <!-- This will overwrite the old -->
+
     <?php endif; ?>
 </head>
 

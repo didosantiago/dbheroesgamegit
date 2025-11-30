@@ -58,8 +58,9 @@
     }
 
 ?>
-
-<h2 class="title">Iniciar uma Missão</h2>
+<h2 class="title"></h2>
+<div class="missoes-do-guerreiro-banner"></div>
+<h2 class="title"></h2>
 
 <p class="informativo">
     

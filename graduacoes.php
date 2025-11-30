@@ -1,6 +1,7 @@
 <?php switch($acao) {
     default: ?>
-    <h2 class="title">Tabela de Graduações</h2>
+    <div class="tabela-de-graduacao-banner"></div>
+    <h2 class="title">Olhe abaixo as graduações!</h2>
     
     <table class="tableList">
         <thead>
