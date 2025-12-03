@@ -11,29 +11,45 @@
 
     // ID vindo da URL: /publico/ID
     $url_param = Url::getURL(1);
+    
+    $idPersonagem = null;
 
-    if ($url_param !== null && is_numeric($url_param)) {
+    if ($url_param !== null && $url_param !== '' && is_numeric($url_param)) {
         $idPersonagem = (int)$url_param;
-
+        
         // Confirma se o personagem existe
-        $idUserP = $core->getDados('usuarios_personagens', 'WHERE id = '.$idPersonagem);
+        $stmt = DB::prepare("SELECT id, idUsuario FROM usuarios_personagens WHERE id = ?");
+        $stmt->execute([$idPersonagem]);
+        $idUserP = $stmt->fetch();
+        
         if (!$idUserP) {
-            $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
+            $core->msg('error', 'Personagem não encontrado.');
+            header('Location: ' . BASE . 'ranking');
+            exit;
         }
     } else {
-        // Se não tiver ID válido na URL, mostra o próprio personagem logado
-        $idPersonagem = (int)$_SESSION['PERSONAGEMID'];
+        // Se não tiver ID válido na URL, redireciona para ranking
+        $core->msg('error', 'ID de personagem inválido.');
+        header('Location: ' . BASE . 'ranking');
+        exit;
     }
 
     // Carrega dados do personagem
     $personagem->getGuerreiro($idPersonagem);
 
-    if (empty($personagem->idUsuario)) {
-        echo "Erro: Personagem não encontrado.";
+    if (empty($personagem->idUsuario) || empty($personagem->id)) {
+        $core->msg('error', 'Erro ao carregar dados do personagem.');
+        header('Location: ' . BASE . 'ranking');
         exit;
     }
 
     $dadosUser = $core->getDados('usuarios', 'WHERE id = ' . $personagem->idUsuario);
+    
+    if (!$dadosUser) {
+        $core->msg('error', 'Usuário não encontrado.');
+        header('Location: ' . BASE . 'ranking');
+        exit;
+    }
 
     // STATUS EXTRA DAS EQUIPES
     $status_extra           = (int)$equipes->getStatusExtra($personagem->id);
@@ -318,7 +334,7 @@
 <div class="status-equipados-wrapper" style="display:flex; align-items:flex-start; justify-content:center; gap:34px; margin-top:40px;">
     <!-- STATUS COLUMN -->
     <div class="status-attributes">
-           <h2>Hatributos do guerreiro</h2>
+           <h2>Atributos do guerreiro</h2>
         <ul class="status">
             <li>
                 <p>Aumenta o dano nos ataques do seu guerreiro</p>
