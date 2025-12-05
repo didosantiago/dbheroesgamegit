@@ -104,7 +104,9 @@ class Inventario {
                 echo 'data-emblema="' . (isset($slot->emblema) ? $slot->emblema : 0) . '" ';
                 echo 'data-isbau="' . ($isBau ? '1' : '0') . '" '; // ✅ ADD THIS!
                 echo 'style="background-image: url(\'' . BASE . 'assets/' . $bgimage . '\'); background-size: cover;">';
-                
+
+
+
                     if($isBau) {
                         echo '<span class="bau">';
                         echo '<a href="' . BASE . 'bau/' . $slot->itemStorageId . '">';

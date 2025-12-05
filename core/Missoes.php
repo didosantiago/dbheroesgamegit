@@ -68,7 +68,6 @@ class Missoes {
                                     style="cursor: help; transition: transform 0.2s ease;" 
                                     onmouseover="this.style.transform=\'scale(1.05)\'" 
                                     onmouseout="this.style.transform=\'scale(1)\'" />
-
                             </div>
                             <h3>'.$value->titulo.'</h3>
                         </div>
@@ -80,43 +79,62 @@ class Missoes {
                             <input type="hidden" name="idMissao" value="'.$value->id.'" />
                             <input type="submit" id="iniciar-missao" '.$this->verificaMissao($value->id, $idPersonagem, $value->total, $value->nivel_minimo, $dadosPersonagem->nivel, $value->qtd_vitorias, $dadosPersonagem->tam).' class="bts-form" name="iniciar" value="Começar" />
                         </form>';
+                        
+                        // ========================================
+                        // 🔥 NEW HORIZONTAL REQUIREMENTS LAYOUT
+                        // ========================================
                         if($value->id != 1){
-                            $row .= '<div class="especificacoes">
-                                    <h4>Conquistas Necessárias</h4>';
+                            $row .= '<div class="conquistas-necessarias">';
                         }
                         
+                        // Requirement 1: Level
                         if($value->id != 1 && $value->nivel_minimo > 0){
-                            $row .= '<div class="indicador level '.$this->verificaLevel($idPersonagem, $value->nivel_minimo).'">
-                                        <strong>'.$value->nivel_minimo.'</strong>
-                                        <span>Nível</span>
-                                        <i class="far fa-check-circle"></i>
+                            $completaNivel = ($dadosPersonagem->nivel >= $value->nivel_minimo);
+                            $row .= '<div class="conquista-item '.($completaNivel ? 'completa' : '').'">
+                                        <div class="check"></div>
+                                        <div class="titulo">Nível</div>
+                                        <div class="progresso">'.$dadosPersonagem->nivel.' / '.$value->nivel_minimo.'</div>
                                     </div>';
                         }
                         
+                        // Requirement 2: TAM Victories
                         if($value->qtd_vitorias > 0){
-                            $row .= '<div class="indicador tam '.$this->verificaTAM($idPersonagem, $value->qtd_vitorias).'">
-                                        <strong><em>'.$dados_personagem->tam.'</em> / '.$value->qtd_vitorias.'</strong>
-                                        <span>Vitórias no TAM <br/>(Torneio de Artes Marciais)</span>
-                                        <i class="far fa-check-circle"></i>
+                            $completaTam = ($dados_personagem->tam >= $value->qtd_vitorias);
+                            $row .= '<div class="conquista-item '.($completaTam ? 'completa' : '').'">
+                                        <div class="check"></div>
+                                        <div class="titulo">Vitórias no TAM</div>
+                                        <div class="subtitulo">(Torneio de Artes Marciais)</div>
+                                        <div class="progresso">'.$dados_personagem->tam.' / '.$value->qtd_vitorias.'</div>
                                     </div>';
                         }
                         
+                        // Requirement 3: Previous missions
                         if($value->id != 1){
                             foreach ($item as $key2 => $value2) {
                                 if($value2->id < $value->id){
-                                    $row .= $this->validaEtapasMissoes($idPersonagem, $value2->id, $value->total, $value2->titulo);
+                                    $total_alcancado = $this->getCountTotalMissoes($idPersonagem, $value2->id);
+                                    $completaMissao = ($total_alcancado >= $value->total);
+                                    
+                                    $row .= '<div class="conquista-item '.($completaMissao ? 'completa' : '').'">
+                                                <div class="check"></div>
+                                                <div class="titulo">Missões</div>
+                                                <div class="subtitulo">'.$value2->titulo.'</div>
+                                                <div class="progresso">'.$total_alcancado.' / '.$value->total.'</div>
+                                            </div>';
                                 }
                             }
                         }
                         
                         if($value->id != 1){
-                            $row .= '</div>';
+                            $row .= '</div>'; // Close conquistas-necessarias
                         }
                     $row .= '</li>';
         }
         
         echo $row;
     }
+
+
 
     
     public function verificaTAM($idPersonagem, $vitorias){
@@ -568,24 +586,37 @@ class Missoes {
     }
     
     public function getCountTotalMissoes($idPersonagem, $idMissao){
-        $sql = "SELECT count(*) as total FROM personagens_missoes WHERE idPersonagem = $idPersonagem AND idMissao = $idMissao AND concluida = 1 AND cancelada = 0";
+        // ✅ Query the CORRECT table: 'missoes' (not 'personagens_missoes')
+        $sql = "SELECT count(*) as total 
+                FROM missoes 
+                WHERE idPersonagem = :idPersonagem 
+                AND idMissao = :idMissao 
+                AND (status = 'concluida' OR data_conclusao IS NOT NULL)";
+        
         $stmt = DB::prepare($sql);
+        $stmt->bindParam(':idPersonagem', $idPersonagem, PDO::PARAM_INT);
+        $stmt->bindParam(':idMissao', $idMissao, PDO::PARAM_INT);
         $stmt->execute();
         $item = $stmt->fetch();
         
-        return $item->total;
+        return intval($item->total);
     }
 
-    
+
+        
     public function validaEtapasMissoes($idPersonagem, $idMissao, $total, $nome_missao){
         $total_alcancado = $this->getCountTotalMissoes($idPersonagem, $idMissao);
+        $completedClass = $this->verificaMissoes($idPersonagem, $idMissao, $total);
         
-        return '<div class="indicador '.$this->verificaMissoes($idPersonagem, $idMissao, $total).'">
-                    <strong><em>'.$total_alcancado.'</em> / '.$total.'</strong>
-                    <span>Missões <br/>'.$nome_missao.'</span>
-                    <i class="far fa-check-circle"></i>
+        return '<div class="conquista-box '.$completedClass.'">
+                    <div class="check-circle"></div>
+                    <div class="conquista-content">
+                        <div class="conquista-valor">'.$total_alcancado.' / '.$total.'</div>
+                        <div class="conquista-label">Missões<br>'.$nome_missao.'</div>
+                    </div>
                 </div>';
     }
+
 
     /**
      * Complete mission and grant rewards

@@ -12,19 +12,20 @@
  * @author Felipe Faciroli
  */
 class Market {
-    public function getList($pc, $qtd_resultados, $filtro_busca){
+    public function getList($pc, $qtd_resultados, $filtro_busca) /* FIXED */{
         $core = new Core();
         $pager = new Paginator();
         
         $sql_filtro = '';
         
         if($filtro_busca != ''){
-            $sql_filtro = "AND i.nome LIKE '%".$filtro_busca."%' ";
+            $sql_filtro = "AND i.nome LIKE :filtro_busca ";
         }
         
         $lista_itens = array();
         
-        $sql = "SELECT * FROM personagens_mercado WHERE vendido = 0";
+        // ✅ FIX: Simple query without undefined columns
+        $sql = "SELECT DISTINCT idItem FROM personagens_mercado WHERE vendido = 0";
                     
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -36,36 +37,48 @@ class Market {
             }
         }
         
-        $sql = "SELECT count(*) as total "
-              ."FROM itens as i "
-              ."WHERE i.id in (".implode(",", array_map('intval', $lista_itens)).") "
-              .$sql_filtro;
-                    
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $ti = $stmt->fetch();
+        // If no items, return empty
+        if(empty($lista_itens)){
+            echo '<div class="market-itens-body"><div class="not-item">Nenhum item disponível</div></div>';
+            return;
+        }
         
+        // Count total items
+        if($filtro_busca != ''){
+            $sql = "SELECT count(*) as total FROM itens as i WHERE i.id IN (".implode(",", array_map('intval', $lista_itens)).") AND i.nome LIKE :filtro_busca";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([':filtro_busca' => '%'.$filtro_busca.'%']);
+        } else {
+            $sql = "SELECT count(*) as total FROM itens as i WHERE i.id IN (".implode(",", array_map('intval', $lista_itens)).")";
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+        }
+        
+        $ti = $stmt->fetch();
         $counter = $ti->total;
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
         $row = '';
 
-        $sql = "SELECT i.* "
-              ."FROM itens as i "
-              ."WHERE id in (".implode(",", array_map('intval', $lista_itens)).") "
-              .$sql_filtro
-              ."LIMIT " . $inicio . ',' . $qtd_resultados;
-
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
+        // Get items with filtering
+        if($filtro_busca != ''){
+            $sql = "SELECT i.* FROM itens as i WHERE id IN (".implode(",", array_map('intval', $lista_itens)).") AND i.nome LIKE :filtro_busca LIMIT " . $inicio . ',' . $qtd_resultados;
+            $stmt = DB::prepare($sql);
+            $stmt->execute([':filtro_busca' => '%'.$filtro_busca.'%']);
+        } else {
+            $sql = "SELECT i.* FROM itens as i WHERE id IN (".implode(",", array_map('intval', $lista_itens)).") LIMIT " . $inicio . ',' . $qtd_resultados;
+            $stmt = DB::prepare($sql);
+            $stmt->execute();
+        }
+        
         $item = $stmt->fetchAll();
 
         foreach ($item as $chave => $value) {
             $row .= '<div class="market-itens-body">
                         <a href="'.BASE.'market/view/'.$value->id.'">
                             <div class="td-market nome">
-                                <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->imagem.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                 <div class="market_listing_item_name_block">
                                     <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                     <br>
@@ -89,13 +102,12 @@ class Market {
                     </div>';
         }
 
-        // Mostra Navegador da Paginação
-        $row .= '<div>'
-               .$pager->paginar($pc, $tp)
-              . '</div>'; 
+        // Show paginator
+        $row .= '<div>'.$pager->paginar($pc, $tp).'</div>'; 
             
         echo $row;
     }
+
     
     public function getListS($pc, $qtd_resultados, $filtro_busca){
         $core = new Core();
@@ -137,7 +149,7 @@ class Market {
 
             $row = '';
 
-            $sql = "SELECT i.* "
+            $sql = "SELECT i.imagem as foto, i.* "
                   ."FROM itens as i "
                   ."WHERE id in (".implode(",", array_map('intval', $lista_itens)).") "
                   .$sql_filtro
@@ -151,7 +163,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <a href="'.BASE.'market/view_solicitacoes/'.$value->id.'">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->imagem.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -184,32 +196,31 @@ class Market {
         }
     }
     
-    public function getListInventario($idPersonagem, $pc, $qtd_resultados){
+    public function getListInventario( /* FIXED IMAGE */$idPersonagem, $pc, $qtd_resultados){
         $core = new Core();
         $pager = new Paginator();
         
         $sql = "SELECT count(*) as total "
-              ."FROM personagens_inventario_itens as pi "
-              ."INNER JOIN itens as i ON i.id = pi.idItem "
-              ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
-              ."WHERE pi.idPersonagem = $idPersonagem";
+            ."FROM personagens_inventario_itens as pi "
+            ."INNER JOIN itens as i ON i.id = pi.idItem "
+            ."WHERE pi.idPersonagem = :idPersonagem";
                     
         $stmt = DB::prepare($sql);
-        $stmt->execute();
+        $stmt->execute([':idPersonagem' => $idPersonagem]);
         $ti = $stmt->fetch();
         
         $counter = $ti->total;
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT i.*, pi.id as idVenda "
-              ."FROM personagens_inventario_itens as pi "
-              ."INNER JOIN itens as i ON i.id = pi.idItem "
-              ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
-              ."WHERE pi.idPersonagem = $idPersonagem LIMIT " . $inicio . ',' . $qtd_resultados;
+        $sql = "SELECT i.imagem as foto, i.*, pi.id as idVenda "
+            ."FROM personagens_inventario_itens as pi "
+            ."INNER JOIN itens as i ON i.id = pi.idItem "
+            ."WHERE pi.idPersonagem = :idPersonagem "
+            ."LIMIT " . $inicio . ',' . $qtd_resultados;
                     
         $stmt = DB::prepare($sql);
-        $stmt->execute();
+        $stmt->execute([':idPersonagem' => $idPersonagem]);
         $item = $stmt->fetchAll();
         
         $row = '';
@@ -219,7 +230,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <form action="" method="post">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -240,16 +251,17 @@ class Market {
 
             // Mostra Navegador da Paginação
             $row .= '<div>'
-                   .$pager->paginar($pc, $tp)
-                  . '</div>';
+                .$pager->paginar($pc, $tp)
+                . '</div>';
         } else {
             $row .= '<div class="market-itens-body">
                         <div class="not-item">Nenhum item no inventário</div>
-                     </div>';
+                    </div>';
         }
             
         echo $row;
     }
+
     
     public function getListCambio($idUsuario, $idPersonagem, $pc, $qtd_resultados){
         $core = new Core();
@@ -331,7 +343,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT ps.*, i.foto, i.nome "
+        $sql = "SELECT ps.*, i.imagem as foto, i.nome "
              . "FROM personagens_mercado_solicitacoes as ps "
              . "INNER JOIN itens as i ON i.id = ps.idItem "
              . "WHERE ps.idUsuario = $idUsuario "
@@ -350,7 +362,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <form action="" method="post">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -395,7 +407,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT ps.*, i.foto, i.nome "
+        $sql = "SELECT ps.*, i.imagem as foto, i.nome "
              . "FROM personagens_mercado_solicitacoes as ps "
              . "INNER JOIN itens as i ON i.id = ps.idItem "
              . "WHERE ps.idUsuario = $idUsuario "
@@ -414,7 +426,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <form action="" method="post">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -677,7 +689,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <form action="" method="post">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->imagem.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -727,7 +739,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT i.*, pi.id as idVenda "
+        $sql = "SELECT i.imagem as foto, i.*, pi.id as idVenda "
               ."FROM personagens_inventario_itens as pi "
               ."INNER JOIN itens as i ON i.id = pi.idItem "
               ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
@@ -744,7 +756,7 @@ class Market {
                 $row .= '<div class="market-itens-body">
                             <form action="" method="post">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
                                         <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
@@ -797,7 +809,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT pm.*, i.foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario, up.nome as nome_personagem "
+        $sql = "SELECT pm.*, i.imagem as foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario, up.nome as nome_personagem "
               ."FROM personagens_mercado as pm "
               ."INNER JOIN itens as i ON i.id = pm.idItem "
               ."INNER JOIN usuarios_personagens as up ON up.id = pm.idPersonagem "
@@ -819,7 +831,7 @@ class Market {
 
                 $row .= '<div class="market-itens-body">
                             <div class="td-market nome">
-                                <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                 <div class="market_listing_item_name_block">
                                     <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome_item.'</span>
                                     <br>
@@ -885,7 +897,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT pm.*, i.foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario, up.nome as nome_personagem "
+        $sql = "SELECT pm.*, i.imagem as foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario, up.nome as nome_personagem "
               ."FROM personagens_mercado_solicitacoes as pm "
               ."INNER JOIN itens as i ON i.id = pm.idItem "
               ."INNER JOIN usuarios_personagens as up ON up.id = pm.idPersonagem "
@@ -906,7 +918,7 @@ class Market {
 
                 $row .= '<div class="market-itens-body">
                             <div class="td-market nome">
-                                <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                 <div class="market_listing_item_name_block">
                                     <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome_item.'</span>
                                     <br>
@@ -972,7 +984,7 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT pm.*, i.foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario "
+        $sql = "SELECT pm.*, i.imagem as foto, i.nome as nome_item, u.username, u.foto as foto_usuario, up.idUsuario "
               ."FROM personagens_mercado as pm "
               ."INNER JOIN itens as i ON i.id = pm.idItem "
               ."INNER JOIN usuarios_personagens as up ON up.id = pm.idPersonagem "
@@ -992,7 +1004,7 @@ class Market {
 
                 $row .= '<div class="market-itens-body">
                             <div class="td-market nome">
-                                <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                 <div class="market_listing_item_name_block">
                                     <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome_item.'</span>
                                     <br>
@@ -1117,17 +1129,20 @@ class Market {
     }
     
     public function getListAllItens(){        
-        $sql = "SELECT * FROM itens WHERE status = 1";   
+        $sql = "SELECT * FROM itens ORDER BY nome ASC";   
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $all_itens = $stmt->fetchAll();
         
         $row = '';
         
-        foreach ($all_itens as $chave_itens => $t_itens) {
-            $row .= '<option value="'.$t_itens->id.'">'.$t_itens->nome.'</option>';
+        if($all_itens && count($all_itens) > 0){
+            foreach ($all_itens as $chave_itens => $t_itens) {
+                $row .= '<option value="'.$t_itens->id.'">'.$t_itens->nome.'</option>';
+            }
         }
         
         return $row;
     }
+
 }

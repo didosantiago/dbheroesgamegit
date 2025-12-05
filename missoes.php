@@ -58,6 +58,7 @@
     }
 
 ?>
+
 <h2 class="title"></h2>
 <div class="missoes-do-guerreiro-banner"></div>
 <h2 class="title"></h2>

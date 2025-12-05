@@ -136,7 +136,9 @@
     }
 ?>
 
+<div class="hospital-banner"></div>
 <h2 class="title"><i class="fas fa-plus-square"></i> Hospital</h2>
+<link rel="stylesheet" href="css/minhas-fotos-effects.css">
 
 <ul class="ficha">
     <h3>Ficha do Paciente</h3>
@@ -220,3 +222,5 @@
     </li>
     
 </ul>
+<style>
+    

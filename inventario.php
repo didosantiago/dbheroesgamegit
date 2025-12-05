@@ -250,6 +250,9 @@ if(Url::getURL(1) == 'open'){
     margin: 15px 0 10px 0;
     letter-spacing: 2px;
 }
+
+
+
 </style>
 
 <script>
@@ -263,7 +266,6 @@ foreach($stmt->fetchAll(PDO::FETCH_ASSOC) as $item){
 echo json_encode($allItems, JSON_UNESCAPED_UNICODE);
 ?>;
 
-// Define consumable types
 const CONSUMABLE_TYPES = ['consumivel', 'capsula', 'comida', 'restauracao', 'pocao'];
 
 function isConsumable(itemId) {
@@ -283,10 +285,8 @@ function attachInventoryTooltips() {
             var tip = document.createElement("div");
             tip.className = "item-tooltip";
             
-            // Build tooltip content
             var content = "<strong>" + data.nome + "</strong><br>";
             
-            // Show consumable effects
             if(isConsumable(itemId)){
                 content += "<em style='color:#ffa500;'>Consumível - Clique para usar</em><br>";
                 if(data.efeito_hp) content += "Restaura " + data.efeito_hp + "% de HP<br>";
@@ -294,7 +294,6 @@ function attachInventoryTooltips() {
                 if(data.efeito_energia) content += "Restaura " + data.efeito_energia + "% de Energia<br>";
                 if(data.efeito_experiencia) content += "Bônus de " + data.efeito_experiencia + "% EXP por 30min<br>";
             } else {
-                // Show equipment stats
                 if(data.forca) content += "Força: <span style='color:#5b5'>+" + data.forca + "</span><br>";
                 if(data.agilidade) content += "Agilidade: <span style='color:#5b5'>+" + data.agilidade + "</span><br>";
                 if(data.habilidade) content += "Habilidade: <span style='color:#5b5'>+" + data.habilidade + "</span><br>";
@@ -322,15 +321,12 @@ function attachInventoryTooltips() {
     });
 }
 
-// Call on page load
 attachInventoryTooltips();
 
-// Remove tooltip on inventory area mouseleave
 document.querySelector('.content-inventory').addEventListener('mouseleave', () => {
     document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
 });
 
-// Auto-reattach tooltips when inventory HTML changes
 const inventoryUL = document.querySelector('.content-inventory .itens ul');
 if (inventoryUL) {
     const observer = new MutationObserver(function() {
@@ -340,25 +336,21 @@ if (inventoryUL) {
 }
 
 $(document).ready(function() {
-    // =========================================
-    // INVENTORY ITEM CLICK - PROPER ROUTING
-    // =========================================
     $(document).off('click', '.content-inventory .itens ul li.slots');
     $(document).on('click', '.content-inventory .itens ul li.slots', function(e) {
-        // Empty slots do nothing
+        // Remove NOVO badge
+        $(this).find('.novo-badge').fadeOut(200);
+        
         if($(this).hasClass('slot-vazio')) {
             e.preventDefault();
             return;
         }
         
-        // ✅ CRITICAL: Check if it's a BAÚ FIRST - let the <a> link work naturally
         var isBau = $(this).attr('data-isbau');
         if(isBau == '1') {
-            // Don't prevent default - let the <a href> link work!
             return;
         }
         
-        // For all other items, prevent default and handle via AJAX
         e.preventDefault();
         e.stopPropagation();
         document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
@@ -371,16 +363,7 @@ $(document).ready(function() {
         
         if(!idInventario || idInventario === 'undefined') return;
         
-        console.log('Item clicked:', {
-            idInventario: idInventario,
-            idItem: idItem,
-            dataEmblema: dataEmblema,
-            dataAdesivo: dataAdesivo
-        });
-        
-        // ✅ PRIORITY 1: Check if it's an ADESIVO (sticker)
         if(dataAdesivo == "1"){
-            console.log('Equipando adesivo...');
             $.ajax({
                 type: 'POST',
                 url: 'ajax/ajaxInventarioAdesivos.php',
@@ -399,17 +382,12 @@ $(document).ready(function() {
                             }
                         });
                     }, 300);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erro ao equipar adesivo:', error);
                 }
             });
             return;
         }
         
-        // ✅ PRIORITY 2: Check if it's an EMBLEMA
         if(dataEmblema == "1"){
-            console.log('Equipando emblema...');
             $.ajax({
                 type: 'POST',
                 url: 'ajax/ajaxInventarioEmblemas.php',
@@ -428,17 +406,12 @@ $(document).ready(function() {
                             }
                         });
                     }, 300);
-                },
-                error: function(xhr, status, error) {
-                    console.error('Erro ao equipar emblema:', error);
                 }
             });
             return;
         }
 
-        // ✅ PRIORITY 3: Check if it's a CONSUMABLE (potions, capsules, food)
         if(isConsumable(idItem)){
-            console.log('Usando consumível...');
             $.ajax({
                 type: 'POST',
                 url: 'ajax/ajaxUsarConsumivel.php',
@@ -447,25 +420,15 @@ $(document).ready(function() {
                 success: function(response) {
                     if(response.success){
                         alert(response.message);
-                        
-                        // ✅ FORCE PAGE RELOAD to update all stats
                         location.reload();
                     } else {
                         alert('Erro: ' + response.message);
                     }
-                },
-                error: function(xhr, status, error){
-                    console.error('Erro ao usar item consumível:', error);
-                    console.error('Response:', xhr.responseText);
-                    alert('Erro ao usar item consumível');
                 }
             });
             return;
         }
-
         
-        // ✅ PRIORITY 4: Everything else is EQUIPMENT
-        console.log('Equipando equipamento...');
         $.ajax({
             type: 'POST',
             url: 'ajax/ajaxInventarioEquipados.php',
@@ -484,149 +447,113 @@ $(document).ready(function() {
                         }
                     });
                 }, 300);
-            },
-            error: function(xhr, status, error) {
-                console.error('Erro ao equipar equipamento:', error);
             }
         });
     });
 
-// Emblemas click handler (unequip)
-$(document).off('click', '.emblemas ul li.slots');
-$(document).on('click', '.emblemas ul li.slots:not(.slot-vazio)', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
-    
-    var guerreiro = $('#personagemLogged').val();
-    var idSlot = $(this).attr('data-id');
-    
-    console.log('Desequipando emblema, idSlot:', idSlot);
-    
-    if(!idSlot) {
-        console.error('idSlot not found!');
-        return;
-    }
-    
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/ajaxEmblemas.php',
-        data: { idSlot: idSlot },
-        success: function(response) {
-            console.log('Emblema unequipped successfully');
-            $('.emblemas ul').html(response);
-            attachInventoryTooltips();
-            setTimeout(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'ajax/ajaxInventario.php',
-                    data: { idPersonagem: guerreiro },
-                    success: function(res) {
-                        $('.content-inventory .itens ul').html(res);
-                        attachInventoryTooltips();
-                    }
-                });
-            }, 300);
-        },
-        error: function(xhr, status, error) {
-            console.error('Erro ao desequipar emblema:', error);
-        }
+    $(document).off('click', '.emblemas ul li.slots');
+    $(document).on('click', '.emblemas ul li.slots:not(.slot-vazio)', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
+        
+        var guerreiro = $('#personagemLogged').val();
+        var idSlot = $(this).attr('data-id');
+        
+        if(!idSlot) return;
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax/ajaxEmblemas.php',
+            data: { idSlot: idSlot },
+            success: function(response) {
+                $('.emblemas ul').html(response);
+                attachInventoryTooltips();
+                setTimeout(function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'ajax/ajaxInventario.php',
+                        data: { idPersonagem: guerreiro },
+                        success: function(res) {
+                            $('.content-inventory .itens ul').html(res);
+                            attachInventoryTooltips();
+                        }
+                    });
+                }, 300);
+            }
+        });
     });
-});
 
-// Equipamentos click handler (unequip)
-$(document).off('click', '.equipamentos ul li.slots');
-$(document).on('click', '.equipamentos ul li.slots:not(.slot-vazio)', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
-    
-    var guerreiro = $('#personagemLogged').val();
-    var idSlot = $(this).attr('data-id');
-    
-    console.log('Desequipando equipamento, idSlot:', idSlot);
-    
-    if(!idSlot) {
-        console.error('idSlot not found!');
-        return;
-    }
-    
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/ajaxEquipados.php',
-        data: { idSlot: idSlot },
-        success: function(response) {
-            console.log('Equipamento unequipped successfully');
-            $('.equipamentos ul').html(response);
-            attachInventoryTooltips();
-            setTimeout(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'ajax/ajaxInventario.php',
-                    data: { idPersonagem: guerreiro },
-                    success: function(res) {
-                        $('.content-inventory .itens ul').html(res);
-                        attachInventoryTooltips();
-                    }
-                });
-            }, 300);
-        },
-        error: function(xhr, status, error) {
-            console.error('Erro ao desequipar equipamento:', error);
-        }
+    $(document).off('click', '.equipamentos ul li.slots');
+    $(document).on('click', '.equipamentos ul li.slots:not(.slot-vazio)', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
+        
+        var guerreiro = $('#personagemLogged').val();
+        var idSlot = $(this).attr('data-id');
+        
+        if(!idSlot) return;
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax/ajaxEquipados.php',
+            data: { idSlot: idSlot },
+            success: function(response) {
+                $('.equipamentos ul').html(response);
+                attachInventoryTooltips();
+                setTimeout(function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'ajax/ajaxInventario.php',
+                        data: { idPersonagem: guerreiro },
+                        success: function(res) {
+                            $('.content-inventory .itens ul').html(res);
+                            attachInventoryTooltips();
+                        }
+                    });
+                }, 300);
+            }
+        });
     });
-});
 
-// Adesivos click handler (unequip)
-$(document).off('click', '.adesivos ul li.slots');
-$(document).on('click', '.adesivos ul li.slots:not(.slot-vazio)', function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
-    
-    var guerreiro = $('#personagemLogged').val();
-    var idSlot = $(this).attr('data-id');
-    
-    console.log('Desequipando adesivo, idSlot:', idSlot);
-    
-    if(!idSlot) {
-        console.error('idSlot not found!');
-        return;
-    }
-    
-    $.ajax({
-        type: 'POST',
-        url: 'ajax/ajaxAdesivos.php',
-        data: { idSlot: idSlot },
-        success: function(response) {
-            console.log('Adesivo unequipped successfully');
-            $('.adesivos ul').html(response);
-            attachInventoryTooltips();
-            setTimeout(function() {
-                $.ajax({
-                    type: 'POST',
-                    url: 'ajax/ajaxInventario.php',
-                    data: { idPersonagem: guerreiro },
-                    success: function(res) {
-                        $('.content-inventory .itens ul').html(res);
-                        attachInventoryTooltips();
-                    }
-                });
-            }, 300);
-        },
-        error: function(xhr, status, error) {
-            console.error('Erro ao desequipar adesivo:', error);
-        }
+    $(document).off('click', '.adesivos ul li.slots');
+    $(document).on('click', '.adesivos ul li.slots:not(.slot-vazio)', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
+        
+        var guerreiro = $('#personagemLogged').val();
+        var idSlot = $(this).attr('data-id');
+        
+        if(!idSlot) return;
+        
+        $.ajax({
+            type: 'POST',
+            url: 'ajax/ajaxAdesivos.php',
+            data: { idSlot: idSlot },
+            success: function(response) {
+                $('.adesivos ul').html(response);
+                attachInventoryTooltips();
+                setTimeout(function() {
+                    $.ajax({
+                        type: 'POST',
+                        url: 'ajax/ajaxInventario.php',
+                        data: { idPersonagem: guerreiro },
+                        success: function(res) {
+                            $('.content-inventory .itens ul').html(res);
+                            attachInventoryTooltips();
+                        }
+                    });
+                }, 300);
+            }
+        });
     });
-});
 
-
-    // Auto scroll on page load
     const pixelsToScroll = 390; 
     window.scrollTo({
         top: pixelsToScroll,
         behavior: "smooth"
     });
 });
-
 </script>
