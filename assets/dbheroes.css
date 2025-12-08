@@ -2763,6 +2763,40 @@ body.meus-personagens .lista-meus-personagens {
   display: block;
 }
 
+.hospital-heal-banner {
+
+  width: 100%;
+  max-width: 256px;       /* Or your desired max */
+  height: 256px;          /* Adjust as needed */
+  margin: 52px -90px 0px auto;
+  border-radius: 128px;
+  background: url("../assets/banners/hospital-heal.png") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+.academia-sayan-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/academia-sayan.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+.lista-de-amigos-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/lista-de-amigos.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
 
 
 .cacada-running span {
@@ -3818,8 +3852,8 @@ body.profile .bt-treinar svg {
 }
 
 body.treinar .conteudo {
-  border-color: #444;
-  background: #444
+  border-color: #e0dddd;
+
 }
 
 body.treinar .conteudo .informativo {
@@ -4323,10 +4357,10 @@ body.publico .infos-guerreiro .foto .minha-equipe a h2 {
 
 body.publico .infos-guerreiro .foto .emblema-vip {
   position: absolute;
-  top: 0px;
-  right: 10px;
+  top: -60px;
+  right: 458px;
   display: block;
-  width: 80px
+  width: 178px
 }
 
 body.publico .infos-guerreiro .foto .painel-guerreiro {
@@ -4352,6 +4386,7 @@ body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico li button 
   display: block;
   margin: 0;
   font-size: 13px;
+  color: white;
   font-weight: normal;
   border: 0;
   cursor: pointer;
@@ -4499,7 +4534,7 @@ body.publico .infos-guerreiro .foto .painel-guerreiro .foto-principal .graduacao
   background: #091019;
   -moz-border-radius: 0 0 10px 10px;
   -webkit-border-radius: 0;
-  border-radius: 0 0 10px 10px
+  border-radius: 0 0 70px 70px
 }
 
 body.publico .infos-guerreiro .foto .painel-guerreiro .foto-principal .graduacao-patente .graduacao_img .personagem-nome {
@@ -4883,7 +4918,7 @@ body.inventario .conteudo .box-inventario .content-inventory {
 }
 
 body.inventario .conteudo .box-inventario .content-inventory .itens {
-  min-height: 500px;
+  min-height: 200px;
   padding: 20px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
@@ -12496,7 +12531,7 @@ body.troca-guerreiro .item-personagem span {
 }
 
 body.troca-guerreiro .btn-confirmar {
-  background: #0bad00
+  
 }
 
 body.market .conteudo {
@@ -21701,7 +21736,7 @@ a {
   vertical-align: top;
   margin: 10px 0 20px 3px;
   padding: 10px;
-  background: #1f2837;
+  background: #000;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
@@ -21737,10 +21772,11 @@ a {
   display: block;
   margin: 0px auto;
   color: #fff;
-  font-size: 32px;
+  font-size: 22px;
   text-transform: uppercase;
   font-weight: 800;
   padding: 10px 30px;
+  margin: 22px auto 24px auto;
   background: rgba(0, 0, 0, 0.6);
   border: 3px solid #52fd4d;
   border-radius: 10px;
@@ -21751,7 +21787,7 @@ a {
     2px 2px 4px rgba(0, 0, 0, 0.9),
     0 0 10px rgba(0, 255, 30, 0.7);
   letter-spacing: 3px;
-  max-width: 1200px;
+  max-width: 800px;
 }
 
 
@@ -21806,7 +21842,7 @@ a {
 .lista-geral tbody tr td {
   text-align: center;
   font-size: 14px;
-  color: #555;
+  color: #ffe000;
   padding: 5px 0
 }
 
@@ -21845,7 +21881,7 @@ a {
 }
 
 .lista-geral tbody tr td a {
-  color: #000;
+  color: #5be1ff;
   font-weight: bold;
   text-transform: uppercase
 }
@@ -22358,11 +22394,11 @@ body * .fa,
 body * .fas,
 body * .far,
 body * .fab {
-    font-size: 16px !important;
+    font-size: 18px !important;
     display: inline !important;
     margin: 0 !important;
     line-height: inherit !important;
-    color: orange;
+    color: greenyellow;
 }
 
 
@@ -23435,4 +23471,612 @@ body.banco .conteudo .title i {
     display: block !important;
 }
 
+.readonly-price {
+    cursor: not-allowed !important;
+    background-color: #2a2a2a !important;
+    color: #888 !important;
+    border: 1px solid #444 !important;
+    pointer-events: none; /* Extra protection - disables clicking */
+}
 
+.readonly-price:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+
+/* === THEME: DIVINE GOLD CHARACTER SELECTION === */
+body#troca-guerreiro { 
+    background: radial-gradient(circle at center, #2b2000, #000); 
+}
+
+/* Main form container */
+#formTrocaPersonagem {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+/* Character selection items */
+.item-personagem {
+    background: linear-gradient(180deg, #1a1a1a 0%, #000 100%);
+    border: 1px solid #665500;
+    border-top: 3px solid #ffd700; /* Golden Top Bar */
+    border-radius: 4px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: 0.4s;
+    display: block;
+}
+
+/* Hide radio buttons */
+.item-personagem input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+
+/* Shine Effect on Hover */
+.item-personagem::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent);
+    transition: 0.5s;
+}
+
+.item-personagem:hover::before {
+    left: 100%;
+}
+
+.item-personagem:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+    border-color: #ffd700;
+}
+
+.item-personagem:hover img {
+    transform: scale(1.1);
+}
+
+/* Character name (h3) */
+.item-personagem h3 {
+    background: -webkit-linear-gradient(#ffd700, #bf953f);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+    font-size: 18px;
+    margin: 10px 0;
+}
+
+/* Race/Raca span */
+.item-personagem span {
+    color: #ccc;
+    font-size: 14px;
+    display: block;
+    margin-top: 8px;
+}
+
+.item-personagem span strong {
+    color: #ffd700;
+}
+
+/* Selected state */
+.item-personagem input[type="radio"]:checked + img {
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 15px #ffd700);
+}
+
+.item-personagem:has(input[type="radio"]:checked) {
+    background: linear-gradient(180deg, #2a2000, #1a1a00);
+    border-color: #ffd700;
+    box-shadow: 0 0 40px rgba(255, 215, 0, 0.5), inset 0 0 20px rgba(255, 215, 0, 0.1);
+}
+
+.item-personagem:has(input[type="radio"]:checked) h3 {
+    text-shadow: 0 0 10px #ffd700;
+}
+
+/* Confirm button */
+.btn-confirmar {
+    grid-column: 1 / -1; /* Span all columns */
+    background: linear-gradient(to bottom, #ffd700, #b8860b);
+    color: #000;
+    font-weight: bold;
+    border: 1px solid #fff;
+    box-shadow: 0 0 15px #b8860b;
+    padding: 15px 40px;
+    font-size: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-confirmar:hover {
+    background: linear-gradient(to bottom, #ffed4e, #ffd700);
+    box-shadow: 0 0 25px #ffd700;
+    transform: scale(1.05);
+}
+
+.btn-confirmar:active {
+    transform: scale(0.98);
+}
+
+
+
+
+
+/* ============================================
+   PREMIUM ACTION BUTTONS FOR PUBLIC PROFILE
+   ============================================ */
+
+body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 15px !important;
+    margin: 10px 20px 60px 0px !important;
+    padding: 5px !important;
+    background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 50, 0.8)) !important;
+    border: 2px solid #324965 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico li {
+    display: inline-block !important;
+    list-style: none !important;
+}
+
+/* Premium Button Base Style */
+.premium-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    padding: 14px 28px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    text-decoration: none !important;
+    position: relative !important;
+    overflow: hidden !important;
+}
+
+.premium-button::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
+    transition: left 0.5s ease !important;
+}
+
+.premium-button:hover::before {
+    left: 100% !important;
+}
+
+.premium-button i {
+    font-size: 20px !important;
+}
+
+.premium-button span {
+    display: inline-block !important;
+}
+
+/* Add Friend Button - Green */
+.premium-button.adicionar {
+    background: linear-gradient(135deg, #06e593, #04a36d) !important;
+    border-color: #06e593 !important;
+    color: #fff !important;
+}
+
+.premium-button.adicionar:hover {
+    background: linear-gradient(135deg, #0dffaa, #06e593) !important;
+    box-shadow: 0 6px 25px rgba(6, 229, 147, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Remove Friend Button - Red */
+.premium-button.desfazer {
+    background: linear-gradient(135deg, #fc505f, #c62828) !important;
+    border-color: #fc505f !important;
+    color: #fff !important;
+}
+
+.premium-button.desfazer:hover {
+    background: linear-gradient(135deg, #ff6b7a, #fc505f) !important;
+    box-shadow: 0 6px 25px rgba(252, 80, 95, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Pending Request Button - Yellow/Orange */
+.premium-button.pendente {
+    background: linear-gradient(135deg, #f2df74, #d4a017) !important;
+    border-color: #f2df74 !important;
+    color: #000 !important;
+    cursor: not-allowed !important;
+    opacity: 0.85 !important;
+}
+
+.premium-button.pendente:hover {
+    transform: none !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Attack Button - Purple/Red */
+.premium-button.attack-button {
+    background: linear-gradient(135deg, #7100aa, #4a0072) !important;
+    border-color: #7100aa !important;
+    color: #fff !important;
+}
+
+.premium-button.attack-button:hover {
+    background: linear-gradient(135deg, #8a00cc, #7100aa) !important;
+    box-shadow: 0 6px 25px rgba(113, 0, 170, 0.5) !important;
+    transform: translateY(-2px) scale(1.05) !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico {
+        flex-direction: column !important;
+        gap: 10px !important;
+    }
+    
+    .premium-button {
+        width: 100% !important;
+        padding: 12px 20px !important;
+        font-size: 14px !important;
+    }
+    
+    .premium-button span {
+        font-size: 13px !important;
+    }
+}
+
+
+
+/* ============================================
+   FRIEND LIST ACTION BUTTONS - Fixed Layout
+   ============================================ */
+
+.action-cell {
+    text-align: center !important;
+    padding: 12px !important;
+    vertical-align: middle !important;
+}
+
+/* Container for buttons to keep them inline */
+.action-cell {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: nowrap !important;
+}
+
+.inline-form {
+    display: inline-block !important;
+    margin: 0 !important;
+}
+
+/* Base button styles */
+.btn-accept, .btn-remove, .btn-cancel, .btn-reject {
+    padding: 10px 18px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.btn-accept i, .btn-remove i, .btn-cancel i, .btn-reject i {
+    font-size: 16px !important;
+}
+
+/* ✅ ACCEPT BUTTON - Green */
+.btn-accept {
+    background: linear-gradient(135deg, #06e593, #04a36d) !important;
+    color: #fff !important;
+    border-color: #06e593 !important;
+    min-width: 120px !important;
+}
+
+.btn-accept:hover {
+    background: linear-gradient(135deg, #0dffaa, #06e593) !important;
+    box-shadow: 0 6px 20px rgba(6, 229, 147, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 🔴 REMOVE BUTTON - Red */
+.btn-remove {
+    background: linear-gradient(135deg, #fc505f, #c62828) !important;
+    color: #fff !important;
+    border-color: #fc505f !important;
+    min-width: 120px !important;
+}
+
+.btn-remove:hover {
+    background: linear-gradient(135deg, #ff6b7a, #fc505f) !important;
+    box-shadow: 0 6px 20px rgba(252, 80, 95, 0.5) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ❌ CANCEL/REJECT BUTTON - Dark Gray (Small X button) */
+.btn-cancel, .btn-reject {
+    background: linear-gradient(135deg, #666, #444) !important;
+    color: #fff !important;
+    border-color: #666 !important;
+    padding: 10px 14px !important;
+    min-width: 45px !important;
+    border-radius: 8px !important;
+}
+
+.btn-cancel:hover, .btn-reject:hover {
+    background: linear-gradient(135deg, #888, #666) !important;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* ⏳ PENDING STATUS BADGE */
+.pending-status {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+}
+
+.status-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+.status-badge.pending {
+    background: rgba(242, 223, 116, 0.25) !important;
+    color: #f2df74 !important;
+    border: 2px solid #f2df74 !important;
+    box-shadow: 0 4px 12px rgba(242, 223, 116, 0.3) !important;
+}
+
+.status-badge i {
+    font-size: 16px !important;
+    animation: clock-pulse 2s infinite !important;
+}
+
+@keyframes clock-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .action-cell {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .btn-accept, .btn-remove {
+        width: 100% !important;
+        min-width: auto !important;
+    }
+    
+    .pending-status {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+}
+
+
+/* ============================================
+   👥 ALREADY FRIENDS STATUS BADGE
+   ============================================ */
+
+.friends-status-badge {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 15px !important;
+    padding: 20px 30px !important;
+    min-width: 32px !important;
+    min-height: 32px !important;
+    background: 
+        linear-gradient(135deg, #ffd700 0%, #ffa500 50%, #ff8c00 100%),
+        radial-gradient(circle at center, rgba(255, 255, 255, 0.3), transparent) !important;
+    border: 3px solid #ffd700 !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 30px rgba(255, 215, 0, 0.6),
+        0 0 60px rgba(255, 215, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    animation: friends-glow 3s infinite !important;
+}
+
+@keyframes friends-glow {
+    0%, 100% {
+        box-shadow: 
+            0 8px 30px rgba(255, 215, 0, 0.6),
+            0 0 60px rgba(255, 215, 0, 0.4),
+            inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        box-shadow: 
+            0 10px 35px rgba(255, 215, 0, 0.8),
+            0 0 80px rgba(255, 215, 0, 0.6),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    }
+}
+
+/* Animated sparkle effect */
+.friends-status-badge::before {
+    content: '' !important;
+    position: absolute !important;
+    top: -50% !important;
+    left: -150% !important;
+    width: 100% !important;
+    height: 200% !important;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+    ) !important;
+    transform: skewX(-20deg) !important;
+    animation: friends-shine 4s infinite !important;
+}
+
+@keyframes friends-shine {
+    0% { left: -150%; }
+    50%, 100% { left: 150%; }
+}
+
+.friends-icon {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 10px !important;
+    background: rgba(255, 255, 255, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.5) !important;
+    animation: friends-icon-bounce 2s infinite !important;
+}
+
+@keyframes friends-icon-bounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.friends-icon i {
+    font-size: 28px !important;
+    color: #fff !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8)) !important;
+}
+
+.friends-content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+}
+
+.friends-label {
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    color: rgba(0, 0, 0, 0.7) !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.friends-text {
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    line-height: 1.2 !important;
+    text-transform: uppercase !important;
+    color: #fff !important;
+    text-shadow: 
+        0 2px 6px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Small Remove Friend Button */
+.btn-remove-friend-small {
+    padding: 12px 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    border: 2px solid transparent !important;
+    border-radius: 8px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+    background: linear-gradient(135deg, #fc505f, #c62828) !important;
+    border-color: #fc505f !important;
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(252, 80, 95, 0.4) !important;
+    min-height: 50px !important;
+}
+
+.btn-remove-friend-small i {
+    font-size: 16px !important;
+}
+
+.btn-remove-friend-small:hover {
+    background: linear-gradient(135deg, #ff6b7a, #fc505f) !important;
+    border-color: #fff !important;
+    box-shadow: 0 6px 25px rgba(252, 80, 95, 0.6) !important;
+    transform: translateY(-2px) scale(1.05) !important;
+}
+
+.btn-remove-friend-small:active {
+    transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Update friend-actions layout for friends */
+.friend-actions {
+
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .friends-status-badge {
+        min-width: 100% !important;
+        padding: 18px 25px !important;
+        min-height: 80px !important;
+    }
+    
+    .friends-text {
+        font-size: 20px !important;
+    }
+    
+    .btn-remove-friend-small {
+        width: 100% !important;
+        margin-top: 10px !important;
+    }
+}

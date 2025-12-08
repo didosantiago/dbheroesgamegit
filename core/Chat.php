@@ -37,18 +37,19 @@ class Chat {
                                 <p>'.$value->mensagem.'</p>
                             </div>
                             <em>'.$core->dataTimeBR($value->data).'</em>
-                         </li>';
+                        </li>';
             }
         } else {
             $row .= '<li>
                         <p class="mensagemNotFound">Iniciar Conversa</p>
-                     </li>';
+                    </li>';
         }
         
         $row .= '</ul>';
         
-        echo $row;
+        return $row;  // <-- CHANGE FROM echo TO return!
     }
+
     
     public function getMensagensCount($idPersonagem, $idAmigo){
         $core = new Core();
@@ -215,6 +216,7 @@ class Chat {
             }
         }
         
-        echo $row;
+        return $row;
+
     }
 }

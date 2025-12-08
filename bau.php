@@ -263,7 +263,7 @@ if (isset($_POST['destrancar'])) {
 
         <form id="abrirBau" method="post" action="">
             <input type="hidden" name="destrancar" value="1" />
-            <button type="submit" id="destrancarBau" class="bts-form"><i class="fas fa-key"></i> Destrancar BaÃº</button>
+            <button type="submit" id="destrancarBau" class="bts-form"><i class="fas fa-key"></i> Destrancar Baú</button>
         </form>
     </div>
 </div>

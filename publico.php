@@ -75,16 +75,18 @@
     $porcentagem_sorte       = $treino->getPorcentagemSorte($forca, $agilidade, $habilidade, $resistencia, $sorte);
 
     // Amizades
-    if (isset($_POST['adicionar'])) {
-        if (!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)) {
-            if (!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)) {
+    // Amizades
+    if(isset($_POST['adicionar'])){
+        if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){
+            if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){
                 $campos = array(
                     'idPersonagem' => $_SESSION['PERSONAGEMID'],
-                    'idAmigo'      => $idPersonagem
+                    'idAmigo' => $idPersonagem
                 );
-                if ($core->insert('personagens_amigos', $campos)) {
+                if($core->insert('personagens_amigos', $campos)){
                     $core->msg('sucesso', 'Adicionado aos Amigos.');
-                    header('Location: ' . BASE . 'amigos');
+                    header('Location: '.BASE.'publico/'.$idPersonagem); // STAY ON PROFILE
+                    exit;
                 } else {
                     $core->msg('error', 'Erro ao adicionar aos Amigos.');
                 }
@@ -96,17 +98,23 @@
         }
     }
 
-    if (isset($_POST['desfazer'])) {
-        if ($core->isExists('personagens_amigos', 'WHERE idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND idAmigo = '.$idPersonagem)) {
-            $core->delete('personagens_amigos', 'idPersonagem = '.$_SESSION['PERSONAGEMID'].' AND idAmigo = '.$idPersonagem);
+    if(isset($_POST['desfazer'])){
+        // Remove friendship in BOTH directions
+        if($core->isExists('personagens_amigos', "WHERE idPersonagem = ".$_SESSION['PERSONAGEMID']." AND idAmigo = ".$idPersonagem)){
+            $core->delete('personagens_amigos', "idPersonagem = ".$_SESSION['PERSONAGEMID']." AND idAmigo = ".$idPersonagem);
             $core->msg('sucesso', 'Removido da Lista de Amigos.');
         }
-
-        if ($core->isExists('personagens_amigos', 'WHERE idAmigo = '.$idPersonagem.' AND idAmigo = '.$_SESSION['PERSONAGEMID'])) {
-            $core->delete('personagens_amigos', 'idAmigo = '.$idPersonagem.' AND idAmigo = '.$_SESSION['PERSONAGEMID']);
+        
+        if($core->isExists('personagens_amigos', "WHERE idPersonagem = ".$idPersonagem." AND idAmigo = ".$_SESSION['PERSONAGEMID'])){
+            $core->delete('personagens_amigos', "idPersonagem = ".$idPersonagem." AND idAmigo = ".$_SESSION['PERSONAGEMID']);
             $core->msg('sucesso', 'Removido da Lista de Amigos.');
         }
+        
+        // STAY ON PROFILE after removing
+        header('Location: '.BASE.'publico/'.$idPersonagem);
+        exit;
     }
+
 ?>
 <input type="hidden" id="idAdversario" value="<?php echo $idPersonagem; ?>" />
 <?php require_once 'includes/chat.php'; ?>
@@ -238,46 +246,154 @@
         <?php } ?>
 
         <div class="painel-guerreiro">
-            <ul class="botoes-publico">
-<?php if(!$personagem->verificaPersonagem($idPersonagem, $user->id)){ ?>
-    <?php if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
-        <?php if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
-            <li>
-                <form id="AdicionarAmigo" method="post">
-                    <input type="hidden" name="adicionar" value="" />
-                    <button type="submit" class="adicionar" title="Adicionar Amigo">
-                        <i class="fas fa-user-plus"></i>
-                    </button>
-                </form>
-            </li>
-        <?php } else { ?>
-            <li>
-                <form id="AdicionarAmigo" method="post">
-                    <button type="submit" disabled class="pendente" title="Pedido de Amizade Enviado">
-                        <i class="fas fa-user-clock"></i>
-                    </button>
-                </form>
-            </li>
-        <?php } ?>
-    <?php } else { ?>
-        <li>
-            <form id="DesfazerAmizade" method="post">
-                <input type="hidden" name="desfazer" value="" />
-                <button type="submit" class="desfazer" title="Desfazer Amizade">
-                    <i class="fas fa-user-minus"></i>
-                </button>
-            </form>
-        </li>
-    <?php } ?>
-<?php } ?>
-<?php if(!isset($_SESSION['pvp'])){ ?>
-    <li>
-        <a href="<?php echo BASE.'combate/'.$personagem->id; ?>" class="atacar">
-            <img src="<?php echo BASE; ?>assets/icones/bt-pvp.png" />
-        </a>
-    </li>
-<?php } ?>
-</ul>
+
+            <!-- ACTION BUTTONS CONTAINER -->
+            <!-- ACTION BUTTONS CONTAINER -->
+            <div class="action-buttons-container">
+                <?php 
+                // Check if viewing another player's profile (not your own character)
+                if($idPersonagem != $_SESSION['PERSONAGEMID']){ 
+                    
+                    // Get current player data to check conditions
+                    $myChar = new Personagens();
+                    $myChar->getGuerreiro($_SESSION['PERSONAGEMID']);
+                ?>
+                    
+                    <div class="friend-actions">
+                        <?php if(!$personagem->getExisteAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
+                            <?php if(!$personagem->getExisteSolicitacaoAmizade($_SESSION['PERSONAGEMID'], $idPersonagem)){ ?>
+                                <!-- Add Friend Button -->
+                                <form id="AdicionarAmigo" method="post">
+                                    <input type="hidden" name="adicionar" value="1" />
+                                    <button type="submit" class="action-btn btn-add-friend">
+                                        <i class="fas fa-user-plus"></i>
+                                        <span>ADICIONAR AMIGOS</span>
+                                    </button>
+                                </form>
+                            <?php } else { ?>
+                                <!-- Pending Request -->
+                                <button type="button" disabled class="action-btn btn-pending">
+                                    <i class="fas fa-clock"></i>
+                                    <span>PENDENTE</span>
+                                </button>
+                            <?php } ?>
+                        <?php } else { ?>
+                            <!-- Already Friends - GREEN OUTLINE STYLE (same as add friend button) -->
+                            <div class="friends-compact">
+                                <button type="button" disabled class="action-btn btn-already-friends">
+                                    <i class="fas fa-user-check"></i>
+                                    <span>AMIGOS</span>
+                                </button>
+                                
+                                <!-- Tiny Remove Button -->
+                                <form id="DesfazerAmizade" method="post" style="display:inline;">
+                                    <input type="hidden" name="desfazer" value="1" />
+                                    <button type="submit" class="btn-remove-tiny" title="Remover amigo" onclick="return confirm('Remover este amigo?');">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        <?php } ?>
+
+
+                    </div>
+
+                    <!-- PVP ATTACK BUTTON -->
+                    <?php 
+                    // Check all PVP conditions
+                    $canAttack = true;
+                    $errorMessages = array();
+                    
+                    if(isset($_SESSION['pvp'])){
+                        $canAttack = false;
+                        $errorMessages[] = "Você já está em batalha PVP";
+                    }
+                    
+                    if($myChar->nivel < 10){
+                        $canAttack = false;
+                        $errorMessages[] = "Você precisa ter nível 10";
+                    }
+                    
+                    if($personagem->nivel < 10){
+                        $canAttack = false;
+                        $errorMessages[] = "Adversário precisa ter nível 10";
+                    }
+                    
+                    if($myChar->hp <= 0){
+                        $canAttack = false;
+                        $errorMessages[] = "Seu HP está zerado";
+                    }
+                    
+                    if($personagem->hp <= 0){
+                        $canAttack = false;
+                        $errorMessages[] = "HP do adversário zerado";
+                    }
+                    
+                    if($myChar->gold < 20){
+                        $canAttack = false;
+                        $errorMessages[] = "Você precisa de 20 gold";
+                    }
+                    
+                    if($personagem->gold < 20){
+                        $canAttack = false;
+                        $errorMessages[] = "Adversário sem gold";
+                    }
+                    
+                    if($equipes->verificaMembrosEquipe($_SESSION['PERSONAGEMID'], $idPersonagem)){
+                        $canAttack = false;
+                        $errorMessages[] = "Não ataque sua equipe";
+                    }
+                    
+                    if($batalha->playerAtacadoDAY($_SESSION['PERSONAGEMID'], $idPersonagem)){
+                        $canAttack = false;
+                        $errorMessages[] = "Aguarde até amanhã";
+                    }
+                    // Check if attacking character from same account
+            if($personagem->idUsuario == $user->id){
+                $canAttack = false;
+                $errorMessages[] = "Você não pode atacar um personagem da sua conta";
+            }
+
+                    
+                    if($batalha->getAtacouRecente($_SESSION['PERSONAGEMID'], $idPersonagem)){
+                        $canAttack = false;
+                        $errorMessages[] = "Aguarde 10 minutos";
+                    }
+                    ?>
+                    
+                    <div class="pvp-attack-section">
+                        <?php if($canAttack){ ?>
+                            <a href="<?php echo BASE.'combate/'.$idPersonagem; ?>" class="btn-atacar-pvp">
+                                <i class="fas fa-skull"></i>
+                                
+                                <span>DESAFIAR para PvP</span>
+                            </a>
+
+
+                        <?php } else { ?>
+                            <button type="button" disabled class="btn-atacar-pvp disabled" title="<?php echo implode(' | ', $errorMessages); ?>">
+                                <i class="fas fa-ban"></i>
+                                <span>BLOQUEADO</span>
+                            </button>
+                            <div class="pvp-requirements">
+                                <?php foreach($errorMessages as $msg){ ?>
+                                    <p><i class="fas fa-exclamation-circle"></i> <?php echo $msg; ?></p>
+                                <?php } ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+
+                <?php 
+                } else {
+                    // Viewing your own profile
+                    echo '<div style="text-align:center; color:#888; padding:20px; font-style:italic;">Este é o seu personagem</div>';
+                }
+                ?>
+            </div>
+
+
+
+
 
             <div class="profile-character-wrapper" 
                 style="border: 4px solid #7bff00ff;
@@ -334,7 +450,7 @@
 <div class="status-equipados-wrapper" style="display:flex; align-items:flex-start; justify-content:center; gap:34px; margin-top:40px;">
     <!-- STATUS COLUMN -->
     <div class="status-attributes">
-           <h2>Atributos do guerreiro</h2>
+        <h2>Atributos do guerreiro</h2>
         <ul class="status">
             <li>
                 <p>Aumenta o dano nos ataques do seu guerreiro</p>
@@ -376,7 +492,6 @@
                 </div>
                 <em style="color: #5b5;">+ [<?php echo $sorte_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
             </li>
-
         </ul>
     </div>
     <!-- EQUIPADOS COLUMN -->
@@ -457,13 +572,298 @@
 </ul>
 
 <script>
-// === 2. AUTO SCROLL SCRIPT ===
-// Scroll down 520px on page load
-// =============================
+// Auto scroll on page load
 const pixelsToScroll = 350; 
 window.scrollTo({
     top: pixelsToScroll,
     behavior: "smooth"
 });
-
 </script>
+
+<style>
+/* ACTION BUTTONS - MODERN DESIGN */
+.action-buttons-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 25px auto 15px;
+    align-items: center;
+    width: 100%;
+    max-width: 340px;
+}
+
+.friend-actions {
+
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Friend Button Styles */
+.action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 18px;
+    border: 2px solid;
+    border-radius: 6px;
+    background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+    backdrop-filter: blur(5px);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-add-friend {
+    border-color: #4CAF50;
+    color: #4CAF50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+}
+
+.btn-add-friend:hover {
+    background: linear-gradient(135deg, #4CAF50, #45a049);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(76, 175, 80, 0.5);
+    border-color: #5FD663;
+}
+
+.btn-pending {
+    border-color: #FFA500;
+    color: #FFA500;
+    opacity: 0.7;
+    cursor: not-allowed;
+    box-shadow: 0 0 10px rgba(255, 165, 0, 0.15);
+}
+
+.btn-remove-friend-small {
+    border-color: #ff4444;
+    color: #ff4444;
+    font-size: 13px;
+    padding: 9px 16px;
+}
+
+.btn-remove-friend-small:hover {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    transform: translateY(-1px);
+    border-color: #ff6666;
+}
+
+.friends-status-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 11px 18px;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15), rgba(76, 175, 80, 0.05));
+    border: 2px solid #4CAF50;
+    border-radius: 6px;
+    color: #5FD663;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.btn-icon, .friends-icon {
+    font-size: 18px;
+}
+
+.btn-content, .friends-content {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-label, .friends-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.btn-text, .friends-text {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+/* PVP ATTACK BUTTON - SIMPLIFIED AND POLISHED */
+.pvp-attack-section {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.btn-atacar-pvp {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 0px 0px 20px 0px ;
+    background: linear-gradient(135deg, #ff3333 0%, #dd0000 100%);
+    color: white;
+    padding: 14px 24px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 700;
+    box-shadow: 0 4px 20px rgba(255, 0, 0, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    width: 86%;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-atacar-pvp::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    transform: rotate(45deg);
+    animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+    0%, 100% { transform: translateX(-100%) rotate(45deg); }
+    50% { transform: translateX(100%) rotate(45deg); }
+}
+
+.btn-atacar-pvp:hover {
+    background: linear-gradient(135deg, #ff0000 0%, #bb0000 100%);
+    box-shadow: 0 6px 25px rgba(255, 0, 0, 0.6),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+.btn-atacar-pvp:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(255, 0, 0, 0.5);
+}
+
+.btn-atacar-pvp.disabled {
+    background: linear-gradient(135deg, #ff3b19ff 0%, #ff650cff 100%);
+    cursor: not-allowed;
+    opacity: 0.6;
+    box-shadow: none;
+    width: 338px;
+}
+
+.btn-atacar-pvp.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-atacar-pvp.disabled::after {
+    display: none;
+}
+
+.btn-atacar-pvp i {
+    font-size: 18px;
+    animation: pulse-icon 2s ease-in-out infinite;
+}
+
+@keyframes pulse-icon {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+.btn-atacar-pvp.disabled i {
+    animation: none;
+}
+
+.pvp-text {
+    font-weight: 700;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+/* PVP Requirements Messages */
+.pvp-requirements {
+    margin-top: 12px;
+    margin: 10px 0px 30px 0px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(255, 68, 68, 0.12), rgba(255, 68, 68, 0.05));
+    border: 1px solid rgba(255, 68, 68, 0.3);
+    border-radius: 6px;
+    box-shadow: 0 0 10px rgba(255, 68, 68, 0.15);
+}
+
+.pvp-requirements p {
+    color: #ff8888;
+    font-size: 10px;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+}
+
+.pvp-requirements i {
+    font-size: 11px;
+    color: #ff6666;
+}
+
+/* Compact Friends Display */
+.friends-compact {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+/* Already Friends - Same style as add friend button */
+.btn-already-friends {
+    flex: 1;
+    border-color: #4CAF50;
+    color: #4CAF50;
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.2);
+    cursor: default;
+}
+
+.btn-already-friends:hover {
+    background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+    transform: none;
+}
+
+/* Tiny Remove Button */
+.btn-remove-tiny {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #ff4444;
+    background: linear-gradient(135deg, rgba(255, 68, 68, 0.2), rgba(255, 68, 68, 0.05));
+    color: #ff6666;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.btn-remove-tiny:hover {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
+}
+
+</style>

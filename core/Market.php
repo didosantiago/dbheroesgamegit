@@ -726,10 +726,10 @@ class Market {
         $pager = new Paginator();
         
         $sql = "SELECT count(*) as total "
-              ."FROM personagens_inventario_itens as pi "
-              ."INNER JOIN itens as i ON i.id = pi.idItem "
-              ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
-              ."WHERE pi.idPersonagem = $idPersonagem";
+            ."FROM personagens_inventario_itens as pi "
+            ."INNER JOIN itens as i ON i.id = pi.idItem "
+            ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
+            ."WHERE pi.idPersonagem = $idPersonagem";
                     
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -739,11 +739,12 @@ class Market {
         $inicio = $pager->inicio($pc, $counter, $qtd_resultados);
         $tp = $counter / $qtd_resultados;
         
-        $sql = "SELECT i.imagem as foto, i.*, pi.id as idVenda "
-              ."FROM personagens_inventario_itens as pi "
-              ."INNER JOIN itens as i ON i.id = pi.idItem "
-              ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
-              ."WHERE pi.idPersonagem = $idPersonagem LIMIT " . $inicio . ',' . $qtd_resultados;
+        $sql = "SELECT i.imagem as foto, i.nome, i.preco_venda_min, i.id, pi.id as idVenda "
+            ."FROM personagens_inventario_itens as pi "
+            ."INNER JOIN itens as i ON i.id = pi.idItem "
+            ."INNER JOIN usuarios_personagens as up ON up.id = pi.idPersonagem "
+            ."WHERE pi.idPersonagem = $idPersonagem "
+            ."LIMIT " . $inicio . ',' . $qtd_resultados;
                     
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -753,12 +754,16 @@ class Market {
         
         if($stmt->rowCount() > 0){
             foreach ($item as $key => $value) {
+                $precoMercado = isset($value->preco_venda_min) && $value->preco_venda_min > 0 
+                            ? $value->preco_venda_min 
+                            : 1;
+                
                 $row .= '<div class="market-itens-body">
-                            <form action="" method="post">
+                            <form action="" method="post" class="form-vender-item">
                                 <div class="td-market nome">
-                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->imagem.'" srcset="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
+                                    <img id="result_0_image" src="'.BASE.'assets/'.$value->foto.'" style="border-color: #D2D2D2;" class="market_listing_item_img" alt="">
                                     <div class="market_listing_item_name_block">
-                                        <span id="result_0_name" class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
+                                        <span class="market_listing_item_name" style="color: #D2D2D2;">'.$value->nome.'</span>
                                         <br>
                                         <span class="market_listing_game_name">DB Heroes</span>
                                     </div>
@@ -766,7 +771,9 @@ class Market {
                                 <div class="td-market preco">
                                     <input type="hidden" name="idVenda" value="'.$value->idVenda.'" />
                                     <input type="hidden" name="id" value="'.$value->id.'" />
-                                    <input type="text" name="valor" readonly value="'.$value->preco_min.'" />
+                                    <!-- 🔒 READONLY - Players cannot edit this field -->
+                                    <input type="text" name="valor" value="'.$precoMercado.'" readonly class="readonly-price" style="cursor: not-allowed; background-color: #2a2a2a;" />
+                                    <small style="display:block; color:#888; font-size:10px; margin-top: 5px;">Preço fixo de venda</small>
                                 </div>
                                 <div class="td-market acoes">
                                     <input type="submit" name="vender" class="bt-vender" value="Vender" />
@@ -775,18 +782,19 @@ class Market {
                         </div>';
             }
 
-            // Mostra Navegador da Paginação
             $row .= '<div>'
-                   .$pager->paginar($pc, $tp)
-                  . '</div>';
+                .$pager->paginar($pc, $tp)
+                . '</div>';
         } else {
             $row .= '<div class="market-itens-body">
                         <div class="not-item">Nenhum item no inventário</div>
-                     </div>';
+                    </div>';
         }
             
         echo $row;
     }
+
+
     
     public function getListItens($id, $idUsuario, $pc, $qtd_resultados, $graduacao, $idPersonagem){
         $core = new Core();

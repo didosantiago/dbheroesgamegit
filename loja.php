@@ -146,10 +146,10 @@
                         <div class="infos">
                         <h5>
                             <?php 
-                            if (!empty($anuncio_1->idBoneco)) {
-                                echo $loja->getNomeFoto($anuncio_1->idBoneco, $anuncio_1->modulo, $anuncio_1->nome);
+                            if (!empty($anuncio1->idBoneco)) {
+                                echo $loja->getNomeFoto($anuncio1->idBoneco, $anuncio1->modulo, $anuncio1->nome);
                             } else {
-                                echo htmlspecialchars($anuncio_1->nome);
+                                echo htmlspecialchars($anuncio1->nome ?? 'Produto');  // ← ADD ?? 'Produto'
                             }
                             ?>
                         </h5>
@@ -201,10 +201,10 @@
                         <div class="infos">
                         <h5>
                             <?php 
-                            if (!empty($anuncio_2->idBoneco)) {
-                                echo $loja->getNomeFoto($anuncio_2->idBoneco, $anuncio_2->modulo, $anuncio_2->nome);
+                            if (!empty($anuncio2->idBoneco)) {
+                                echo $loja->getNomeFoto($anuncio2->idBoneco, $anuncio2->modulo, $anuncio2->nome);
                             } else {
-                                echo htmlspecialchars($anuncio_2->nome);
+                                echo htmlspecialchars($anuncio2->nome ?? 'Produto');  // ← ADD ?? 'Produto'
                             }
                             ?>
                         </h5>
@@ -1033,43 +1033,62 @@
         </div>
         
         <script type="text/javascript">
-            $('.bt-adquirir-item').on('click', function(){
-                swal({
-                    title: 'Deseja adquirir esse item?',
-                    text: '',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sim'
-                }).then((result) => {
-                    if (result.value) {
-                        var id = $('#idProduto').val();
-                        var foto = $('#foto').val();
-                        var modulo = $('#modulo').val();
-                        var valor = $('#valor').val();
-                        var idPersonagem = $('#idPersonagem').val();
-                        var idItem = $('#idItem').val();
-                        var idUsuario = $('#idUsuario').val();
-                        var data_string = 'id=' + id + '&valor=' + valor + '&foto=' + foto + '&idPersonagem=' + idPersonagem + '&idUsuario=' + idUsuario + '&modulo=' + modulo + '&idItem=' + idItem;
-
-                        $.ajax({
-                            type: 'POST',
-                            url: "<?php echo BASE; ?>ajax/ajaxAdquirirItem.php",
-                            data: data_string,
-                            success: function (res) {
-                                if(modulo == 1){
-                                    window.location.href = "<?php echo BASE; ?>minhas-fotos";
-                                } else if(modulo == 2){
-                                    window.location.href = "<?php echo BASE; ?>profile";
-                                } else if(modulo == 3){
-                                    window.location.href = "<?php echo BASE; ?>inventario";
-                                }
+        // Handle purchase button clicks with SweetAlert modal
+        $(document).on('click', '.bt-adquirir-item, .confirma-compra', function(e){
+            e.preventDefault();
+            
+            // Get purchase data from hidden inputs
+            var id = $('#idProduto').val();
+            var foto = $('#foto').val();
+            var modulo = $('#modulo').val();
+            var valor = $('#valor').val();
+            var idPersonagem = $('#idPersonagem').val() || $('#personagemLogged').val();
+            var idItem = $('#idItem').val();
+            var idUsuario = $('#idUsuario').val();
+            
+            console.log('Purchase data:', {id, foto, modulo, valor, idPersonagem, idItem, idUsuario});
+            
+            // Show SweetAlert confirmation
+            swal({
+                title: 'Deseja adquirir esse item?',
+                text: '',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sim'
+            }).then((result) => {
+                if (result.value) {
+                    var datastring = 'id=' + id + '&valor=' + valor + '&foto=' + foto + '&idPersonagem=' + idPersonagem + '&idUsuario=' + idUsuario + '&modulo=' + modulo + '&idItem=' + idItem;
+                    
+                    console.log('Sending purchase request...');
+                    
+                    $.ajax({
+                        type: 'POST',
+                        url: "<?php echo BASE; ?>ajax/ajaxAdquirirItem.php",
+                        data: datastring,
+                        success: function(res){
+                            console.log('Purchase successful!', res);
+                            
+                            // Redirect based on item type
+                            if(modulo == 1){
+                                window.location.href = "<?php echo BASE; ?>minhas-fotos";
+                            } else if(modulo == 2){
+                                window.location.href = "<?php echo BASE; ?>profile";
+                            } else if(modulo == 3){
+                                window.location.href = "<?php echo BASE; ?>inventario";
                             }
-                        });
-                    }
-                });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Purchase error:', error, xhr.responseText);
+                            swal('Erro!', 'Falha ao processar compra. Tente novamente.', 'error');
+                        }
+                    });
+                }
             });
+        });
         </script>
+
+
     <?php break; ?>
 <?php } ?>

@@ -165,7 +165,7 @@
         }
     }
 ?>
-
+<div class="academia-sayan-banner"></div>
 <div class="pontos-extras">
     Você possui <Strong><?php echo $personagem->pontos; ?></Strong> pontos extras para distribuir em um dos atributos abaixo.
 </div>

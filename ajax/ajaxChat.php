@@ -14,38 +14,39 @@
     $chat = new Chat();
     
     
-    if(addslashes($_POST['tipo']) == 'conversar'){
-        if(!empty(addslashes($_POST['mensagem']))){
-            $idPersonagem = addslashes($_POST['idPersonagem']);
-            $idAmigo = addslashes($_POST['idAmigo']);
+    if(isset($_POST['tipo']) && $_POST['tipo'] == 'conversar'){
+        if(!empty($_POST['mensagem'])){
+            $idPersonagem = (int)$_POST['idPersonagem'];
+            $idAmigo = (int)$_POST['idAmigo'];
             $dataHora = date('Y-m-d H:i:s');
-
-            $dadosPersonagem = $core->getDados('usuarios_personagens', "WHERE id = ".$idPersonagem);
-
-            $texto = "<span class='interacao'>".addslashes($_POST['mensagem'])."</span>";
+            $mensagem = htmlspecialchars($_POST['mensagem'], ENT_QUOTES, 'UTF-8');
 
             $campos = array(
                 'idPersonagem' => $idPersonagem,
                 'idAmigo' => $idAmigo,
-                'mensagem' => $texto,
+                'mensagem' => $mensagem,
                 'data' => $dataHora
             );
 
             $core->insert('adm_chat', $campos);
+            echo json_encode(['success' => true]);
+            exit;
         }
     }
     
-    if(addslashes($_POST['tipo']) == 'monitora'){
-        $idPersonagem = addslashes($_POST['idPersonagem']);
-        $idAmigo = addslashes($_POST['idAmigo']);
+    if(isset($_POST['tipo']) && $_POST['tipo'] == 'monitora'){
+        $idPersonagem = (int)$_POST['idPersonagem'];
+        $idAmigo = (int)$_POST['idAmigo'];
         
-        $chat->getChat($idPersonagem, $idAmigo);
+        echo $chat->getChat($idPersonagem, $idAmigo);  // <-- ECHO the returned HTML
+        exit;
     }
     
-    if(addslashes($_POST['tipo']) == 'ler'){
-        $idPersonagem = addslashes($_POST['idPersonagem']);
-        $idAmigo = addslashes($_POST['idAmigo']);
+    if(isset($_POST['tipo']) && $_POST['tipo'] == 'ler'){
+        $idPersonagem = (int)$_POST['idPersonagem'];
+        $idAmigo = (int)$_POST['idAmigo'];
         
         $chat->getLerMensagens($idPersonagem, $idAmigo);
+        exit;
     }
 ?>

@@ -1,4 +1,5 @@
 <?php 
+
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
     }
@@ -37,14 +38,38 @@
         $habilitado = 1;
 
         $idPersonagem = $_SESSION['PERSONAGEMID'];
-
         $parametro_1 = Url::getURL(1);
 
-        if(($parametro_1 != null) && ($parametro_1 != 'ajax')){
-            $oponente = $personagem->getOponente($parametro_1);
+        // Load my character
+        $myCharacter = new Personagens();
+        $myCharacter->getGuerreiro($idPersonagem);
+
+        // Initialize opponent as null
+        $oponente = null;
+
+        // Validate opponent ID from URL
+        if(($parametro_1 != null) && ($parametro_1 != 'ajax') && is_numeric($parametro_1)){
+            // Load opponent character directly
+            $oponente = new Personagens();
+            $oponente->getGuerreiro($parametro_1);
+
+            // Check if opponent was loaded successfully
+            if(!$oponente->id || !$oponente->idUsuario){
+                echo "FAILED AT: Opponent not found<br>";
+                $core->msg('error', 'Oponente não encontrado.');
+                header('Location: '.BASE.'ranking');
+                exit;
+            }         
+        } else {
+            // No valid opponent ID provided
+            $core->msg('error', 'ID do oponente inválido.');
+            header('Location: '.BASE.'ranking');
+            exit;
         }
 
-        $personagem->getGuerreiro($idPersonagem);
+        // Set $personagem for compatibility with rest of code
+        $personagem = $myCharacter;
+
 
         if($batalha->pvpRun($idPersonagem, $parametro_1)){
             $sql = "SELECT * FROM pvp WHERE id = ".$_SESSION['pvp_id'];
@@ -100,78 +125,115 @@
             unset($_SESSION['pvp_ki_oponente']);
             unset($_SESSION['pvp_final']);
         }
-        
+                
         if(!isset($_SESSION['pvp'])){
             if($personagem->hp <= 0){
+                echo "FAILED AT: Your HP is 0 (HP: {$personagem->hp})<br>"; die();
                 $habilitado = 0;
                 $core->msg('error', 'Seu HP é insuficiente para a luta.');
                 header('Location: '.BASE.'ranking');
+                exit;
             }
         }
 
         if($personagem->nivel < 10){
+            echo "FAILED AT: Your level < 10 (Nivel: {$personagem->nivel})<br>"; die();
             $habilitado = 0;
             $core->msg('error', 'Você não está habilitado para o PVP, é necessário ter level 10 no mínimo.');
             header('Location: '.BASE.'ranking');
+            exit;
         }
-        
+
         if($oponente->nivel < 10){
+            echo "FAILED AT: Opponent level < 10 (Nivel: {$oponente->nivel})<br>"; die();
             $habilitado = 0;
             $core->msg('error', 'Adversário não habilitado para o PVP, é necessário ter level 10 no mínimo.');
             header('Location: '.BASE.'ranking');
+            exit;
         }
-        
+
+
+        // Around line 150
         if($core->proccessInNotPVP()){
+            file_put_contents('debug_combate.txt', "REDIRECT: proccessInNotPVP\n", FILE_APPEND);
             $habilitado = 0;
             header('Location: '.BASE.'profile');
+            exit;
         }
-        
+
+        // Around line 155
         if($personagem->gold < 20){
+            file_put_contents('debug_combate.txt', "REDIRECT: Your gold < 20 (Gold: {$personagem->gold})\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'Gold insuficiente para a Batalha, realize caçadas ou missões para conseguir o gold necessário!');
             header('Location: '.BASE.'ranking');
+            exit;
         }
-        
+
+        // Around line 162
         if($equipes->verificaMembrosEquipe($idPersonagem, $oponente->id)){
+            file_put_contents('debug_combate.txt', "REDIRECT: Same team\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'Você não pode atacar membros da sua Equipe.');
             header('Location: '.BASE.'ranking');
+            exit;
         }
 
+        // Around line 169
         if($oponente->idUsuario == $user->id){
-            $habilitado = 0;
-            $core->msg('error', 'Você não pode atacar seus Guerreiros.');
-            header('Location: '.BASE.'ranking');
+            $core->msg('error', 'ATENÇÃO! Você não pode atacar personagens da mesma conta.');
+            ?>
+            <script>
+                window.location.href = '<?php echo BASE; ?>ranking';
+            </script>
+            <?php
+            exit;
         }
 
+
+
+        // Around line 176
         if($oponente->gold < 20){
+            file_put_contents('debug_combate.txt', "REDIRECT: Opponent gold < 20 (Gold: {$oponente->gold})\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'Seu adversário não tem Gold suficiente para a Batalha.');
             header('Location: '.BASE.'ranking');
+            exit;
         }
 
+        // Around line 183
         if($parametro_1 == $idPersonagem){
+            file_put_contents('debug_combate.txt', "REDIRECT: Attacking self\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'Você não pode se atacar.');
             header('Location: '.BASE.'pvp');
+            exit;
         }
-        
-        if($oponente->hp <= 0){
+
+        // Around line 190
+        if(!isset($_SESSION['pvp']) && $oponente->hp <= 0){
+            file_put_contents('debug_combate.txt', "REDIRECT: Opponent HP <= 0 (HP: {$oponente->hp})\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'O HP de seu adversário é insuficiente para a luta.');
             header('Location: '.BASE.'ranking');
+            exit;
         }
 
+        // Around line 197
         if($batalha->playerAtacadoDAY($idPersonagem, $parametro_1)){
+            file_put_contents('debug_combate.txt', "REDIRECT: Already attacked today\n", FILE_APPEND);
             $habilitado = 0;
             $core->msg('error', 'Você já atacou este guerreiro hoje, aguarde até amanhã para um novo ataque.');
             header('Location: '.BASE.'pvp');
+            exit;
+
         } else {
             if($batalha->getAtacouRecente($idPersonagem, $parametro_1)){
                 if(!isset($_SESSION['pvp'])){
                     $habilitado = 0;
-                    header('Location: '.BASE.'pvp');
                     $core->msg('error', 'Você atacou um adversário recentemente e não poderá atacar durante 10 minutos.');
+                    header('Location: '.BASE.'pvp');
+                    exit;
                 }
             } else {
                 if(!isset($_SESSION['pvp'])){
@@ -201,6 +263,16 @@
                 }
             }
         }
+
+// ========== DEBUG - Track all validation points ==========
+file_put_contents('debug_combate.txt', "\n=== NEW REQUEST ===\n", FILE_APPEND);
+file_put_contents('debug_combate.txt', "Opponent HP: " . $oponente->hp . "\n", FILE_APPEND);
+file_put_contents('debug_combate.txt', "SESSION pvp: " . (isset($_SESSION['pvp']) ? 'SET' : 'NOT SET') . "\n", FILE_APPEND);
+file_put_contents('debug_combate.txt', "Habilitado: " . $habilitado . "\n", FILE_APPEND);
+file_put_contents('debug_combate.txt', "pvpRun result: " . ($batalha->pvpRun($idPersonagem, $parametro_1) ? 'TRUE' : 'FALSE') . "\n", FILE_APPEND);
+file_put_contents('debug_combate.txt', "===================\n", FILE_APPEND);
+// ========== END DEBUG ==========
+
 
         if(isset($_POST['concluir'])){
             if(isset($_SESSION['pvp_vitoria'])){

@@ -30,7 +30,8 @@
     }
 ?>
 
-<h2 class="title">Lista de Amigos</h2>
+<div class="lista-de-amigos-banner"></div>
+<h2 class="title">Abaixo a lista de seus amigos</h2>
 
 <table class="lista-geral">
     <thead>

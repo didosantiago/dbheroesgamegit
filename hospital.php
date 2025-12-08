@@ -137,7 +137,7 @@
 ?>
 
 <div class="hospital-banner"></div>
-<h2 class="title"><i class="fas fa-plus-square"></i> Hospital</h2>
+<h2 class="title"></i> Hospital</h2>
 <link rel="stylesheet" href="css/minhas-fotos-effects.css">
 
 <ul class="ficha">
@@ -220,7 +220,7 @@
             <input type="submit" class="bts-form" name="recupera_vida_ki" value="Iniciar" />
         </form>
     </li>
-    
+   <div class="hospital-heal-banner">
 </ul>
 <style>
     

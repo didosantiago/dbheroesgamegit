@@ -1,6 +1,7 @@
 DBH.inventario = (function() {
+
     var unequipInProgress = false;
-    
+
     var init = function() {
         loadInventory();
         loadEmblemas();
@@ -8,7 +9,7 @@ DBH.inventario = (function() {
         loadAdesivos();
         selectItem();
     },
-    
+
     loadInventory = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
@@ -23,7 +24,7 @@ DBH.inventario = (function() {
             }
         });
     },
-    
+
     loadEmblemas = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
@@ -35,7 +36,7 @@ DBH.inventario = (function() {
             }
         });
     },
-    
+
     loadEquipamentos = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
@@ -47,7 +48,7 @@ DBH.inventario = (function() {
             }
         });
     },
-    
+
     loadAdesivos = function() {
         var guerreiro = $('#personagemLogged').val();
         $.ajax({
@@ -59,20 +60,18 @@ DBH.inventario = (function() {
             }
         });
     },
-    
+
     selectItem = function() {
         $(document).on('click', '.content-inventory .itens ul li', function() {
             var id = $(this).attr('dataid');
             var dataAdesivo = $(this).attr('dataadesivo');
             var dataEmblema = $(this).attr('dataemblema');
             var dataConsumivel = $(this).attr('dataconsumivel');
-            
-            console.log("Item clicked:", {id, dataAdesivo, dataEmblema, dataConsumivel}); // DEBUG
+            console.log("Item clicked:", {id, dataAdesivo, dataEmblema, dataConsumivel});
             
             if (typeof id !== 'undefined' && id !== false) {
                 if(dataAdesivo == 1){
-                    // Equipar Adesivo
-                    console.log("Equipando adesivo..."); // DEBUG
+                    console.log("Equipando adesivo...");
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioAdesivos.php",
@@ -83,8 +82,7 @@ DBH.inventario = (function() {
                         }
                     });
                 } else if(dataEmblema == 1){
-                    // Equipar Emblema
-                    console.log("Equipando emblema..."); // DEBUG
+                    console.log("Equipando emblema...");
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioEmblemas.php",
@@ -95,8 +93,7 @@ DBH.inventario = (function() {
                         }
                     });
                 } else if(dataConsumivel == 1){
-                    // ConsumÃ­vel - usar item
-                    console.log("Usando consumÃ­vel..."); // DEBUG
+                    console.log("Usando consumível...");
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioEquipado.php",
@@ -106,8 +103,7 @@ DBH.inventario = (function() {
                         }
                     });
                 } else {
-                    // Equipar Equipamento Normal
-                    console.log("Equipando equipamento..."); // DEBUG
+                    console.log("Equipando equipamento...");
                     $.ajax({
                         type: "POST",
                         url: "ajax/ajaxInventarioEquipamentos.php",
@@ -120,14 +116,13 @@ DBH.inventario = (function() {
                 }
             }
         });
-        
+
         // Desequipar Emblemas
         $(document).on('click', '.emblemas ul li.emblema', function() {
             if (unequipInProgress) return;
             unequipInProgress = true;
-            
             var idSlot = $(this).attr('dataid');
-            console.log("Desequipando emblema slot:", idSlot); // DEBUG
+            console.log("Desequipando emblema slot:", idSlot);
             
             if (typeof idSlot !== 'undefined' && idSlot !== false) {
                 $.ajax({
@@ -147,14 +142,13 @@ DBH.inventario = (function() {
                 unequipInProgress = false;
             }
         });
-        
+
         // Desequipar Equipamentos
         $(document).on('click', '.equipamentos ul li.equipped', function() {
             if (unequipInProgress) return;
             unequipInProgress = true;
-            
             var idSlot = $(this).attr('dataid');
-            console.log("Desequipando equipamento slot:", idSlot); // DEBUG
+            console.log("Desequipando equipamento slot:", idSlot);
             
             if (typeof idSlot !== 'undefined' && idSlot !== false) {
                 $.ajax({
@@ -174,14 +168,13 @@ DBH.inventario = (function() {
                 unequipInProgress = false;
             }
         });
-        
+
         // Desequipar Adesivos
         $(document).on('click', '.adesivos ul li.adesivo', function() {
             if (unequipInProgress) return;
             unequipInProgress = true;
-            
             var idSlot = $(this).attr('dataid');
-            console.log("Desequipando adesivo slot:", idSlot); // DEBUG
+            console.log("Desequipando adesivo slot:", idSlot);
             
             if (typeof idSlot !== 'undefined' && idSlot !== false) {
                 $.ajax({
@@ -201,8 +194,51 @@ DBH.inventario = (function() {
                 unequipInProgress = false;
             }
         });
+
+        // =========================================
+        // LOJA PURCHASE HANDLER
+        // =========================================
+        $(document).on('click', '.btn-comprar-loja', function(e) {
+            e.preventDefault();
+            
+            var $button = $(this);
+            var idProduto = $button.data('idproduto');
+            var guerreiro = $('#personagemLogged').val();
+            
+            if (!idProduto) {
+                console.error("ID do produto não encontrado!");
+                return;
+            }
+            
+            console.log("Comprando produto:", idProduto, "Guerreiro:", guerreiro);
+            
+            // Disable button during purchase
+            $button.prop('disabled', true).text('Processando...');
+            
+            $.ajax({
+                type: "POST",
+                url: "ajax/ajaxAdquirirItem.php",
+                data: { 
+                    id: idProduto,
+                    idPersonagem: guerreiro
+                },
+                success: function(response) {
+                    console.log("Compra bem-sucedida!");
+                    // Reload page to update coins/inventory
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error("Erro na compra:", error);
+                    console.error("Response:", xhr.responseText);
+                    alert('Erro ao processar compra. Tente novamente.');
+                    $button.prop('disabled', false).text('COMPRAR');
+                }
+            });
+        });
+
+
     };
-    
+
     return {
         init: init,
         loadInventory: loadInventory,
@@ -211,40 +247,38 @@ DBH.inventario = (function() {
         loadAdesivos: loadAdesivos
     };
 
-    
 })();
 
-    function attachInventoryTooltips() {
-        document.querySelectorAll('.slot-item').forEach(function(el){
-            el.onmouseenter = function(e){
-                document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
-                var itemId = this.getAttribute('data-item');
-                var data = window.INVENTORY_ITEMS[itemId];
-                if (!data) return;
-                var tip = document.createElement("div");
-                tip.className = "item-tooltip";
-                tip.innerHTML =
-                    "<strong>"+data.nome+"</strong><br>"
-                    +(data.forca ? "ForÃ§a: <span style='color:#5b5'>+"+data.forca+"</span><br>" : "")
-                    +(data.agilidade ? "Agilidade: <span style='color:#5b5'>+"+data.agilidade+"</span><br>" : "")
-                    +(data.habilidade ? "Habilidade: <span style='color:#5b5'>+"+data.habilidade+"</span><br>" : "")
-                    +(data.resistencia ? "ResistÃªncia: <span style='color:#5b5'>+"+data.resistencia+"</span><br>" : "")
-                    +(data.sorte ? "Sorte: <span style='color:#5b5'>+"+data.sorte+"</span><br>" : "");
-                document.body.appendChild(tip);
-                function moveTooltip(ev){
-                    tip.style.position='fixed';
-                    tip.style.left = (ev.clientX+20)+'px';
-                    tip.style.top = (ev.clientY+20)+'px';
-                    tip.style.zIndex=10000;
-                }
-                moveTooltip(e);
-                el.onmousemove = moveTooltip;
-                el.onmouseleave = function() {
-                    tip.remove();
-                    el.onmousemove = null;
-                    el.onmouseleave = null;
-                };
+function attachInventoryTooltips() {
+    document.querySelectorAll('.slot-item').forEach(function(el){
+        el.onmouseenter = function(e){
+            document.querySelectorAll('.item-tooltip').forEach(x => x.remove());
+            var itemId = this.getAttribute('data-item');
+            var data = window.INVENTORY_ITEMS[itemId];
+            if (!data) return;
+            var tip = document.createElement("div");
+            tip.className = "item-tooltip";
+            tip.innerHTML =
+                "<strong>"+data.nome+"</strong>"
+                +(data.forca ? "<div>Força: +"+data.forca+"</div>" : "")
+                +(data.agilidade ? "<div>Agilidade: +"+data.agilidade+"</div>" : "")
+                +(data.habilidade ? "<div>Habilidade: +"+data.habilidade+"</div>" : "")
+                +(data.resistencia ? "<div>Resistência: +"+data.resistencia+"</div>" : "")
+                +(data.sorte ? "<div>Sorte: +"+data.sorte+"</div>" : "");
+            document.body.appendChild(tip);
+            function moveTooltip(ev){
+                tip.style.position='fixed';
+                tip.style.left = (ev.clientX+20)+'px';
+                tip.style.top = (ev.clientY+20)+'px';
+                tip.style.zIndex=10000;
+            }
+            moveTooltip(e);
+            el.onmousemove = moveTooltip;
+            el.onmouseleave = function() {
+                tip.remove();
+                el.onmousemove = null;
+                el.onmouseleave = null;
             };
-        });
-    }
-
+        };
+    });
+}

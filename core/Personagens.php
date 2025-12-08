@@ -310,20 +310,28 @@ class Personagens {
 
     
     public function getOponente($id){
-        if($id != ''){
-            $sql = "SELECT up.*, pn.nome as planeta, p.raca "
-                 . "FROM usuarios_personagens as up "
-                 . "INNER JOIN personagens as p ON p.id = up.idPersonagem "
-                 . "INNER JOIN planetas as pn ON pn.id = up.idPlaneta "
-                 . "WHERE up.id = '$id'";
+        $id = (int)$id; // Ensure it's a number
+        
+        if($id > 0){
+            $sql = "SELECT up.*, pn.nome as planeta, p.raca 
+                    FROM usuarios_personagens as up 
+                    INNER JOIN personagens as p ON p.id = up.idPersonagem 
+                    INNER JOIN planetas as pn ON pn.id = up.idPlaneta 
+                    WHERE up.id = ?";
 
             $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $row = $stmt->fetch();
+            $stmt->execute([$id]);
             
-            return $row;
+            // Return the opponent data if found, otherwise null
+            if($stmt->rowCount() > 0){
+                return $stmt->fetch(PDO::FETCH_OBJ);
+            }
         }
+        
+        return null;
     }
+
+
        
     public function existsGuerreiro($idUsuario){
         if($idUsuario != ''){
@@ -1554,14 +1562,22 @@ class Personagens {
     
     public function getAmigos($idPersonagem){
         $user = new Usuarios();
+        $core = new Core();
         
         $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC";
         
+        $row = '';
+        
+        // ==================================================================
+        // QUERY 1: Get friends where THIS character SENT the friend request
+        // Shows: Accepted friends + Pending outgoing requests
+        // ==================================================================
         $sql = "SELECT "
             . "up.*, up.id as idP, pa.id as idAmizade, up.foto as foto_personagem, "
             . "u.*, "
             . "up.nome as nome_guerreiro, "
             . "pa.aceitou, "
+            . "pa.idPersonagem as solicitante, "
             . "p.nome as planeta, p.imagem as img_planeta "
             . "FROM personagens_amigos as pa "
             . "INNER JOIN usuarios_personagens as up ON up.id = pa.idAmigo "
@@ -1573,8 +1589,6 @@ class Personagens {
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
-        $row = '';
-        
         if($stmt->rowCount() > 0){
             $item = $stmt->fetchAll();
 
@@ -1584,7 +1598,7 @@ class Personagens {
                 $row .= '<tr>
                             <td>
                                 <a href="'.BASE.'publico/'.$value->idP.'">
-                                    <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" />
+                                    <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
                                 </a>
                             </td>
                             <td width="250">
@@ -1595,33 +1609,49 @@ class Personagens {
                             <td width="250">'.$this->verificaGraduacao($value->nivel).'</td>
                             <td>'.$value->nivel.'</td>
                             <td>'.$value->vitorias_pvp.'</td>
-                            <td>'.$value->derrotas_pvp.'</td>
+                            <td>'.$this->getDerrotasPVP($value->idP).'</td>
                             <td>'.$value->tam.'</td>
                             <td>'.$value->gold_total.'</td>
                             <td>'.$user->isGuerreiroOnline($value->idP).'</td>';
+                            
                             if($value->aceitou == 1){
-                                $row .= '<td class="pendente" title="Desfazer Amizade">
-                                            <form id="deletarAmizade" method="post">
+                                // ✅ Already friends - show REMOVE button
+                                $row .= '<td class="action-cell">
+                                            <form method="post" class="inline-form">
                                                 <input type="hidden" name="deletar" value="'.$value->idAmizade.'" />
-                                                <button type="submit" style="border: 0; background: none;" title="Desfazer Amizade?">
-                                                    <i class="fa fa-trash"></i>
+                                                <button type="submit" class="btn-remove" title="Desfazer Amizade">
+                                                    <i class="fa fa-user-times"></i> Remover
                                                 </button> 
                                             </form>
-                                         </td>';
+                                        </td>';
                             } else {
-                                $row .= '<td class="pendente" title="Pendente">
-                                            <i class="fas fa-exclamation"></i>
-                                         </td>';
+                                // ⏳ Pending request YOU sent - show AGUARDANDO status + cancel
+                                $row .= '<td class="action-cell pending-status">
+                                            <span class="status-badge pending">
+                                                <i class="fas fa-clock"></i> Aguardando
+                                            </span>
+                                            <form method="post" class="inline-form">
+                                                <input type="hidden" name="deletar" value="'.$value->idAmizade.'" />
+                                                <button type="submit" class="btn-cancel" title="Cancelar Solicitação">
+                                                    <i class="fa fa-times"></i>
+                                                </button> 
+                                            </form>
+                                        </td>';
                             }
-                            $row .= '</tr>';
+                        $row .= '</tr>';
             }
         }
         
+        // ==================================================================
+        // QUERY 2: Get friends where THIS character RECEIVED the friend request
+        // Shows: Accepted friends + Pending INCOMING requests (to accept)
+        // ==================================================================
         $sql = "SELECT "
             . "up.*, up.id as idP, pa.id as idAmizade, up.foto as foto_personagem, "
             . "u.*, "
             . "up.nome as nome_guerreiro, "
             . "pa.aceitou, "
+            . "pa.idPersonagem as solicitante, "
             . "p.nome as planeta, p.imagem as img_planeta "
             . "FROM personagens_amigos as pa "
             . "INNER JOIN usuarios_personagens as up ON up.id = pa.idPersonagem "
@@ -1639,10 +1669,10 @@ class Personagens {
             foreach ($item_amigos as $key => $value) {
                 $ft = str_replace('cards/', '', $value->foto_personagem);
 
-                $row .= '<tr class="'.$top.'">
+                $row .= '<tr>
                             <td>
                                 <a href="'.BASE.'publico/'.$value->idP.'">
-                                    <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" />
+                                    <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;" />
                                 </a>
                             </td>
                             <td width="250">
@@ -1653,41 +1683,58 @@ class Personagens {
                             <td width="250">'.$this->verificaGraduacao($value->nivel).'</td>
                             <td>'.$value->nivel.'</td>
                             <td>'.$value->vitorias_pvp.'</td>
-                            <td>'.$value->derrotas_pvp.'</td>
+                            <td>'.$this->getDerrotasPVP($value->idP).'</td>
                             <td>'.$value->tam.'</td>
                             <td>'.$value->gold_total.'</td>
                             <td>'.$user->isGuerreiroOnline($value->idP).'</td>';
+                            
                             if($value->aceitou == 0){
-                                $row .= '<td class="aprovado">
-                                            <form id="confirmarAmizade" method="post">
+                                // 🟢 Incoming request - show ACCEPT + REJECT buttons
+                                $row .= '<td class="action-cell">
+                                            <form method="post" class="inline-form">
                                                 <input type="hidden" name="aceitar" value="'.$value->idAmizade.'" />
-                                                <button type="submit" style="border: 0; background: none;" title="Confirmar Amizade?">
-                                                    <i class="fas fa-check"></i>
+                                                <button type="submit" class="btn-accept" title="Aceitar Amizade">
+                                                    <i class="fas fa-check"></i> Aceitar
                                                 </button> 
-                                             </form>
-                                         </td>';
-                            } else {
-                                $row .= '<td class="pendente">
-                                            <form id="deletarAmizade" method="post">
+                                            </form>
+                                            <form method="post" class="inline-form">
                                                 <input type="hidden" name="deletar" value="'.$value->idAmizade.'" />
-                                                <button type="submit" style="border: 0; background: none;" title="Desfazer Amizade?">
-                                                    <i class="fa fa-trash"></i>
+                                                <button type="submit" class="btn-reject" title="Rejeitar">
+                                                    <i class="fa fa-times"></i>
                                                 </button> 
-                                             </form>
-                                         </td>';
+                                            </form>
+                                        </td>';
+                            } else {
+                                // ✅ Already friends - show REMOVE button
+                                $row .= '<td class="action-cell">
+                                            <form method="post" class="inline-form">
+                                                <input type="hidden" name="deletar" value="'.$value->idAmizade.'" />
+                                                <button type="submit" class="btn-remove" title="Desfazer Amizade">
+                                                    <i class="fa fa-user-times"></i> Remover
+                                                </button> 
+                                            </form>
+                                        </td>';
                             }
-                         $row .= '</tr>';
+                        $row .= '</tr>';
             }
         }
         
+        // ==================================================================
+        // Empty state message
+        // ==================================================================
         if($row == ''){
             $row .= '<tr>'
-                   . '<td colspan="10">Nenhum amigo adicionado.</td>'
-                 . '</tr>'; 
+                . '<td colspan="10" style="text-align: center; padding: 40px; color: #daff45;">
+                        <i class="fas fa-user-friends" style="font-size: 48px; margin-bottom: 15px; display: block;"></i>
+                        <p style="font-size: 18px;">Nenhum amigo adicionado ainda.</p>
+                        <p style="font-size: 14px; margin-top: 10px;">Visite perfis de outros jogadores e adicione amigos!</p>
+                    </td>'
+                . '</tr>'; 
         }
         
         echo $row;
     }
+
     
     public function getAmigosPending($idPersonagem){
         $sql = "SELECT count(*) as total FROM personagens_amigos WHERE idAmigo = $idPersonagem AND aceitou = 0";
