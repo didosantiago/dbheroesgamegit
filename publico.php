@@ -373,7 +373,7 @@
                         <?php } else { ?>
                             <button type="button" disabled class="btn-atacar-pvp disabled" title="<?php echo implode(' | ', $errorMessages); ?>">
                                 <i class="fas fa-ban"></i>
-                                <span>BLOQUEADO</span>
+                                <span>PVP BLOQUEADO</span>
                             </button>
                             <div class="pvp-requirements">
                                 <?php foreach($errorMessages as $msg){ ?>

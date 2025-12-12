@@ -64,13 +64,13 @@ class Npc {
             'concluido' => 0,
             'vencedor' => 0,
             'atacou' => 0,
-            'atacado' => 0
+            'atacado' => 1
         );
 
 
         $core->insert('npc', $campos);
 
-        $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem ORDER BY id DESC LIMIT 1";
+        $sql = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND concluido = 0 ORDER BY id DESC LIMIT 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $dados_npc = $stmt->fetch();
@@ -156,12 +156,45 @@ class Npc {
             } else {
                 $dados_ataque = $core->getDados('ataques', 'WHERE id = 4');
             }
+            
+            // ✅ BUG #3 FIX: Apply VIP HP reduction when NPC attacks player
+            // Get player's VIP status to apply correct HP reduction to NPC
+            $sql_user = "SELECT vip FROM usuarios WHERE id = ".$dados_atacado->idUsuario;
+            $stmt_user = DB::prepare($sql_user);
+            $stmt_user->execute();
+            $user_vip = $stmt_user->fetch();
+            
+            // Reduce NPC HP based on player VIP status (this is attacker when desafiante=0)
+            if($user_vip && $user_vip->vip == 1){
+                $porcentagemVip = round((40/100) * intval($dados_atacante->hp));
+                $dados_atacante->hp = round($dados_atacante->hp - $porcentagemVip);
+            } else {
+                $porcentagemFree = round((20/100) * intval($dados_atacante->hp));
+                $dados_atacante->hp = round($dados_atacante->hp - $porcentagemFree);
+            }
+            
         } else {
             $dados_atacado = $this->getDadosAdv($idAdversario);
             $dados_atacante = $core->getDados('usuarios_personagens', 'WHERE id = '.$meuID);
             $dados_ataque = $core->getDados('ataques', 'WHERE id = '.$idAtack);
 
             $status_extra_graduacao = intval($core->getStatusGraduacao($dados_atacante->graduacao));
+            
+            // ✅ BUG #3 FIX: Apply VIP HP reduction when player attacks NPC
+            // Get player's VIP status
+            $sql_user = "SELECT vip FROM usuarios WHERE id = ".$dados_atacante->idUsuario;
+            $stmt_user = DB::prepare($sql_user);
+            $stmt_user->execute();
+            $user_vip = $stmt_user->fetch();
+            
+            // Reduce NPC HP (defender) based on player VIP status
+            if($user_vip && $user_vip->vip == 1){
+                $porcentagemVip = round((40/100) * intval($dados_atacado->hp));
+                $dados_atacado->hp = round($dados_atacado->hp - $porcentagemVip);
+            } else {
+                $porcentagemFree = round((20/100) * intval($dados_atacado->hp));
+                $dados_atacado->hp = round($dados_atacado->hp - $porcentagemFree);
+            }
         }
 
         $forca_equipados = 0;
@@ -180,7 +213,6 @@ class Npc {
             $stmt = DB::prepare($sql);
             $stmt->execute();
             $dados_npc = $stmt->fetch();
-
 
             $status_equipados = $inventario->getStatusEquipados($meuID);
 
@@ -223,17 +255,16 @@ class Npc {
             $defesa_atacado = $dados_atacado->resistencia;
         }
 
-        // FIX: Check if attacker is dead before attacking
-        if ($desafiante == 0 && ($dados_atacante->hp - $lifes->dano_atacante) <= 0) {
-            return; // NPC is dead, stop attack
+        // ✅ BUG #2 FIX: Check if NPC is dead before attacking
+        if ($desafiante == 0) {
+            // Get current HP state
+            $lifes_check = $this->getLifeRestante($dados_npc->id);
+            $npc_current_hp = $dados_atacante->hp - $lifes_check->dano_atacado;
+            
+            if ($npc_current_hp <= 0) {
+                //return; // NPC is dead, stop attack
+            }
         }
-        
-        if ($desafiante == 0) { // 0 means NPC is attacking
-        $npc_current_hp = $dados_atacante->hp - $lifes->dano_atacado; // Adjust based on your variable names
-        if ($npc_current_hp <= 0) {
-            return; // NPC is dead, do not proceed with attack
-        }
-    }
 
         //CALCULA O DANO CAUSADO
         if($desafiante == 0){
@@ -258,9 +289,7 @@ class Npc {
                 'ki_usado' => intval($dados_atacante->ki_usado) + $dados_ataque->ki
             );
 
-
             $where_up_ki = 'id = "'.$meuID.'"';
-
 
             $core->update('usuarios_personagens', $campos_up_ki, $where_up_ki);
         }
@@ -293,7 +322,7 @@ class Npc {
                                     . "<strong>".$dados_atacante->nome."</strong> atacou <strong>".$dados_atacado->nome."</strong> com um <strong>".$dados_ataque->nome."</strong> e causou <strong>".$dano_final."</strong> ".$acertou_critico.". "
                                 . "</div>"
                                 . "<em class='round'>Round <strong>".$round."</strong></em>"
-                           . "</div>"
+                        . "</div>"
                 );
             } else {
                 $campos = array(
@@ -306,7 +335,7 @@ class Npc {
                                     . "<strong>".$dados_atacado->nome."</strong> desviou do <strong>".$dados_ataque->nome."</strong> de <strong>".$dados_atacante->nome."</strong> e não sofreu dano "
                                 . "</div>"
                                 . "<em class='round'>Round <strong>".$round."</strong></em>"
-                           . "</div>"
+                        . "</div>"
                 );
             }
         } else {
@@ -330,7 +359,7 @@ class Npc {
                                     . "<strong>".$dados_atacante->nome."</strong> atacou <strong>".$dados_atacado->nome."</strong> com um <strong>".$dados_ataque->nome."</strong> e causou <strong>".$dano_final."</strong> ".$acertou_critico.". "
                                 . "</div>"
                                 . "<em class='round'>Round <strong>".$round."</strong></em>"
-                           . "</div>"
+                        . "</div>"
                 );
             } else {
                 $campos = array(
@@ -349,7 +378,6 @@ class Npc {
             }
         }
 
-
         $core->insert('npc_historico', $campos);
 
         //ATUALIZA O TEMPO FINAL DO ROUND
@@ -362,9 +390,7 @@ class Npc {
                 'time_final' => $contador
             );
 
-
             $where_npc = 'id = "'.$dados_npc->id.'"';
-
 
             $core->update('npc', $campos_npc, $where_npc);
         } else {
@@ -374,13 +400,10 @@ class Npc {
                 'time_final' => $contador
             );
 
-
             $where_npc = 'id = "'.$dados_npc->id.'"';
-
 
             $core->update('npc', $campos_npc, $where_npc);
         }
-
 
         if($desafiante == 0){
             $dados_npc = $core->getDados('npc', 'WHERE idPersonagem = '.$idAdversario.' AND idDesafiado = '.$meuID.' AND concluido = 0 ORDER BY id DESC LIMIT 1');
@@ -391,21 +414,12 @@ class Npc {
         $lifes = $this->getLifeRestante($dados_npc->id);
         $kis = $this->getKiRestante($dados_npc->id);
 
-        // Get the correct NPC HP considering VIP/Free reduction
+        // ✅ HP calculation now uses ALREADY REDUCED HP from earlier fix
         if($desafiante == 0){
-            $life_oponente = $dados_atacante->hp - $lifes->dano_atacante;
-            $ki_oponente = $dados_atacante->ki - $kis->ki_npc;
+            $life_oponente = $dados_atacante->hp - $lifes->dano_atacado; // Already reduced HP
+            $ki_oponente = $dados_atacante->mana - $kis->ki_npc;
         } else {
-            // Apply the same HP reduction as shown to the player
-            $vip = 1; // Get from session or user data
-            if($vip == 1){
-                $porcentagemVip = round((40/100) * intval($dados_atacado->hp));
-                $hp_npc = round($dados_atacado->hp - $porcentagemVip);
-            } else {
-                $porcentagemFree = round((20/100) * intval($dados_atacado->hp));
-                $hp_npc = round($dados_atacado->hp - $porcentagemFree);
-            }
-            $life_oponente = $hp_npc - $lifes->dano_atacado;
+            $life_oponente = $dados_atacado->hp - $lifes->dano_atacado; // Already reduced HP
         }
 
         // Check defeat condition
@@ -413,20 +427,44 @@ class Npc {
             $finalizado = 1;
         }
 
-
-    // ✅ NPC COUNTER-ATTACK (Immediate)
-        if($desafiante == 1 && $finalizado == 0){
-            // Player just attacked, trigger NPC counter-attack immediately
-            $this->atack(
-                4,              // Soco (basic attack)
-                $idAdversario,  // NPC attacks
-                $meuID,         // Player defends
-                0,              // desafiante = 0 (NPC turn)
-                0               // Not finished yet
+        // ✅ CORRECT: Only check death when someone actually died
+        if($life_oponente <= 0){
+            // Get player HP too
+            if($desafiante == 0){
+                $player_hp_final = $core->getDados('usuarios_personagens', 'WHERE id = '.$idAdversario)->hp - $lifes->dano_atacante;
+                $npc_hp_final = $life_oponente;
+            } else {
+                $player_hp_final = $core->getDados('usuarios_personagens', 'WHERE id = '.$meuID)->hp - $lifes->dano_atacante;
+                $npc_hp_final = $life_oponente;
+            }
+            
+            // Mark battle as finished
+            $vencedorfinal = ($npc_hp_final <= 0) ? 1 : 0; // 1 = player wins, 0 = NPC wins
+            
+            $campos_final = array(
+                'concluido' => 1,
+                'vencedor' => $vencedorfinal
             );
+            $where_final = 'id = "'.$dados_npc->id.'"';
+            $core->update('npc', $campos_final, $where_final);
+            
+            // Set session flags for victory/defeat popup
+            if($vencedorfinal == 1){
+                $_SESSION['npc_vitoria'] = true;
+            } else {
+                $_SESSION['npc_derrota'] = true;
+            }
+            $_SESSION['npc_finalizado'] = 1;
+            // ✅ ADD THIS: Stop execution here!
+            return;
         }
-
     }
+
+
+
+        
+
+
 
 
 

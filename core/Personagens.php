@@ -1377,7 +1377,18 @@ class Personagens {
     public function getAllFotosPersonagem($idPersonagem, $foto_atual, $vip, $graduacao, $boneco, $idUsuario){
         $core = new Core();
         
-        $sql = "SELECT * FROM personagens_fotos WHERE idPersonagem = $boneco AND status = 1 ORDER BY free DESC, raridade ASC";
+        // ✅ FIXED: Order by ownership first (unlocked first), then free status, then rarity
+        $sql = "SELECT pf.*, 
+                    CASE 
+                        WHEN pf.free = 1 THEN 1
+                        WHEN upf.id IS NOT NULL THEN 1
+                        ELSE 0
+                    END as is_owned
+                FROM personagens_fotos pf
+                LEFT JOIN usuarios_personagens_fotos upf 
+                    ON upf.foto = pf.foto AND upf.idUsuario = $idUsuario
+                WHERE pf.idPersonagem = $boneco AND pf.status = 1
+                ORDER BY is_owned DESC, pf.free DESC, pf.raridade ASC";
         
         $stmt = DB::prepare($sql);
         $stmt->execute();
@@ -1389,6 +1400,7 @@ class Personagens {
             $class = '';
             $bloqueada = '';
             
+            // Rarity colors
             if($value->raridade == 1){
                 $class = 'verde';
             } else if($value->raridade == 2){
@@ -1399,50 +1411,40 @@ class Personagens {
                 $class = 'laranja';
             }
             
-            if($value->free == 1){
-                $identificador = str_replace('.', '-', $value->foto);
-                
-                $row .= '<li dataImage="'.$value->foto.'" id="'.$identificador.'-1" class="'.$class.'">';
-
-                    if($foto_atual == $value->foto){
-                        $row .= '<i class="fas fa-check-circle"></i>';
-                    }
-                $row .= '<img src="'.BASE.'assets/cards/'.$value->foto.'" alt="Foto" />
-                         </li>';
-            } else {
-                $sql = "SELECT * FROM usuarios_personagens_fotos WHERE idUsuario = $idUsuario AND foto = '$value->foto'";
-                $stmt = DB::prepare($sql);
-                $stmt->execute();
-                $encontrouVip = $stmt->fetch();
-                
-                if($encontrouVip == false){
-                    $bloqueada = 'bloqueado';
+            // Check if photo is owned (free OR purchased)
+            $is_owned = ($value->is_owned == 1);
+            
+            if(!$is_owned){
+                $bloqueada = 'bloqueado';
+            }
+            
+            $identificador = str_replace('.', '-', $value->foto);
+            
+            $row .= '<li dataImage="'.$value->foto.'" id="'.$identificador.'-1" class="'.$bloqueada.' '.$class.'">'; 
+            
+                // Show lock icon only if not owned
+                if(!$is_owned){
+                    $row .= '<a href="'.BASE.'loja">
+                                <div class="imagem-bloqueada">
+                                    <i class="fas fa-lock"></i>
+                                    Em Breve na Loja de itens
+                                    <span class="txt-graduacao">Verifique a Disponibilidade</span>
+                                </div>
+                            </a>';
                 }
                 
-                $identificador = str_replace('.', '-', $value->foto);
+                // Show checkmark if this is current photo
+                if($foto_atual == $value->foto){
+                    $row .= '<i class="fas fa-check-circle"></i>';
+                }
                 
-                $row .= '<li dataImage="'.$value->foto.'" id="'.$identificador.'-1" class="'.$bloqueada.' '.$class.'">'; 
-                
-                            if($encontrouVip == false){
-                                $row .= '<a href="'.BASE.'loja">
-                                            <div class="imagem-bloqueada">
-                                                <i class="fas fa-lock"></i>
-                                                Em Breve na Loja de itens
-                                                <span class="txt-graduacao">Verifique a Disponibilidade</span>
-                                            </div>
-                                        </a>';
-                            }
-                
-                            if($foto_atual == $value->foto){
-                                $row .= '<i class="fas fa-check-circle"></i>';
-                            }
-                $row .= '<img src="'.BASE.'assets/cards/'.$value->foto.'" alt="Foto" />
-                         </li>';
-            }
+            $row .= '<img src="'.BASE.'assets/cards/'.$value->foto.'" alt="Foto" />
+                    </li>';
         } 
         
         echo $row;
     }
+
     
     public function getListCharacters($perfil){
         $core = new Core();

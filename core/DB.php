@@ -106,7 +106,8 @@ class DB{
         }
     }
     
-    public static function insert($table = null, $data) {
+    // ✅ FIXED: Removed optional parameter before required parameter
+    public static function insert($table, $data) {
         if ($table === null or empty($data) or ! is_array($data)) {
             return false;
         }

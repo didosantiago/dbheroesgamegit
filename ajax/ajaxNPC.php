@@ -11,18 +11,19 @@
     
     $npc->contadorNPC(addslashes($_POST['id']));
 
-    // Handle pause action
+    // ✅ BUG #6 FIX: Handle pause action with proper timestamp
     if(isset($_POST['action']) && $_POST['action'] == 'pause' && isset($_POST['npc_id'])){
         $core = new Core();
         
         $campos = array(
             'pausado' => 1,
-            'time_pausado' => time() + 300  // 5 minutes to return
+            'time_pausado' => time()  // ✅ FIXED: Save CURRENT time (not +300)
         );
         
-        $where = 'id = "'.intval($_POST['npc_id']).'"';
-        $core->update('npc', $campos, $where);
+        $where = 'id = ?';
+        $whereParams = array(intval($_POST['npc_id']));
+        $core->update('npc', $campos, $where, $whereParams);
+        
         exit;
     }
-
 ?>
