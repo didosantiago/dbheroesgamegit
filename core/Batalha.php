@@ -1014,7 +1014,7 @@ class Batalha {
     }
     
     public function getListaGolpes($ki, $level) {
-        $sql = "SELECT * FROM ataques ORDER BY ki ASC";
+        $sql = "SELECT * FROM ataques ORDER BY level + 0 ASC";  // ✅ CORRECT - order by LEVEL as number
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetchAll(PDO::FETCH_ASSOC);

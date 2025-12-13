@@ -93,6 +93,86 @@
         <?php if(!$isPublicPage){ ?>
             <?php require_once 'includes/menu-mobile.php'; ?>
             <?php require_once 'includes/header.php'; ?>
+             <!-- ✅ ADD THIS ENTIRE SECTION HERE -->
+            <?php
+            // ✅ Check if EXP capsule buff is active
+            $capsula_ativa = false;
+            $tempo_restante = 0;
+
+            if(isset($_SESSION['PERSONAGEMID'])){
+                $sql_buff = "SELECT * FROM personagens_buffs 
+                            WHERE idPersonagem = ? 
+                            AND tipo = 'experiencia' 
+                            AND ativo = 1 
+                            AND tempo_fim > NOW()
+                            ORDER BY id DESC LIMIT 1";
+                $stmt_buff = DB::prepare($sql_buff);
+                $stmt_buff->execute([$_SESSION['PERSONAGEMID']]);
+                $buff_ativo = $stmt_buff->fetch();
+                
+                if($buff_ativo){
+                    $capsula_ativa = true;
+                    $tempo_restante = strtotime($buff_ativo->tempo_fim) - time();
+                }
+            }
+            ?>
+
+            <!-- ✅ Capsule Countdown Display -->
+            <?php if($capsula_ativa): ?>
+            <div id="capsula-timer" style="position: fixed; top: 10px; right: 10px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 20px; border-radius: 10px; font-weight: bold; z-index: 9999; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); display: flex; align-items: center; gap: 10px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" style="animation: pulse 2s infinite;">
+                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                </svg>
+                <div>
+                    <div style="font-size: 11px; opacity: 0.9;">🧪 BOOST EXP +<?php echo intval($buff_ativo->porcentagem); ?>%</div>
+                    <div id="countdown-display" style="font-size: 16px; font-weight: 900; letter-spacing: 1px;">--:--:--</div>
+                </div>
+            </div>
+
+            <script>
+            // Countdown Timer Script
+            let tempoRestanteCapsule = <?php echo $tempo_restante; ?>;
+
+            function atualizarContadorCapsule() {
+                if (tempoRestanteCapsule <= 0) {
+                    document.getElementById('capsula-timer').style.display = 'none';
+                    // Auto-deactivate buff when expired
+                    fetch('<?php echo BASE; ?>ajax/ajaxDesativarBuff.php', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: 'tipo=experiencia'
+                    }).then(() => location.reload());
+                    return;
+                }
+                
+                const horas = Math.floor(tempoRestanteCapsule / 3600);
+                const minutos = Math.floor((tempoRestanteCapsule % 3600) / 60);
+                const segundos = tempoRestanteCapsule % 60;
+                
+                const display = 
+                    String(horas).padStart(2, '0') + ':' +
+                    String(minutos).padStart(2, '0') + ':' +
+                    String(segundos).padStart(2, '0');
+                
+                document.getElementById('countdown-display').innerText = display;
+                
+                tempoRestanteCapsule--;
+            }
+
+            // Update every second
+            atualizarContadorCapsule();
+            setInterval(atualizarContadorCapsule, 1000);
+            </script>
+
+            <style>
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); }
+                50% { transform: scale(1.1); }
+            }
+            </style>
+            <?php endif; ?>
+
         <?php } ?>
                   
         <?php if(!$isPublicPage){ ?>

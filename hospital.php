@@ -9,16 +9,21 @@
     
     $idPersonagem = $_SESSION['PERSONAGEMID'];
     
+    // ✅ Load fresh HP/KI/gold data ONLY (use different variable name)
+    $personagem_fresh = $core->getDados('usuarios_personagens', 'WHERE id = '.$idPersonagem);
+    
+    // ✅ Use ORIGINAL $personagem for persona reference
     $personagem_dbz = $core->getDados('personagens', 'WHERE id = '.$personagem->persona);
     
     $hp_level = 50;
     $preco_hp = 1;
     $preco_ki = 1;
     
-    $hp = $personagem->hp;
-    $ki = $personagem->mana;
-    $ki_usado = $personagem->ki_usado;
-    $level = $personagem->nivel;
+    // ✅ Use FRESH data for HP/KI/gold
+    $hp = $personagem_fresh->hp;
+    $ki = $personagem_fresh->mana;
+    $ki_usado = $personagem_fresh->ki_usado;
+    $level = $personagem_fresh->nivel;
     
     $valor_hp = ($level * $hp_level) + 100;
     
@@ -40,7 +45,7 @@
     }
     
     if(isset($_POST['recupera_vida'])){
-        if($personagem->getSaldo(intval($gold_hp - $desconto_hp_vip), $idPersonagem)){
+        if($personagem_fresh->gold >= intval($gold_hp - $desconto_hp_vip)){
             if($hp >= $valor_hp){
                 echo "<script type='text/javascript'>
                         swal({
@@ -48,30 +53,37 @@
                             title: 'Oops...',
                             text: 'Sua vida já esta completa!'
                         })
-                      </script>";
+                    </script>";
             } else {
                 $rec_hp_gold = intval($gold_hp - $desconto_hp_vip);
                 $campos = array(
                     'hp' => $valor_hp,
-                    'gold' => $personagem->gold - $rec_hp_gold
+                    'gold' => $personagem_fresh->gold - $rec_hp_gold
                 );
-
                 $where = 'id = "'.$idPersonagem.'"';
-
+                
                 if($core->update('usuarios_personagens', $campos, $where)){
                     $core->msg('sucesso', 'Parabéns, sua vida foi restaurada.');
                     header('Location: '.BASE.'hospital/');
+                    exit;
                 } else {
                     $core->msg('error', 'Erro na Recuperação.');
-                } 
+                }
             }
         } else {
-            $core->msg('error', 'Golds Insuficientes.');
-        } 
+            // ✅ NEW: SweetAlert for insufficient gold
+            echo "<script type='text/javascript'>
+                    swal({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Você não tem gold o suficiente!'
+                    })
+                </script>";
+        }
     }
-    
+
     if(isset($_POST['recupera_ki'])){
-        if($personagem->getSaldo(intval($gold_ki - $desconto_ki_vip), $idPersonagem)){
+        if($personagem_fresh->gold >= intval($gold_ki - $desconto_ki_vip)){
             if($ki_usado == 0){
                 echo "<script type='text/javascript'>
                         swal({
@@ -79,31 +91,38 @@
                             title: 'Oops...',
                             text: 'Seu KI já esta completo!'
                         })
-                      </script>";
+                    </script>";
             } else {
                 $rec_ki_gold = intval($gold_ki - $desconto_ki_vip);
                 $campos = array(
                     'mana' => $ki,
                     'ki_usado' => 0,
-                    'gold' => $personagem->gold - $rec_ki_gold
+                    'gold' => $personagem_fresh->gold - $rec_ki_gold
                 );
-
                 $where = 'id = "'.$idPersonagem.'"';
 
                 if($core->update('usuarios_personagens', $campos, $where)){
                     $core->msg('sucesso', 'Parabéns, seu KI foi restaurado.');
                     header('Location: '.BASE.'hospital/');
+                    exit;
                 } else {
                     $core->msg('error', 'Erro na Recuperação.');
                 } 
             }
         } else {
-            $core->msg('error', 'Golds Insuficientes.');
+            // ✅ NEW: SweetAlert for insufficient gold
+            echo "<script type='text/javascript'>
+                    swal({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Você não tem gold o suficiente!'
+                    })
+                </script>";
         }
     }
-    
+
     if(isset($_POST['recupera_vida_ki'])){
-        if($personagem->getSaldo(intval($gold_ki_hp - $desconto_hp_ki_vip), $idPersonagem)){
+        if($personagem_fresh->gold >= intval($gold_ki_hp - $desconto_hp_ki_vip)){
             if($ki_usado == 0 && $hp >= $valor_hp){
                 echo "<script type='text/javascript'>
                         swal({
@@ -111,33 +130,41 @@
                             title: 'Oops...',
                             text: 'Sua Vida ou KI já estão completos!'
                         })
-                      </script>";
+                    </script>";
             } else {
                 $rec_hp_ki_gold = intval($gold_ki_hp - $desconto_hp_ki_vip);
                 $campos = array(
                     'hp' => $valor_hp,
                     'mana' => $ki,
                     'ki_usado' => 0,
-                    'gold' => $personagem->gold - $rec_hp_ki_gold
+                    'gold' => $personagem_fresh->gold - $rec_hp_ki_gold
                 );
-
                 $where = 'id = "'.$idPersonagem.'"';
 
                 if($core->update('usuarios_personagens', $campos, $where)){
                     $core->msg('sucesso', 'Parabéns, sua Vida e KI foram restaurados.');
                     header('Location: '.BASE.'hospital/');
+                    exit;
                 } else {
                     $core->msg('error', 'Erro na Recuperação.');
                 } 
             }
         } else {
-            $core->msg('error', 'Golds Insuficientes.');
+            // ✅ NEW: SweetAlert for insufficient gold
+            echo "<script type='text/javascript'>
+                    swal({
+                        type: 'error',
+                        title: 'Oops...',
+                        text: 'Você não tem gold o suficiente!'
+                    })
+                </script>";
         }
     }
+
 ?>
 
 <div class="hospital-banner"></div>
-<h2 class="title"></i> Hospital</h2>
+<h2 class="title"></i>Recupere as suas forças!</h2>
 <link rel="stylesheet" href="css/minhas-fotos-effects.css">
 
 <ul class="ficha">

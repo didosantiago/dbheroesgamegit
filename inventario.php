@@ -348,6 +348,9 @@ $(document).ready(function() {
         
         var isBau = $(this).attr('data-isbau');
         if(isBau == '1') {
+            e.preventDefault();
+            // Open chest via AJAX and reorganize inventory
+            window.location.href = $(this).find('a').attr('href');
             return;
         }
         
@@ -428,6 +431,8 @@ $(document).ready(function() {
             });
             return;
         }
+
+
         
         $.ajax({
             type: 'POST',

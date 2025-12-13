@@ -2264,6 +2264,18 @@ class Personagens {
                     );
                     $where = 'id = ' . $idPersonagem;
                     $core->update('usuarios_personagens', $campos, $where);
+                    // Auto-update graduation based on new level
+                    $stmt_grad = DB::prepare("UPDATE usuarios_personagens up
+                                            SET up.graduacao = (
+                                                SELECT g.id 
+                                                FROM graduacoes g 
+                                                WHERE up.nivel >= g.level_inicial 
+                                                AND up.nivel <= g.level_final 
+                                                LIMIT 1
+                                            )
+                                            WHERE up.id = ?");
+                    $stmt_grad->execute([$idPersonagem]);
+
                     
                     // Set session flag for level up notification
                     $_SESSION['novo_nivel'] = true;

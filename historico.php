@@ -3,8 +3,8 @@
         header('Location: '.BASE.'portal');
     }
 ?>
-
-<h2 class="title">Histórico PVP</h2>
+ <div class="historico-pvp-banner"></div>
+<h2 class="title">Veja abaixo o seu histórico PvP</h2>
 
 <table class="lista-batalhas">
     <thead>

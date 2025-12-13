@@ -39,6 +39,9 @@ class Inventario {
     // ==========================================
     public function getSlots($idPersonagem) {
         $core = new Core();
+
+        // ✅ ORGANIZE FIRST - before fetching data!
+        $this->organizarInventario($idPersonagem);
         
         // 1. Check current slot count
         $sqlCount = "SELECT COUNT(*) as total FROM personagens_inventario WHERE idPersonagem = ?";
@@ -56,7 +59,9 @@ class Inventario {
                     'vazio' => 1
                 );
                 $core->insert('personagens_inventario', $campos);
+              
             }
+           
         }
         
         // 3. Get inventory data
@@ -130,7 +135,7 @@ class Inventario {
                 echo '</li>';
             }
         }
-
+  
     }
 
 
@@ -262,6 +267,7 @@ class Inventario {
             'capsule_buff' => $capsule_buff
         ];
     }
+
 
 
 
@@ -1112,11 +1118,14 @@ class Inventario {
             
             // If item is not in the correct slot, move it
             if($item->idSlot != $targetSlot->id){
+                // ✅ FIXED: Only update idSlot (removed posicao)
+                // ✅ NEW CODE (works!)
                 $sql = "UPDATE personagens_inventario_itens 
                         SET idSlot = ? 
                         WHERE id = ?";
                 $stmt = DB::prepare($sql);
                 $stmt->execute([$targetSlot->id, $item->id]);
+
             }
             
             $slotIndex++;

@@ -112,8 +112,8 @@
         }
     }
 ?>
+<div class="pvp-kaio-banner"></div>
 
-<h2>PVP Global</h2>
 
 <div class="caca-pvp">
     <img src="<?php echo BASE; ?>assets/img-busca.png" alt="Busca Global" />

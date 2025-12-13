@@ -422,25 +422,38 @@ class Npc {
             $life_oponente = $dados_atacado->hp - $lifes->dano_atacado; // Already reduced HP
         }
 
-        // Check defeat condition
-        if($life_oponente <= 0){
-            $finalizado = 1;
+
+
+        // Calculate HP with CORRECT damage totals
+        if($desafiante == 0){
+            // NPC attacked player
+            $npc_hp_final = $dados_atacante->hp - $lifes->dano_atacado; // NPC HP remaining
+            $player_hp_final = $dados_atacado->hp - $lifes->dano_atacante; // Player HP remaining
+            $ki_oponente = $dados_atacante->mana - $kis->ki_npc;
+        } else {
+            // Player attacked NPC
+            $npc_hp_final = $dados_atacado->hp - $lifes->dano_atacado; // NPC HP remaining
+            $player_hp_final = $dados_atacante->hp - $lifes->dano_atacante; // Player HP remaining
         }
 
-        // ✅ CORRECT: Only check death when someone actually died
-        if($life_oponente <= 0){
-            // Get player HP too
-            if($desafiante == 0){
-                $player_hp_final = $core->getDados('usuarios_personagens', 'WHERE id = '.$idAdversario)->hp - $lifes->dano_atacante;
-                $npc_hp_final = $life_oponente;
+        // ✅ CRITICAL: Check if EITHER player or NPC died
+        if($npc_hp_final <= 0 || $player_hp_final <= 0){
+            // Battle ended!
+            
+            // ❌ WRONG LOGIC - Delete this old code:
+            $vencedorfinal = ($npc_hp_final <= 0) ? 1 : 0;
+            
+            // ✅ REPLACE WITH THIS CORRECT LOGIC:
+            if($npc_hp_final <= 0 && $player_hp_final > 0){
+                $vencedorfinal = 1; // Player wins (NPC died, player alive)
+            } else if($player_hp_final <= 0 && $npc_hp_final > 0){
+                $vencedorfinal = 0; // NPC wins (player died, NPC alive)
             } else {
-                $player_hp_final = $core->getDados('usuarios_personagens', 'WHERE id = '.$meuID)->hp - $lifes->dano_atacante;
-                $npc_hp_final = $life_oponente;
+                // Both died (tie) - whoever has higher HP wins
+                $vencedorfinal = ($player_hp_final > $npc_hp_final) ? 1 : 0;
             }
             
-            // Mark battle as finished
-            $vencedorfinal = ($npc_hp_final <= 0) ? 1 : 0; // 1 = player wins, 0 = NPC wins
-            
+            // Mark battle as finished in database
             $campos_final = array(
                 'concluido' => 1,
                 'vencedor' => $vencedorfinal
@@ -455,14 +468,15 @@ class Npc {
                 $_SESSION['npc_derrota'] = true;
             }
             $_SESSION['npc_finalizado'] = 1;
-            // ✅ ADD THIS: Stop execution here!
+            
+            // ✅ STOP EXECUTION HERE!
             return;
         }
+
     }
 
 
-
-        
+      
 
 
 
@@ -642,26 +656,82 @@ class Npc {
     }
 
     public function getLogNPC($idPersonagem, $idGuerreiro){
-        $sql = "SELECT ph.* "
-             . "FROM npc_historico as ph "
-             . "INNER JOIN npc as p ON ph.idNPC = p.id "
-             . "WHERE p.idPersonagem = $idPersonagem AND p.idDesafiado = $idGuerreiro "
-             . "AND p.concluido = 0 "
-             . "ORDER BY ph.id DESC";
-
+        // ✅ PRIORITY 1: Use SESSION battle ID (most reliable)
+        if(isset($_SESSION['npc_id']) && $_SESSION['npc_id'] > 0){
+            $battleId = $_SESSION['npc_id'];
+            
+            // ✅ Verify this battle belongs to the current opponent
+            $sqlVerify = "SELECT id FROM npc 
+                        WHERE id = $battleId 
+                            AND idPersonagem = $idPersonagem 
+                            AND idDesafiado = $idGuerreiro 
+                        LIMIT 1";
+            $stmtVerify = DB::prepare($sqlVerify);
+            $stmtVerify->execute();
+            
+            if($stmtVerify->rowCount() == 0){
+                // Session battle doesn't match URL opponent - fetch correct one
+                $battleId = null;
+            }
+        } else {
+            $battleId = null;
+        }
+        
+        // ✅ PRIORITY 2: If no valid session, get ACTIVE battle from database
+        if($battleId === null){
+            $sqlActive = "SELECT id FROM npc 
+                        WHERE idPersonagem = $idPersonagem 
+                            AND idDesafiado = $idGuerreiro 
+                            AND concluido = 0 
+                        ORDER BY id DESC 
+                        LIMIT 1";
+            
+            $stmtActive = DB::prepare($sqlActive);
+            $stmtActive->execute();
+            
+            if($stmtActive->rowCount() > 0){
+                $activeBattle = $stmtActive->fetch();
+                $battleId = $activeBattle->id;
+            } else {
+                // ✅ PRIORITY 3: No active battle - get latest finished for victory popup
+                $sqlFinished = "SELECT id FROM npc 
+                            WHERE idPersonagem = $idPersonagem 
+                                AND idDesafiado = $idGuerreiro 
+                            ORDER BY id DESC 
+                            LIMIT 1";
+                
+                $stmtFinished = DB::prepare($sqlFinished);
+                $stmtFinished->execute();
+                
+                if($stmtFinished->rowCount() > 0){
+                    $finishedBattle = $stmtFinished->fetch();
+                    $battleId = $finishedBattle->id;
+                } else {
+                    return ''; // No battle at all
+                }
+            }
+        }
+        
+        // ✅ Get log for the determined battle ID
+        $sql = "SELECT ph.* 
+                FROM npc_historico as ph 
+                WHERE ph.idNPC = $battleId 
+                ORDER BY ph.id DESC";
+        
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $item = $stmt->fetchAll();
-
+        
         $row = '';
-
-
         foreach ($item as $key => $value) {
             $row .= $value->log;
         }
-
+        
         return $row;
     }
+
+
+
 
     public function contadorNPC($idPersonagem){
         $core = new Core();

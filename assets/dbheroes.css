@@ -2660,7 +2660,7 @@ body.meus-personagens .lista-meus-personagens {
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/banco-shenlong.png") center center no-repeat;
+  background: url("../assets/banners/banco-shenlong.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -2685,7 +2685,7 @@ body.meus-personagens .lista-meus-personagens {
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/seja-vip.png") center center no-repeat;
+  background: url("../assets/banners/seja-vip.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -2775,6 +2775,22 @@ body.meus-personagens .lista-meus-personagens {
   box-shadow: 0 4px 20px #0007;
   display: block;
 }
+
+.tam-batalha-banner {
+  width: 200px;
+  height: 200px;
+  position: fixed;        /* Stays in same position always */
+  bottom: 150px;          /* Distance from bottom of screen */
+  right: 200px;           /* Distance from right side of screen */
+  margin: 0px 580px 20px 0px;
+  padding: 0px 180px 0px 0px;
+  border-radius: 158px;
+  background: url("../assets/banners/tam-batalha-banner.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  z-index: 1;             /* Behind NPC cards */
+}
+
 .academia-sayan-banner {
   width: 100%;
   max-width: 950px;       /* Or your desired max */
@@ -2793,6 +2809,53 @@ body.meus-personagens .lista-meus-personagens {
   margin: 22px auto 24px auto;
   border-radius: 18px;
   background: url("../assets/banners/lista-de-amigos.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.tam-npc-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/tam-npc-banner.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+.tam-banner {
+  width: 100%;
+  max-width: 1210px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/tam-banner.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.historico-pvp-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 22px auto 24px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/historico-pvp.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.pvp-kaio-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 0px auto -20px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/pvp-kaio-banner.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -5537,7 +5600,7 @@ body.torneio .conteudo {
   padding: 0;
   background: #1B2838
   height: 1043px;
-  background: url("arena1.jpg");
+  background-color: #000;
   background-position: center center;
   background-size: 186%;
   background-repeat: no-repeat
@@ -9849,9 +9912,9 @@ body.npc .npc-vitoria {
   left: 0;
   z-index: 20001;
   padding: 15px;
-  background-color: #51750f;
+  background-color: #000000d6;
   text-align: center;
-  border-bottom: 6px solid #3e590b;
+  border-bottom: 6px solid #b2ff4cd9;
   -moz-box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
   -webkit-box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0 2px 0 rgba(0, 0, 0, 0.4);
@@ -9902,14 +9965,14 @@ body.npc .npc-vitoria form {
 body.npc .npc-vitoria form .bts-form {
   margin: 0;
   color: #FFF;
-  background: #1B2838;
+  background: #91f338d4;
   -moz-border-radius: 0;
   -webkit-border-radius: 0;
   border-radius: 0
 }
 
 body.npc .npc-vitoria form .bts-form:hover {
-  background: #070d14;
+  background: #69b128d4;
   filter: progid:DXImageTransform.Microsoft.Alpha(enabled=false);
   opacity: 1
 }
@@ -23123,8 +23186,8 @@ body.banco .conteudo .title i {
 }
 
 .equipamentos-list li.slot-item img {
-    max-width: 45px;
-    max-height: 45px;
+    max-width: 70px;
+    max-height: 70px;
     object-fit: contain;
 }
 

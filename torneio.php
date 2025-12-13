@@ -1,6 +1,21 @@
-<?php 
+<?php
+
+    // ✅ Check HP before allowing battles
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
+        exit;
+    }
+
+    $idPersonagem = $_SESSION['PERSONAGEMID'];
+
+    // ✅ Reload character data to check HP
+    $personagem_check = $core->getDados('usuarios_personagens', 'WHERE id = '.$idPersonagem);
+
+    // ✅ If HP is 0, redirect to hospital
+    if($personagem_check->hp <= 0){
+        $core->msg('error', 'Você está derrotado! Vá ao hospital para se curar.');
+        header('Location: '.BASE.'hospital');
+        exit;
     }
     
     if($core->proccessInExecution()){
@@ -15,15 +30,17 @@
       $('html, body').animate({scrollTop: contentNav}, 'slow');
     }
 </script>
-
 <div class="arena">
-    <h2 class="title">Torneio de Artes Marciais (NPC)</h2>
+    <div class="tam-npc-banner"></div>
+    
+    <h2 class="title">Ganhe muita EXP e itens em uma luta conta (NPCs)</h2>
     
     <ul class="guerreiros-list">
         <?php 
             $torneio->getList($personagem->nivel); 
         ?> 
     </ul>
+    
     <!-- Energy Warning Popup -->
 <div id="energiaPopup" class="modal-overlay" style="display: none;">
     <div class="modal-content energia-modal">
@@ -54,14 +71,19 @@
                     echo $horas . ' hora' . ($horas > 1 ? 's' : '');
                 ?></strong></p>
             </div>
+            
         </div>
         <div class="modal-footer">
             <button onclick="closeEnergiaPopup()" class="bts-form btn-primary">Entendi</button>
         </div>
+        
     </div>
+    
 </div>
+<div class="tam-batalha-banner">
 
 <script>
+    
 function showEnergiaPopup() {
     document.getElementById('energiaPopup').style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -227,4 +249,4 @@ document.addEventListener('keydown', function(e) {
 .tempo-recuperacao i {
     color: #ffc107*
 
-</div>
+

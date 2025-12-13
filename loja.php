@@ -36,6 +36,8 @@
     $anuncio_6 = (!empty($listaAnuncios->posicao_6)) ? $core->getDados('adm_loja_itens', "WHERE id =".$listaAnuncios->posicao_6) : null;
     $anuncio_7 = (!empty($listaAnuncios->posicao_7)) ? $core->getDados('adm_loja_itens', "WHERE id =".$listaAnuncios->posicao_7) : null;
     $anuncio_8 = (!empty($listaAnuncios->posicao_8)) ? $core->getDados('adm_loja_itens', "WHERE id =".$listaAnuncios->posicao_8) : null;
+
+    
     
     if (!empty($listaAnuncios->id)) {
     $loja->marcarFotoLoja($listaAnuncios->id);

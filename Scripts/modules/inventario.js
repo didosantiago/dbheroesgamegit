@@ -96,10 +96,20 @@ DBH.inventario = (function() {
                     console.log("Usando consumível...");
                     $.ajax({
                         type: "POST",
-                        url: "ajax/ajaxInventarioEquipado.php",
+                        url: "ajax/ajaxUsarConsumivel.php",  // ✅ CORRECT!
                         data: { id: id },
-                        success: function (res) {
-                            loadInventory();
+                        dataType: 'json',
+                        success: function (response) {
+                            if(response.success){
+                                alert(response.message);
+                                loadInventory();  // ✅ Reloads with reorganized positions
+                            } else {
+                                alert('Erro: ' + response.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("Erro ao usar consumível:", error);
+                            alert('Erro ao processar item consumível');
                         }
                     });
                 } else {

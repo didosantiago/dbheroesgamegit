@@ -5,6 +5,8 @@ require_once "../core/config.php";
 require_once "../core/DB.php";
 require_once "../core/Core.php";
 require_once "../core/Personagens.php";
+require_once "../core/Inventario.php";
+
 
 // Validate session
 if(!isset($_SESSION['PERSONAGEMID'])){
@@ -46,11 +48,11 @@ try {
         exit;
     }
     
-    // ✅ Get character stats (USE SNAKE_CASE)
+    // Get character stats
     $level = $personagem->nivel;
     $hp_atual = $personagem->hp;
-    $ki_usado = $personagem->ki_usado ?? 0;            // ✅ FIXED
-    $energia_usada = $personagem->energia_usada ?? 0;  // ✅ FIXED
+    $ki_usado = $personagem->ki_usado ?? 0;
+    $energia_usada = $personagem->energia_usada ?? 0;
     
     // Calculate MAX stats
     $valor_hp_max = ($level * 50) + 100;
@@ -114,7 +116,7 @@ try {
         }
     }
     
-    // ✅ UPDATE CHARACTER STATS (USE SNAKE_CASE)
+    // UPDATE CHARACTER STATS
     $sql_update = "UPDATE usuarios_personagens 
                    SET hp = ?, ki_usado = ?, energia_usada = ? 
                    WHERE id = ?";
@@ -125,6 +127,12 @@ try {
     $sql_delete = "DELETE FROM personagens_inventario_itens WHERE id = ?";
     $stmt_delete = DB::prepare($sql_delete);
     $stmt_delete->execute([$idInventario]);
+    
+    // ✅ REORGANIZE INVENTORY - Use the proper method from Inventario class
+    require_once "../core/Inventario.php";
+    $inventario = new Inventario();
+    $inventario->organizarInventario($idPersonagem);
+
     
     // Prepare response message
     $message = 'Item usado: ' . htmlspecialchars($item->nome);
