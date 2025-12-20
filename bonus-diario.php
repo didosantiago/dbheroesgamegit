@@ -198,7 +198,7 @@ setInterval(updateCountdown, 1000);
 // 2. AUTO SCROLL SCRIPT
 document.addEventListener("DOMContentLoaded", function() {
     // == CHANGE THIS VALUE TO SCROLL MORE OR LESS ==
-    const pixelsToScroll = 520; 
+    const pixelsToScroll = 350; 
     // ==============================================
 
     // Scroll the window down

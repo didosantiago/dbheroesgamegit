@@ -405,10 +405,10 @@
                         </span>
                     </span>
                     <span class="user_info_text">
-                        <a id="marketWalletBalance" href="<?php echo BASE; ?>profile">Saldo na Carteira: <span id="marketWalletBalanceAmount"><?php echo $personagem->gold; ?> golds</span></a>
+                        <a id="marketWalletBalance" href="<?php echo BASE; ?>profile" a style="color: #ffe926ff;">Saldo na Carteira: <span id="marketWalletBalanceAmount"><?php echo $personagem->gold; ?> golds</span></a>
                         <br>
-                        <a href="<?php echo BASE; ?>inventario">Ver inventário</a>
-                        <a style="color: #AACC08; padding-left: 10px;" href="<?php echo BASE; ?>market/anunciados">Meus Itens Anunciados</a>
+                        <a style="color: #ffffffff;" href="<?php echo BASE; ?> inventario" >Ver inventário</a>
+                        <a style="color: #c8ff1e; padding-left: 10px;" href="<?php echo BASE; ?>market/anunciados">Meus Itens Anunciados</a>
                     </span>
                 </div>
 

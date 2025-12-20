@@ -172,22 +172,20 @@
             <a href="<?php echo BASE; ?>loja/creditos"><i class="fas fa-coins"></i> Adquirir Coins</a>
         </li>
         
-        <h2>Parceiros</h2>
+        <h2>Redes sociais</h2>
         
-        <li>
-            <a href="https://www.youtube.com/user/didogameplay" target="_blank"><i class="fab fa-youtube"></i> Dido Gameplay</a>
-        </li>
+
         <li>
             <a href="https://www.facebook.com/dbheroesgame" target="_blank"><i class="fab fa-facebook"></i> Facebook DBHeroes</a>
         </li>
         <li>
-            <a href="https://www.instagram.com/dbheroesgame" target="_blank"><i class="fab fa-instagram"></i> Instagram DBHeroes</a>
+            <a href="https://www.instagram.com/dbheroes4life" target="_blank"><i class="fab fa-instagram"></i> Instagram DBHeroes</a>
         </li>
         <li>
-            <a href="https://www.youtube.com/channel/UC88PqK6ByP47PrcyW5oCYrQ" target="_blank"><i class="fab fa-youtube"></i> Canal no Youtube</a>
+            <a href="https://www.youtube.com/channel/UCMBvnTxxA5YFGQLWc2ACtcg" target="_blank"><i class="fab fa-youtube"></i> Canal no Youtube</a>
         </li>
         <li>
-            <a href="https://discord.gg/zbSWtcs" target="_blank"><i class="fab fa-discord"></i> Canal no Discord</a>
+            <a href="https://discord.gg/f4BmxKNr" target="_blank"><i class="fab fa-discord"></i> Canal no Discord</a>
         </li>
     </ul>
 </div>

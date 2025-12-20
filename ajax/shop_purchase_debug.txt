@@ -1,0 +1,306 @@
+2025-12-16 23:41:04 - === PURCHASE STARTED ===
+2025-12-16 19:41:04 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 19:41:04 - User found: ID=1, Coins=70
+2025-12-16 19:41:04 - Product found: Baú Misterioso, Module: 3
+2025-12-16 19:41:04 - Coins deducted: Old=70, New=60
+2025-12-16 19:41:04 - Processing Module 3 (Game Item)
+2025-12-16 19:41:04 - Getting item from itens table with ID: 
+2025-12-16 23:51:53 - === PURCHASE STARTED ===
+2025-12-16 19:51:53 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 19:51:53 - User found: ID=1, Coins=60
+2025-12-16 19:51:53 - Product found: Baú Misterioso, Module: 3
+2025-12-16 19:51:53 - Coins deducted: Old=60, New=50
+2025-12-16 19:51:53 - Processing Module 3 (Game Item)
+2025-12-16 19:51:53 - Getting item from itens table with ID: 
+2025-12-16 23:55:35 - === PURCHASE STARTED ===
+2025-12-16 19:55:35 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 19:55:35 - User found: ID=1, Coins=50
+2025-12-16 19:55:35 - Product found: Baú Misterioso, Module: 3
+2025-12-16 19:55:35 - Coins deducted: Old=50, New=40
+2025-12-16 19:55:35 - Processing Module 3 (Game Item)
+2025-12-16 19:55:35 - Getting item from itens table with ID: 
+2025-12-16 23:57:23 - === PURCHASE STARTED ===
+2025-12-16 19:57:23 - POST DATA: id=15, valor=10, idUsuario=1, idPersonagem=95, modulo=1, idItem=
+2025-12-16 19:57:23 - User found: ID=1, Coins=40
+2025-12-16 19:57:23 - Product found: Majin Buu, Module: 1
+2025-12-16 19:57:23 - Coins deducted: Old=40, New=30
+2025-12-16 19:57:23 - Processing Module 1 (Photo)
+2025-12-16 19:57:23 - Photo purchased successfully
+2025-12-16 19:57:23 - === PURCHASE SUCCESS ===
+2025-12-16 23:58:47 - === PURCHASE STARTED ===
+2025-12-16 19:58:47 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 19:58:47 - User found: ID=1, Coins=30
+2025-12-16 19:58:47 - Product found: Baú Misterioso, Module: 3
+2025-12-16 19:58:47 - Coins deducted: Old=30, New=20
+2025-12-16 19:58:47 - Processing Module 3 (Game Item)
+2025-12-16 19:58:47 - Getting item from itens table with ID: 
+2025-12-17 00:10:03 - === PURCHASE STARTED ===
+2025-12-16 20:10:03 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 20:10:03 - User found: ID=1, Coins=20
+2025-12-16 20:10:03 - Product found: Baú Misterioso, Module: 3
+2025-12-16 20:10:03 - Coins deducted: Old=20, New=10
+2025-12-16 20:10:03 - Processing Module 3 (Game Item)
+2025-12-16 20:10:03 - Getting item from itens table with ID: 
+2025-12-17 00:29:42 - === PURCHASE STARTED ===
+2025-12-16 20:29:42 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=
+2025-12-16 20:29:42 - User found: ID=1, Coins=10
+2025-12-16 20:29:42 - Product found: Baú Misterioso, Module: 3
+2025-12-16 20:29:42 - Coins deducted: Old=10, New=0
+2025-12-16 20:29:42 - Processing Module 3 (Game Item)
+2025-12-16 20:29:42 - Getting item from itens table with ID: 
+2025-12-17 00:31:19 - === PURCHASE STARTED ===
+2025-12-16 20:31:19 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-16 20:31:19 - User found: ID=1, Coins=50
+2025-12-16 20:31:19 - Product found: Baú Misterioso, Module: 3
+2025-12-16 20:31:19 - Coins deducted: Old=50, New=40
+2025-12-16 20:31:19 - Processing Module 3 (Game Item)
+2025-12-16 20:31:19 - Getting item from itens table with ID: 18
+2025-12-16 20:31:19 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-16 20:31:19 - verificaItemIgual returned: 3051
+2025-12-16 20:31:19 - Item exists - adding to slot: 3051
+2025-12-16 20:31:19 - Update personagens_inventario result: success
+2025-12-16 20:31:19 - Insert personagens_inventario_itens result: success
+2025-12-16 20:31:19 - Module 3 completed
+2025-12-16 20:31:19 - === PURCHASE SUCCESS ===
+2025-12-17 00:38:24 - === PURCHASE STARTED ===
+2025-12-16 20:38:24 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-16 20:38:24 - User found: ID=1, Coins=40
+2025-12-16 20:38:24 - Product found: Baú Misterioso, Module: 3
+2025-12-16 20:38:24 - Coins deducted: Old=40, New=30
+2025-12-16 20:38:24 - Processing Module 3 (Game Item)
+2025-12-16 20:38:24 - Getting item from itens table with ID: 18
+2025-12-16 20:38:24 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-16 20:38:24 - verificaItemIgual returned: 3051
+2025-12-16 20:38:24 - Item exists - adding to slot: 3051
+2025-12-16 20:38:24 - Update personagens_inventario result: success
+2025-12-16 20:38:24 - Insert personagens_inventario_itens result: success
+2025-12-16 20:38:24 - Module 3 completed
+2025-12-16 20:38:24 - === PURCHASE SUCCESS ===
+2025-12-17 00:42:40 - === PURCHASE STARTED ===
+2025-12-16 20:42:40 - POST DATA: id=20, valor=5, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-16 20:42:40 - User found: ID=1, Coins=30
+2025-12-16 20:42:40 - Product found: Capsula de experiencia 10%, Module: 3
+2025-12-16 20:42:40 - Coins deducted: Old=30, New=25
+2025-12-16 20:42:40 - Processing Module 3 (Game Item)
+2025-12-16 20:42:40 - Getting item from itens table with ID: 27
+2025-12-16 20:42:40 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-16 20:42:40 - verificaItemIgual returned: 3051
+2025-12-16 20:42:40 - Item exists - adding to slot: 3051
+2025-12-16 20:42:40 - Update personagens_inventario result: success
+2025-12-16 20:42:40 - Insert personagens_inventario_itens result: success
+2025-12-16 20:42:40 - Module 3 completed
+2025-12-16 20:42:40 - === PURCHASE SUCCESS ===
+2025-12-17 00:53:37 - === PURCHASE STARTED ===
+2025-12-16 20:53:37 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-16 20:53:37 - User found: ID=1, Coins=25
+2025-12-16 20:53:37 - Product found: Cápsula 1, Module: 3
+2025-12-16 20:53:37 - Coins deducted: Old=25, New=15
+2025-12-16 20:53:37 - Processing Module 3 (Game Item)
+2025-12-16 20:53:37 - Getting item from itens table with ID: 27
+2025-12-16 20:53:37 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-16 20:53:37 - verificaItemIgual returned: 3051
+2025-12-16 20:53:37 - Item exists - adding to slot: 3051
+2025-12-16 20:53:37 - Update personagens_inventario result: success
+2025-12-16 20:53:37 - Insert personagens_inventario_itens result: success
+2025-12-16 20:53:37 - Module 3 completed
+2025-12-16 20:53:37 - === PURCHASE SUCCESS ===
+2025-12-17 00:53:44 - === PURCHASE STARTED ===
+2025-12-16 20:53:44 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-16 20:53:44 - User found: ID=1, Coins=15
+2025-12-16 20:53:44 - Product found: Cápsula 1, Module: 3
+2025-12-16 20:53:44 - Coins deducted: Old=15, New=5
+2025-12-16 20:53:44 - Processing Module 3 (Game Item)
+2025-12-16 20:53:44 - Getting item from itens table with ID: 27
+2025-12-16 20:53:44 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-16 20:53:44 - verificaItemIgual returned: 3051
+2025-12-16 20:53:44 - Item exists - adding to slot: 3051
+2025-12-16 20:53:44 - Update personagens_inventario result: success
+2025-12-16 20:53:44 - Insert personagens_inventario_itens result: success
+2025-12-16 20:53:44 - Module 3 completed
+2025-12-16 20:53:44 - === PURCHASE SUCCESS ===
+2025-12-17 00:56:18 - === PURCHASE STARTED ===
+2025-12-16 20:56:18 - POST DATA: id=23, valor=5, idUsuario=1, idPersonagem=95, modulo=3, idItem=7
+2025-12-16 20:56:18 - User found: ID=1, Coins=5
+2025-12-16 20:56:18 - Product found: Armadura Sayajin, Module: 3
+2025-12-16 20:56:18 - Coins deducted: Old=5, New=0
+2025-12-16 20:56:18 - Processing Module 3 (Game Item)
+2025-12-16 20:56:18 - Getting item from itens table with ID: 7
+2025-12-16 20:56:18 - Item found in itens table: ID=7, Name=Armadura Sayajin
+2025-12-16 20:56:18 - verificaItemIgual returned: 3023
+2025-12-16 20:56:18 - Item exists - adding to slot: 3023
+2025-12-16 20:56:18 - Update personagens_inventario result: success
+2025-12-16 20:56:18 - Insert personagens_inventario_itens result: success
+2025-12-16 20:56:18 - Module 3 completed
+2025-12-16 20:56:18 - === PURCHASE SUCCESS ===
+2025-12-17 00:57:29 - === PURCHASE STARTED ===
+2025-12-16 20:57:29 - POST DATA: id=23, valor=5, idUsuario=1, idPersonagem=95, modulo=3, idItem=7
+2025-12-16 20:57:29 - User found: ID=1, Coins=200
+2025-12-16 20:57:29 - Product found: Armadura Sayajin, Module: 3
+2025-12-16 20:57:29 - Coins deducted: Old=200, New=195
+2025-12-16 20:57:29 - Processing Module 3 (Game Item)
+2025-12-16 20:57:29 - Getting item from itens table with ID: 7
+2025-12-16 20:57:29 - Item found in itens table: ID=7, Name=Armadura Sayajin
+2025-12-16 20:57:29 - verificaItemIgual returned: 3023
+2025-12-16 20:57:29 - Item exists - adding to slot: 3023
+2025-12-16 20:57:29 - Update personagens_inventario result: success
+2025-12-16 20:57:29 - Insert personagens_inventario_itens result: success
+2025-12-16 20:57:29 - Module 3 completed
+2025-12-16 20:57:29 - === PURCHASE SUCCESS ===
+2025-12-17 00:57:50 - === PURCHASE STARTED ===
+2025-12-16 20:57:50 - POST DATA: id=23, valor=5, idUsuario=1, idPersonagem=95, modulo=3, idItem=7
+2025-12-16 20:57:50 - User found: ID=1, Coins=195
+2025-12-16 20:57:50 - Product found: Armadura Sayajin, Module: 3
+2025-12-16 20:57:50 - Coins deducted: Old=195, New=190
+2025-12-16 20:57:50 - Processing Module 3 (Game Item)
+2025-12-16 20:57:50 - Getting item from itens table with ID: 7
+2025-12-16 20:57:50 - Item found in itens table: ID=7, Name=Armadura Sayajin
+2025-12-16 20:57:50 - verificaItemIgual returned: 3023
+2025-12-16 20:57:50 - Item exists - adding to slot: 3023
+2025-12-16 20:57:50 - Update personagens_inventario result: success
+2025-12-16 20:57:50 - Insert personagens_inventario_itens result: success
+2025-12-16 20:57:50 - Module 3 completed
+2025-12-16 20:57:50 - === PURCHASE SUCCESS ===
+2025-12-17 05:46:31 - === PURCHASE STARTED ===
+2025-12-17 01:46:31 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-17 01:46:31 - User found: ID=1, Coins=190
+2025-12-17 01:46:31 - Product found: Baú Misterioso, Module: 3
+2025-12-17 01:46:31 - Coins deducted: Old=190, New=180
+2025-12-17 01:46:31 - Processing Module 3 (Game Item)
+2025-12-17 01:46:31 - Getting item from itens table with ID: 18
+2025-12-17 01:46:31 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-17 01:46:31 - verificaItemIgual returned: 3051
+2025-12-17 01:46:31 - Item exists - adding to slot: 3051
+2025-12-17 01:46:31 - Update personagens_inventario result: success
+2025-12-17 01:46:31 - Insert personagens_inventario_itens result: success
+2025-12-17 01:46:31 - Module 3 completed
+2025-12-17 01:46:31 - === PURCHASE SUCCESS ===
+2025-12-17 05:46:44 - === PURCHASE STARTED ===
+2025-12-17 01:46:44 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-17 01:46:44 - User found: ID=1, Coins=180
+2025-12-17 01:46:44 - Product found: Cápsula 1, Module: 3
+2025-12-17 01:46:44 - Coins deducted: Old=180, New=170
+2025-12-17 01:46:44 - Processing Module 3 (Game Item)
+2025-12-17 01:46:44 - Getting item from itens table with ID: 27
+2025-12-17 01:46:44 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-17 01:46:44 - verificaItemIgual returned: 3050
+2025-12-17 01:46:44 - Item exists - adding to slot: 3050
+2025-12-17 01:46:44 - Update personagens_inventario result: success
+2025-12-17 01:46:44 - Insert personagens_inventario_itens result: success
+2025-12-17 01:46:44 - Module 3 completed
+2025-12-17 01:46:44 - === PURCHASE SUCCESS ===
+2025-12-18 01:09:58 - === PURCHASE STARTED ===
+2025-12-17 21:09:58 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-17 21:09:58 - User found: ID=1, Coins=170
+2025-12-17 21:09:58 - Product found: Baú Misterioso, Module: 3
+2025-12-17 21:09:58 - Coins deducted: Old=170, New=160
+2025-12-17 21:09:58 - Processing Module 3 (Game Item)
+2025-12-17 21:09:58 - Getting item from itens table with ID: 18
+2025-12-17 21:09:58 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-17 21:09:58 - verificaItemIgual returned: 3051
+2025-12-17 21:09:58 - Item exists - adding to slot: 3051
+2025-12-17 21:09:58 - Update personagens_inventario result: success
+2025-12-17 21:09:58 - Insert personagens_inventario_itens result: success
+2025-12-17 21:09:58 - Module 3 completed
+2025-12-17 21:09:58 - === PURCHASE SUCCESS ===
+2025-12-18 01:15:06 - === PURCHASE STARTED ===
+2025-12-17 21:15:06 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-17 21:15:06 - User found: ID=1, Coins=160
+2025-12-17 21:15:06 - Product found: Cápsula 1, Module: 3
+2025-12-17 21:15:06 - Coins deducted: Old=160, New=150
+2025-12-17 21:15:06 - Processing Module 3 (Game Item)
+2025-12-17 21:15:06 - Getting item from itens table with ID: 27
+2025-12-17 21:15:06 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-17 21:15:06 - verificaItemIgual returned: false/empty
+2025-12-17 21:15:06 - Item doesn't exist - creating new slot
+2025-12-17 21:15:06 - Empty slot query: rowCount=0
+2025-12-17 21:15:06 - ERROR: No empty slots found
+2025-12-20 01:14:19 - === PURCHASE STARTED ===
+2025-12-19 21:14:19 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-19 21:14:19 - User found: ID=1, Coins=150
+2025-12-19 21:14:19 - Product found: Baú Misterioso, Module: 3
+2025-12-19 21:14:19 - Coins deducted: Old=150, New=140
+2025-12-19 21:14:19 - Processing Module 3 (Game Item)
+2025-12-19 21:14:19 - Getting item from itens table with ID: 18
+2025-12-19 21:14:19 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-19 21:14:19 - verificaItemIgual returned: false/empty
+2025-12-19 21:14:19 - Item doesn't exist - creating new slot
+2025-12-19 21:14:19 - Empty slot query: rowCount=0
+2025-12-19 21:14:19 - ERROR: No empty slots found
+2025-12-20 01:14:31 - === PURCHASE STARTED ===
+2025-12-19 21:14:31 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-19 21:14:31 - User found: ID=1, Coins=140
+2025-12-19 21:14:31 - Product found: Baú Misterioso, Module: 3
+2025-12-19 21:14:31 - Coins deducted: Old=140, New=130
+2025-12-19 21:14:31 - Processing Module 3 (Game Item)
+2025-12-19 21:14:31 - Getting item from itens table with ID: 18
+2025-12-19 21:14:31 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-19 21:14:31 - verificaItemIgual returned: false/empty
+2025-12-19 21:14:31 - Item doesn't exist - creating new slot
+2025-12-19 21:14:31 - Empty slot query: rowCount=0
+2025-12-19 21:14:31 - ERROR: No empty slots found
+2025-12-20 01:22:22 - === PURCHASE STARTED ===
+2025-12-19 21:22:22 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-19 21:22:22 - User found: ID=1, Coins=130
+2025-12-19 21:22:22 - Product found: Baú Misterioso, Module: 3
+2025-12-19 21:22:22 - Coins deducted: Old=130, New=120
+2025-12-19 21:22:22 - Processing Module 3 (Game Item)
+2025-12-19 21:22:22 - Getting item from itens table with ID: 18
+2025-12-19 21:22:22 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-19 21:22:22 - verificaItemIgual returned: false/empty
+2025-12-19 21:22:22 - Item doesn't exist - creating new slot
+2025-12-19 21:22:22 - Empty slot query: rowCount=0
+2025-12-19 21:22:22 - ERROR: No empty slots found
+2025-12-20 01:22:33 - === PURCHASE STARTED ===
+2025-12-19 21:22:33 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-19 21:22:33 - User found: ID=1, Coins=120
+2025-12-19 21:22:33 - Product found: Cápsula 1, Module: 3
+2025-12-19 21:22:33 - Coins deducted: Old=120, New=110
+2025-12-19 21:22:33 - Processing Module 3 (Game Item)
+2025-12-19 21:22:33 - Getting item from itens table with ID: 27
+2025-12-19 21:22:33 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-19 21:22:33 - verificaItemIgual returned: 3043
+2025-12-19 21:22:33 - Item exists - adding to slot: 3043
+2025-12-19 21:22:33 - Update personagens_inventario result: success
+2025-12-19 21:22:33 - Insert personagens_inventario_itens result: success
+2025-12-19 21:22:33 - Module 3 completed
+2025-12-19 21:22:33 - === PURCHASE SUCCESS ===
+2025-12-20 01:22:44 - === PURCHASE STARTED ===
+2025-12-19 21:22:44 - POST DATA: id=19, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=18
+2025-12-19 21:22:44 - User found: ID=1, Coins=110
+2025-12-19 21:22:44 - Product found: Baú Misterioso, Module: 3
+2025-12-19 21:22:44 - Coins deducted: Old=110, New=100
+2025-12-19 21:22:44 - Processing Module 3 (Game Item)
+2025-12-19 21:22:44 - Getting item from itens table with ID: 18
+2025-12-19 21:22:44 - Item found in itens table: ID=18, Name=Baú Misterioso Fechado
+2025-12-19 21:22:44 - verificaItemIgual returned: false/empty
+2025-12-19 21:22:44 - Item doesn't exist - creating new slot
+2025-12-19 21:22:44 - Empty slot query: rowCount=0
+2025-12-19 21:22:44 - ERROR: No empty slots found
+2025-12-20 01:23:23 - === PURCHASE STARTED ===
+2025-12-19 21:23:23 - POST DATA: id=23, valor=5, idUsuario=1, idPersonagem=95, modulo=3, idItem=7
+2025-12-19 21:23:23 - User found: ID=1, Coins=100
+2025-12-19 21:23:23 - Product found: Armadura Sayajin, Module: 3
+2025-12-19 21:23:23 - Coins deducted: Old=100, New=95
+2025-12-19 21:23:23 - Processing Module 3 (Game Item)
+2025-12-19 21:23:23 - Getting item from itens table with ID: 7
+2025-12-19 21:23:23 - Item found in itens table: ID=7, Name=Armadura Sayajin
+2025-12-19 21:23:23 - verificaItemIgual returned: 3044
+2025-12-19 21:23:23 - Item exists - adding to slot: 3044
+2025-12-19 21:23:23 - Update personagens_inventario result: success
+2025-12-19 21:23:23 - Insert personagens_inventario_itens result: success
+2025-12-19 21:23:23 - Module 3 completed
+2025-12-19 21:23:23 - === PURCHASE SUCCESS ===
+2025-12-20 02:26:53 - === PURCHASE STARTED ===
+2025-12-19 22:26:53 - POST DATA: id=22, valor=10, idUsuario=1, idPersonagem=95, modulo=3, idItem=27
+2025-12-19 22:26:53 - User found: ID=1, Coins=95
+2025-12-19 22:26:53 - Product found: Cápsula 1, Module: 3
+2025-12-19 22:26:53 - Coins deducted: Old=95, New=85
+2025-12-19 22:26:53 - Processing Module 3 (Game Item)
+2025-12-19 22:26:53 - Getting item from itens table with ID: 27
+2025-12-19 22:26:53 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-19 22:26:53 - verificaItemIgual returned: 3043
+2025-12-19 22:26:53 - Item exists - adding to slot: 3043
+2025-12-19 22:26:53 - Update personagens_inventario result: success
+2025-12-19 22:26:53 - Insert personagens_inventario_itens result: success
+2025-12-19 22:26:53 - Module 3 completed
+2025-12-19 22:26:53 - === PURCHASE SUCCESS ===

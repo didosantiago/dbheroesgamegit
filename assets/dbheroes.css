@@ -2777,19 +2777,15 @@ body.meus-personagens .lista-meus-personagens {
 }
 
 .tam-batalha-banner {
-  width: 200px;
   height: 200px;
-  position: fixed;        /* Stays in same position always */
-  bottom: 150px;          /* Distance from bottom of screen */
-  right: 200px;           /* Distance from right side of screen */
-  margin: 0px 580px 20px 0px;
-  padding: 0px 180px 0px 0px;
-  border-radius: 158px;
-  background: url("../assets/banners/tam-batalha-banner.gif") center center no-repeat;
-  background-size: cover;
-  box-shadow: 0 4px 20px #0007;
-  z-index: 1;             /* Behind NPC cards */
+  margin: 50px 0px 0px 0px;
+  background: url("../assets/banners/tam-batalha-banner.gif");
+  background-position: center center;
+  background-size: 100%;
+  background-repeat: no-repeat
 }
+
+
 
 .academia-sayan-banner {
   width: 100%;
@@ -12620,7 +12616,7 @@ body.market .conteudo .nome-item {
 }
 
 body.market .conteudo .market_header_bg {
-  background-color: #e50015;
+  background-color: #1B2838;
   width: 100%
 }
 
@@ -12658,8 +12654,9 @@ body.market .conteudo .market_header_bg #BG_top>.user_info {
   -moz-border-radius-bottomleft: 3px;
   min-width: 290px;
   max-width: 400px;
+  height: 40px;
   right: 0;
-  top: 29px
+  top: 255px
 }
 
 body.market .conteudo .market_header_bg #BG_top .avatarIcon {
@@ -12685,7 +12682,7 @@ body.market .conteudo .market_header_bg #BG_top .user_info_text {
 }
 
 body.market .conteudo .market_header_bg #BG_top .user_info_text a {
-  color: #ebebeb;
+  color: #ff9a43;
   text-decoration: none;
   cursor: pointer
 }
@@ -12698,9 +12695,9 @@ body.market .conteudo .market_header_bg .market_header .market_header_logo {
   position: relative;
   margin: 0 auto;
   display: block;
-  background-image: url("banners/feira-do-rolo.png");
+  background-image: url("banners/feira-do-rolo.gif");
   background-repeat: no-repeat;
-  height: 121px;
+  height: 190px;
   width: 949px
 }
 
@@ -12725,7 +12722,7 @@ body.market .conteudo .market_header_bg .market_header .market_header_logo .mark
 
 body.market .conteudo .tabs-mercado {
   height: 45px;
-  margin: 20px 0;
+  margin: 50px 0;
   text-align: center
 }
 
@@ -14708,6 +14705,9 @@ body.loja .contentLoja .destaques .item-destaque.green {
 body.loja .contentLoja .destaques .item-destaque.blue {
   background: url("bg-indicadores-blue.jpg") bottom center no-repeat
 }
+body.loja .contentLoja .destaques .item-destaque.yellow {
+  background: url("bg-indicadores-yellow.jpg") bottom center no-repeat
+}
 
 body.loja .contentLoja .destaques .item-destaque:hover .foto img {
   -moz-animation: scale 500ms ease-in-out forwards;
@@ -14766,6 +14766,7 @@ body.loja .contentLoja .destaques .infos h5 {
   display: block;
   margin: 43px 0 10px 0;
   color: #FFF;
+  text-shadow: 1px 1px 0 #000;
   font-size: 24px;
   font-weight: bold;
   text-transform: uppercase
@@ -14774,6 +14775,7 @@ body.loja .contentLoja .destaques .infos h5 {
 body.loja .contentLoja .destaques .infos .tipo {
   display: block;
   color: #FFF;
+  text-shadow: 1px 1px 0 #000;
   font-size: 18px;
   margin-bottom: 41px
 }
@@ -14911,7 +14913,9 @@ body.loja .contentLoja .itens-lista .itens.green .infos {
 body.loja .contentLoja .itens-lista .itens.blue .infos {
   background-image: url("bg-indicadores-blue.jpg")
 }
-
+body.loja .contentLoja .destaques .item-destaque.yellow {
+  background: url("bg-indicadores-yellow.jpg") bottom center no-repeat
+}
 body.loja .contentLoja .itens-lista .itens .adquirido {
   display: block;
   width: 100%;
@@ -14967,6 +14971,7 @@ body.loja .contentLoja .itens-lista .itens .infos h5 {
   display: block;
   margin: 0 0 5px 0;
   color: #FFF;
+  text-shadow: 1px 1px 0 #000;
   font-size: 16px;
   font-weight: bold;
   text-transform: uppercase
@@ -14975,6 +14980,7 @@ body.loja .contentLoja .itens-lista .itens .infos h5 {
 body.loja .contentLoja .itens-lista .itens .infos .tipo {
   display: block;
   color: #FFF;
+  text-shadow: 1px 1px 0 #000;
   font-size: 12px;
   margin-bottom: 5px
 }

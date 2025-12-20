@@ -3,15 +3,32 @@
     if (isset($_POST['conceder'])) {
         if (isset($_SESSION['npc_id'])) {
             $core = new Core();
+            $npc = new Npc();
+            $idPersonagem = $_SESSION['PERSONAGEMID'];
             
-            // 1. Mark battle as concluded and player as loser
+            // 1. Calculate remaining HP from battle
+            $personagem = $core->getDados('usuarios_personagens', 'WHERE id = "'.$idPersonagem.'"');
+            $lifes = $npc->getLifeRestante($_SESSION['npc_id']);
+            
+            // Calculate HP after damage taken in battle
+            $hp_restante = max(1, intval($personagem->hp) - intval($lifes->dano_atacante));
+            
+            // 2. Update player HP with battle damage
+            $campos_hp = array(
+                'hp' => $hp_restante,
+                'time_hp' => time()
+            );
+            $core->update('usuarios_personagens', $campos_hp, 'id = "'.$idPersonagem.'"');
+            
+            // 3. Mark battle as concluded and player as loser
             $campos_fim = array(
                 'concluido' => 1,
-                'vencedor' => 0 // 0 means NPC won / Player lost
+                'vencedor' => 0, // 0 means NPC won / Player lost
+                'recompensa_recebida' => 1 // ✅ Mark as rewarded to prevent popup on next battle
             );
             $core->update('npc', $campos_fim, 'id = '.$_SESSION['npc_id']);
             
-            // 2. Clear all battle sessions
+            // 4. Clear all battle sessions
             unset($_SESSION['npc']);
             unset($_SESSION['npc_id']);
             unset($_SESSION['npc_atacado']);
@@ -24,11 +41,16 @@
             unset($_SESSION['npc_ki_oponente']);
             unset($_SESSION['npc_final']);
             
-            // 3. Redirect to Torneio (EXITING the battle)
+            // 5. Force session write
+            session_write_close();
+            
+            // 6. Redirect to Torneio (EXITING the battle)
             header('Location: ' . BASE . 'torneio');
             exit;
         }
     }
+
+
 
 
     if(!isset($_SESSION['PERSONAGEMID'])){
@@ -394,14 +416,15 @@
                 $dados_npc = $stmt->fetch();
 
                 // ✅ BUG #5 FIX: Check if timer expired
+                // ✅ BUG #5 FIX: Check if timer expired
                 if($dados_npc->time_final < time() && $dados_npc->pausado == 0){
                     // Timer expired!
-                    
+
                     // If it was player's turn (atacado=1), player took too long
                     if($dados_npc->atacado == 1){
                         // Calculate NPC HP to ensure it's alive before attacking
                         $lifes = $npc->getLifeRestante($dados_npc->id);
-                        
+
                         if($user->vip == 1){
                             $porcentagemVip = round((40/100) * intval($oponente->hp));
                             $hp_npc_max = round($oponente->hp - $porcentagemVip);
@@ -410,34 +433,58 @@
                             $hp_npc_max = round($oponente->hp - $porcentagemFree);
                         }
                         $npc_hp = $hp_npc_max - $lifes->dano_atacado;
-                        
-                        // Only attack if NPC is alive
-                        if($npc_hp > 0){
+
+                        // Only attack if NPC is alive AND haven't attacked yet (prevents F5 double attack)
+                        if($npc_hp > 0 && $dados_npc->atacou == 0){
                             $npc->atack(4, $parametro_1, $idPersonagem, 0, 0);
-                            
-                            // Reset timer for next round
-                            $campos_timer = array(
-                                'time_final' => time() + 30,
-                                'atacado' => 1,
-                                'atacou' => 1
-                            );
-                            $where_timer = 'id = "'.$dados_npc->id.'"';
-                            $core->update('npc', $campos_timer, $where_timer);
-                            
-                            header('Location: '.BASE.'npc/'.$parametro_1);
-                            exit();
+
+                            // ✅ CRITICAL FIX: Check if player died after NPC attack
+                            $lifes_after = $npc->getLifeRestante($dados_npc->id);
+                            $player_hp_after = $personagem->hp - $lifes_after->dano_atacante;
+
+                            if($player_hp_after <= 0){
+                                // Player died! Mark battle as concluded with NPC victory
+                                $campos_fim = array(
+                                    'concluido' => 1,
+                                    'vencedor' => 0,  // 0 = NPC won
+                                    'pausado' => 0,
+                                    'atacado' => 0,
+                                    'atacou' => 1  // ✅ Mark as attacked to prevent F5 re-attack
+                                );
+                                $core->update('npc', $campos_fim, 'id = "'.$dados_npc->id.'"');
+
+                                // Update player HP to 0
+                                $campos_hp = array(
+                                    'hp' => 0,
+                                    'time_hp' => time()
+                                );
+                                $core->update('usuarios_personagens', $campos_hp, 'id = "'.$idPersonagem.'"');
+
+                                // Set defeat session
+                                $_SESSION['npc_derrota'] = true;
+                                $_SESSION['npc_finalizado'] = 1;
+
+                                // Redirect to show defeat popup
+                                header('Location: '.BASE.'npc/'.$parametro_1);
+                                exit();
+                            } else {
+                                // Player survived - reset timer for next round
+                                $campos_timer = array(
+                                    'time_final' => time() + 30,
+                                    'atacado' => 1,
+                                    'atacou' => 0  // ✅ Reset for next round
+                                );
+                                $where_timer = 'id = "'.$dados_npc->id.'"';
+                                $core->update('npc', $campos_timer, $where_timer);
+
+                                header('Location: '.BASE.'npc/'.$parametro_1);
+                                exit();
+                            }
                         }
                     }
-                    
-                    // If it was NPC's turn (atacou=1), NPC took too long (shouldn't happen, but reset)
-                    if($dados_npc->atacou == 1){
-                        $campos_timer_reset = array('time_final' => time() + 30);
-                        $where_timer_reset = 'id = "'.$dados_npc->id.'"';
-                        $core->update('npc', $campos_timer_reset, $where_timer_reset);
-                    }
+                    // ✅ REMOVED: The "if($dados_npc->atacou == 1)" block
                 }
-
-                // ✅ Check if NPC needs to counter-attack
+                // ✅ Check if NPC needs to counter-attack (when player manually attacks)
                 if($dados_npc->atacou == 1 && $dados_npc->atacado == 0 && $dados_npc->pausado == 0){
                     // Calculate NPC current HP
                     $lifes = $npc->getLifeRestante($dados_npc->id);
@@ -451,7 +498,7 @@
                         $hp_npc_max = round($oponente->hp - $porcentagemFree);
                     }
                     $npc_hp = $hp_npc_max - $lifes->dano_atacado;
-
+                    
                     // Only attack if NPC is alive AND timer hasn't expired
                     if($npc_hp > 0 && $dados_npc->time_final > time()){
                         $npc->atack(4, $parametro_1, $idPersonagem, 0, 0);
@@ -459,6 +506,7 @@
                 }
             }
         }
+
 
         // ===== SECTION 3: PAUSE/RESUME HANDLING =====
         if($npc->npcRun($idPersonagem, $parametro_1)){
@@ -961,8 +1009,21 @@
 </style>
 
 <script>
+// 🔥 DISABLE F5 KEY DURING BATTLE
+document.addEventListener('keydown', function(e) {
+    <?php if(isset($_SESSION['npc_id'])): ?>
+    if(e.key === 'F5' || (e.ctrlKey && e.key === 'r')){
+        e.preventDefault();
+        alert('F5 e Ctrl+R desabilitados durante a batalha!');
+        console.log('F5 blocked during NPC battle');
+        return false;
+    }
+    <?php endif; ?>
+});
+
+<script>
 // Pause battle when player leaves page
-window.addEventListener('beforeunload', function(e) {
+window.addEventListener('beforeunload, function(e) {
     // Use Navigator.sendBeacon for reliable page unload request
     var formData = new FormData();
     formData.append('action', 'pause');
@@ -972,3 +1033,5 @@ window.addEventListener('beforeunload', function(e) {
     navigator.sendBeacon('<?php echo BASE; ?>ajax/ajaxNPC.php', formData);
 });
 </script>
+
+

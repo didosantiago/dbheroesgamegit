@@ -1,15 +1,17 @@
+// Override the DBH.npc module
 DBH.npc = (function() {
     var attackInitiated = false;
-    var isAttacking = false; // Prevent duplicate attacks
+    var isAttacking = false;
     
     var init = function() {
         if($('body').hasClass('npc')){
+            console.log('✅ NPC module initialized (OVERRIDE VERSION)');
             verificaNPC();
             verificaAtaque();
             combateLog();
             
-            // ✅ Setup attack button click handlers
-            $('.ataques li').on('click', function(e) {
+            // Setup attack button click handlers
+            $('.ataques li').off('click').on('click', function(e) {
                 e.preventDefault();
                 var finalizado = $('#finalizado').val();
                 var round = $('#round').val();
@@ -41,63 +43,65 @@ DBH.npc = (function() {
         var baseSite = $('#baseSite').val();
         
         $('html, body').animate({scrollTop: $('.batalha').offset().top}, 'slow');
-
+        
         $.ajax({
             type: "POST",
             url: baseSite+"ajax/ajaxNPC.php",
             data: data_string,
             success: function (res) {
                 var tempo = parseInt(res) || 0;
+                console.log('⏱️ NPC Timer:', tempo, 'seconds');
                 startCountdownNPC(tempo);
             },
             error: function() {
+                console.log('❌ Error loading timer');
                 startCountdownNPC(0);
             }
         });
     },
-
+    
     startCountdownNPC = function(tempo){
         if(tempo > 0){
             var min = parseInt(tempo/60);
-            var horas = parseInt(min/60);
-            min = min % 60;
             var seg = tempo%60;
-
+            
             if(min < 10){
                 min = "0"+min;
-                min = min.substr(0, 2);
             }
-
             if(seg <=9){
                 seg = "0"+seg;
             }
-
-            if(horas <=9){
-                horas = "0"+horas;
-            }
-
-            horaImprimivel = min + ':' + seg;
             
+            var horaImprimivel = min + ':' + seg;
+            
+            // Check if battle ended
             if($('.npc-vitoria').length > 0 || $('.npc-derrota').length > 0){
-                $(".contador-batalha .cronometro").html('00:00');
-            } else {
-                $(".contador-batalha .cronometro").html(horaImprimivel);
+                $(".contador-batalha .cronometro").html('FIM');
+                console.log('🏁 Battle ended - stopping timer');
+                return;
             }
             
+            $(".contador-batalha .cronometro").html(horaImprimivel);
             $(".contador-batalha").show();
-
-            setTimeout(function(){ 
+            
+            setTimeout(function(){
                 startCountdownNPC(tempo - 1);
             }, 1000);
-
         } else {
+            // ✅ CRITICAL FIX: Timer expired - RELOAD PAGE
             $(".contador-batalha .cronometro").html('00:00');
             
-            var finalizado = $('#finalizado').val();
-            
-            // ✅ Battle ended - no auto-attack, just reload page
-            if(finalizado == 1) {
+            // Check if battle ended
+            if($('.npc-vitoria').length > 0 || $('.npc-derrota').length > 0){
                 $(".contador-batalha .cronometro").html('FIM');
+                console.log('🏁 Battle ended - not reloading');
+            } else {
+                // ✅ FORCE RELOAD TO TRIGGER PHP AUTO-ATTACK
+                console.log('⏰ Timer expired at 00:00 - FORCING RELOAD');
+                setTimeout(function(){
+                    console.log('🔄 Reloading page now...');
+                    location.reload(true);
+                }, 500);
             }
         }
     },
@@ -126,114 +130,72 @@ DBH.npc = (function() {
             var horas = parseInt(min/60);
             min = min % 60;
             var seg = tempo%60;
-
+            
             if(min < 10){
                 min = "0"+min;
                 min = min.substr(0, 2);
             }
-
             if(seg <=9){
                 seg = "0"+seg;
             }
-
             if(horas <=9){
                 horas = "0"+horas;
             }
-
+            
             horaImprimivel = horas + ':' + min + ':' + seg;
             
             $(".npc-running .contador").html(horaImprimivel);
             $(".npc-running").show();
-
-            setTimeout(function(){ 
+            
+            setTimeout(function(){
                 startCountdownBatalha(tempo - 1);
             }, 1000);
-
         } else {
             $(".npc-running").remove();
         }
     },
     
-    // ✅ NEW: Player attack function
     atacarPlayer = function(idAtaque) {
         if(isAttacking) {
             return false;
         }
         
         isAttacking = true;
+        
         var idOponente = $('#idOponente').val();
         var baseSite = $('#baseSite').val();
         
-        // Submit the form normally to PHP (no AJAX)
-        var form = $('<form>', {
-            'method': 'POST',
-            'action': window.location.href
-        });
-        
-        $('<input>').attr({
-            type: 'hidden',
-            name: 'atacar',
-            value: '1'
-        }).appendTo(form);
-        
-        $('<input>').attr({
-            type: 'hidden',
-            name: 'idAtack',
-            value: idAtaque
-        }).appendTo(form);
-        
-        $('<input>').attr({
-            type: 'hidden',
-            name: 'estado',
-            value: '1'
-        }).appendTo(form);
-        
-        form.appendTo('body').submit();
+        // Submit the form
+        var form = $('<form method="POST"></form>');
+        form.append('<input type="hidden" name="atacar" value="1">');
+        form.append('<input type="hidden" name="idAtack" value="'+idAtaque+'">');
+        form.append('<input type="hidden" name="estado" value="1">');
+        $('body').append(form);
+        form.submit();
     },
-
+    
     combateLog = function(){
-        const container = document.querySelector('.log');
-        if(container) {
-            const ps = new PerfectScrollbar(container);
-        }
-    },
+        var baseSite = $('#baseSite').val();
+        var idNPC = $('#idNPC').val();
+        
+        $.ajax({
+            type: "POST",
+            url: baseSite+"ajax/ajaxNPCHistorico.php",
+            data: {id: idNPC},
+            success: function (res) {
+                $('.combate-log').html(res);
+            }
+        });
+    };
+    
+    return {
+        init: init
+    };
+})();
 
-    concluirBatalha = function() {
-        var btn = document.getElementById('btnConcluir');
-
-        if(!btn) {
-            console.error('Concluir button not found!');
-            return false;
-        }
-
-        if(btn) {
-            btn.disabled = true;
-            btn.value = 'Processando...';
-            if(btn.textContent) btn.textContent = 'Processando...';
-
-            var baseSite = $('#baseSite').val();
-            var currentUrl = window.location.href;
-
-            var url = currentUrl + (currentUrl.indexOf('?') > -1 ? '&' : '?') + 'concluir=1';
-
-            $.ajax({
-                type: "GET",
-                url: url,
-                success: function(res) {
-                    window.location.href = baseSite + 'torneio';
-                },
-                error: function() {
-                    alert('Erro ao concluir batalha. Por favor, tente novamente.');
-                    btn.disabled = false;
-                    btn.value = 'Concluir';
-                    if(btn.textContent) btn.textContent = 'Concluir';
-                }
-            });
-        }
-    }
-
-	return {
-        init: init,
-        combateLog: combateLog
-    }
-}());
+// ✅ CRITICAL: Auto-initialize immediately after definition
+// This ensures the override is active even after page reload
+if($('body').hasClass('npc')){
+    console.log('🚀 NPC override loaded - reinitializing...');
+    DBH.npc.init();
+}

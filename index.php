@@ -71,7 +71,50 @@
         <script type="text/javascript" src="<?php echo BASE; ?>assets/modernizr.custom.js"></script>
         <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.dlmenu.js"></script>
         <script src="<?php echo BASE; ?>assets/ckeditor/ckeditor.js"></script>
+        
         <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes.min.js"></script>
+
+        <!-- ✅ COMPLETE NPC TIMER FIX -->
+        <script>
+        // Override startCountdownNPC globally BEFORE any AJAX calls
+        window.startCountdownNPC = function(tempo){
+            if(tempo > 0){
+                var min = parseInt(tempo/60);
+                var seg = tempo%60;
+                if(min < 10) min = "0"+min;
+                if(seg <= 9) seg = "0"+seg;
+                var horaImprimivel = min + ':' + seg;
+                
+                if($('.npc-vitoria').length > 0 || $('.npc-derrota').length > 0){
+                    $(".contador-batalha .cronometro").html('FIM');
+                    console.log('🏁 Battle ended');
+                    return;
+                }
+                
+                $(".contador-batalha .cronometro").html(horaImprimivel);
+                $(".contador-batalha").show();
+                setTimeout(function(){ window.startCountdownNPC(tempo - 1); }, 1000);
+            } else {
+                $(".contador-batalha .cronometro").html('00:00');
+                if($('.npc-vitoria').length > 0 || $('.npc-derrota').length > 0){
+                    $(".contador-batalha .cronometro").html('FIM');
+                    console.log('🏁 Battle ended - not reloading');
+                } else {
+                    console.log('⏰ Timer expired - RELOADING in 500ms');
+                    setTimeout(function(){ 
+                        console.log('🔄 Reloading NOW!');
+                        location.reload(true); 
+                    }, 500);
+                }
+            }
+        };
+
+        console.log('✅ NPC timer override installed');
+        </script>
+
+        <!-- DON'T load npc.js anymore -->
+
+
         <script src="<?php echo BASE; ?>loja/produto/assets/js/inventario.js"></script> <!-- This will overwrite the old */// Makes the inventario work! even the file does not exist --> 
 
     <?php endif; ?>

@@ -3,8 +3,18 @@
         header('Location: '.BASE.'portal');
     }
     
+    // ✅ FIX: Properly initialize user object
+    $user = new Usuarios();
     if(isset($_SESSION['username'])){
         $user->getUserInfo($_SESSION['username']);
+    }
+
+    // ✅ FIX: Get user ID from personagem if $user->id is empty
+    if(empty($user->id) && isset($_SESSION['PERSONAGEMID'])){
+        $personagem_data = $core->getDados('usuarios_personagens', "WHERE id = \"" . $_SESSION['PERSONAGEMID'] . "\"");
+        if($personagem_data){
+            $user->getUserInfoByID($personagem_data->idUsuario);
+        }
     }
     
     $listaAnuncios_ativo = $core->getDados('adm_loja_produtos', "WHERE status = 1");
@@ -867,7 +877,7 @@
     <?php case 'produto': ?>
         <?php 
             $id = Url::getURL(2);
-            $dadosAnuncio = $core->getDados('adm_loja_itens', "WHERE id =".$id);
+            $dadosAnuncio = $core->getDados('adm_loja_itens', "WHERE id = \"" . $id . "\"");
             
             if($dadosAnuncio->loja == 0){
                 $core->msg('error', 'Item não encontrado.');
@@ -890,7 +900,15 @@
                 <?php if($dadosAnuncio->modulo == 3){ ?>
                     <?php 
                         $idItem = $dadosAnuncio->idItem;
-                        $dadosItem = $core->getDados('itens', "WHERE id = ".$idItem);
+                        $dadosItem = $core->getDados('itens', 'WHERE id = '.$dadosAnuncio->idItem);
+
+            // ✅ FIX: Use raridade from adm_loja_itens (admin panel) instead of itens table
+            if(isset($dadosAnuncio->raridade) && $dadosAnuncio->raridade > 0){
+                $dadosItem->raridade = $dadosAnuncio->raridade;
+            } else {
+                // Default to comum (1) if not set
+                $dadosItem->raridade = 1;
+            }
                     ?>
                     
                     <?php if($dadosItem->bau == 0){ ?>
@@ -956,7 +974,7 @@
                         <?php if(!$core->isExists('usuarios_personagens_fotos', "WHERE foto = '".$dadosAnuncio->foto."' AND idUsuario = ".$user->id)){ ?>
                             <?php if($user->coins >= $dadosAnuncio->valor){ ?>
                                 <input type="hidden" name="idProduto" id="idProduto" value="<?php echo $dadosAnuncio->id; ?>" />
-                                <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosAnuncio->idItem; ?>" />
+                                <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosItem->id; ?>">
                                 <input type="hidden" name="valor" id="valor" value="<?php echo $loja->getValor($dadosAnuncio->foto, $dadosAnuncio->valor, $dadosAnuncio->modulo); ?>" />
                                 <input type="hidden" name="foto" id="foto" value="<?php echo $dadosAnuncio->foto; ?>" />
                                 <input type="hidden" name="modulo" id="modulo" value="<?php echo $dadosAnuncio->modulo; ?>" />
@@ -983,7 +1001,7 @@
                     <?php if(!$core->isExists('usuarios_personagens_modulos', "WHERE idProduto = '".$dadosAnuncio->id."' AND idUsuario = ".$user->id)){ ?>
                         <?php if($user->coins >= $dadosAnuncio->valor){ ?>
                             <input type="hidden" name="idProduto" id="idProduto" value="<?php echo $dadosAnuncio->id; ?>" />
-                            <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosAnuncio->idItem; ?>" />
+                            <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosItem->id; ?>">
                             <input type="hidden" name="valor" id="valor" value="<?php echo $loja->getValor($dadosAnuncio->foto, $dadosAnuncio->valor, $dadosAnuncio->modulo); ?>" />
                             <input type="hidden" name="foto" id="foto" value="<?php echo $dadosAnuncio->foto; ?>" />
                             <input type="hidden" name="modulo" id="modulo" value="<?php echo $dadosAnuncio->modulo; ?>" />
@@ -1003,7 +1021,7 @@
                 <?php } else if($dadosAnuncio->modulo == 3){ ?>
                     <?php if($user->coins >= $dadosAnuncio->valor){ ?>
                         <input type="hidden" name="idProduto" id="idProduto" value="<?php echo $dadosAnuncio->id; ?>" />
-                        <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosAnuncio->idItem; ?>" />
+                        <input type="hidden" name="idItem" id="idItem" value="<?php echo $dadosItem->id; ?>">
                         <input type="hidden" name="valor" id="valor" value="<?php echo $loja->getValor($dadosAnuncio->foto, $dadosAnuncio->valor, $dadosAnuncio->modulo); ?>" />
                         <input type="hidden" name="foto" id="foto" value="<?php echo $dadosAnuncio->foto; ?>" />
                         <input type="hidden" name="modulo" id="modulo" value="<?php echo $dadosAnuncio->modulo; ?>" />

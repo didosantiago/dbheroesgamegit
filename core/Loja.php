@@ -6,6 +6,26 @@
  * @author Felipe Faciroli
  */
 class Loja {
+     public static function getRaridadeClass($flagText) {
+        if (empty($flagText)) return '';
+
+        $flags = array_map('trim', explode(',', $flagText));
+
+        if (in_array('Comum', $flags)) {
+            return 'green';
+        } elseif (in_array('Raro', $flags)) {
+            return 'blue';
+        } elseif (in_array('Épico', $flags) || in_array('Epico', $flags)) {
+            return 'purple';
+        } elseif (in_array('Lendário', $flags) || in_array('Lendario', $flags)) {
+            return 'orange';
+        } elseif (in_array('Mítico', $flags) || in_array('Mitico', $flags)) {
+            return 'yellow';
+        }
+
+        return '';
+    }
+
     public function getLoja(){
         $sql = "SELECT * FROM adm_loja";
         $stmt = DB::prepare($sql);
@@ -56,10 +76,19 @@ class Loja {
     }
 
     public function getClassRarirade($foto){
+        // First try personagens_fotos
         $sql = "SELECT * FROM personagens_fotos WHERE foto = ? AND free = 0";
         $stmt = DB::prepare($sql);
         $stmt->execute([$foto]);
         $item = $stmt->fetch();
+        
+        // If not found, try adm_loja_itens (for items like Baú)
+        if(!$item){
+            $sql = "SELECT * FROM adm_loja_itens WHERE foto = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([$foto]);
+            $item = $stmt->fetch();
+        }
         
         if($item && isset($item->raridade)){
             $tipo = $item->raridade;
@@ -69,11 +98,11 @@ class Loja {
             } else if($tipo == 2){
                 $classe = 'blue';      // Raro  
             } else if($tipo == 3){
-                $classe = 'lilas';     // Épico (purple)
+                $classe = 'pink';     // Épico (purple)
             } else if($tipo == 4){
-                $classe = 'orange';    // Lendário (Broly!)
+                $classe = 'orange';    // Lendário (Epic - your Baú!)
             } else if($tipo == 5){
-                $classe = 'pink';      // Mítico
+                $classe = 'yellow';      // Mítico
             } else {
                 $classe = 'green';     // Default
             }
@@ -83,6 +112,7 @@ class Loja {
 
         return $classe;
     }
+
 
 
     public function getValor($foto, $valor, $modulo){

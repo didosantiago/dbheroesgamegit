@@ -3,15 +3,32 @@
     if (isset($_POST['conceder'])) {
         if (isset($_SESSION['npc_id'])) {
             $core = new Core();
+            $npc = new Npc();
+            $idPersonagem = $_SESSION['PERSONAGEMID'];
             
-            // 1. Mark battle as concluded and player as loser
+            // 1. Calculate remaining HP from battle
+            $personagem = $core->getDados('usuarios_personagens', 'WHERE id = "'.$idPersonagem.'"');
+            $lifes = $npc->getLifeRestante($_SESSION['npc_id']);
+            
+            // Calculate HP after damage taken in battle
+            $hp_restante = max(1, intval($personagem->hp) - intval($lifes->dano_atacante));
+            
+            // 2. Update player HP with battle damage
+            $campos_hp = array(
+                'hp' => $hp_restante,
+                'time_hp' => time()
+            );
+            $core->update('usuarios_personagens', $campos_hp, 'id = "'.$idPersonagem.'"');
+            
+            // 3. Mark battle as concluded and player as loser
             $campos_fim = array(
                 'concluido' => 1,
-                'vencedor' => 0 // 0 means NPC won / Player lost
+                'vencedor' => 0, // 0 means NPC won / Player lost
+                'recompensa_recebida' => 1 // ✅ Mark as rewarded to prevent popup on next battle
             );
             $core->update('npc', $campos_fim, 'id = '.$_SESSION['npc_id']);
             
-            // 2. Clear all battle sessions
+            // 4. Clear all battle sessions
             unset($_SESSION['npc']);
             unset($_SESSION['npc_id']);
             unset($_SESSION['npc_atacado']);
@@ -24,11 +41,16 @@
             unset($_SESSION['npc_ki_oponente']);
             unset($_SESSION['npc_final']);
             
-            // 3. Redirect to Torneio (EXITING the battle)
+            // 5. Force session write
+            session_write_close();
+            
+            // 6. Redirect to Torneio (EXITING the battle)
             header('Location: ' . BASE . 'torneio');
             exit;
         }
     }
+
+
 
 
     if(!isset($_SESSION['PERSONAGEMID'])){
@@ -82,25 +104,27 @@
             $oponente = $npc->getOponenteNPC($parametro_1);
             
             // Check if battle is finished in database
-            $sql_check_db = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $parametro_1 ORDER BY id DESC LIMIT 1";
+            $sql_check_db = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $parametro_1 AND concluido = 1 AND recompensa_recebida = 0 ORDER BY id DESC LIMIT 1";
             $stmt_check_db = DB::prepare($sql_check_db);
             $stmt_check_db->execute();
-            
+
             if($stmt_check_db->rowCount() > 0){
                 $battle_status = $stmt_check_db->fetch();
                 
-                // If battle is finished, ALWAYS set victory/defeat session
-                if($battle_status->concluido == 1){
-                    if($battle_status->vencedor == 1){
-                        $_SESSION['npc_vitoria'] = true;
-                    } else {
-                        $_SESSION['npc_derrota'] = true;
-                    }
-                    $_SESSION['npc_finalizado'] = 1;
-                    $_SESSION['npc_id'] = $battle_status->id;
-                    $_SESSION['npc'] = true;
+                // Set victory/defeat popup
+                if($battle_status->vencedor == 1){
+                    $_SESSION['npc_vitoria'] = true;
+                } else {
+                    $_SESSION['npc_derrota'] = true;
                 }
+                $_SESSION['npc_finalizado'] = 1;
+                $_SESSION['npc_id'] = $battle_status->id;
+                $_SESSION['npc'] = true;
             }
+
+            }
+
+
 
 
             // ✅ Only load existing ACTIVE battles if no victory/defeat session exists
@@ -119,8 +143,7 @@
             }
 
 
-        
-        // ... rest of the code continues
+
 
             
             // Check if there's a session battle ID and if it matches the URL
@@ -148,7 +171,7 @@
         if (isset($_POST['concluir'])) {
             // Get the opponent ID from the URL
             $opponent_id_from_url = Url::getURL(1);
-
+            
             // Check if the opponent ID is valid
             if (empty($opponent_id_from_url)) {
                 // No opponent ID, just clear sessions and redirect
@@ -156,7 +179,7 @@
                 header('Location: ' . BASE . 'torneio');
                 exit;
             }
-
+            
             // ✅ Get battle data from database
             $sql_get_battle = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $opponent_id_from_url ORDER BY id DESC LIMIT 1";
             $stmt_get_battle = DB::prepare($sql_get_battle);
@@ -172,13 +195,13 @@
                 header('Location: ' . BASE . 'torneio');
                 exit;
             }
-
+            
             // Get the opponent object for EXP calculation
             $oponente_obj = $npc->getOponenteNPC($opponent_id_from_url);
-
+            
             // Get current player data from database
             $personagem_atual = $core->getDados('usuarios_personagens', 'WHERE id = "'.$idPersonagem.'"');
-
+            
             // ✅ Award EXP if player won
             if ($battle_won && $oponente_obj) {
                 $exp_recebido = $oponente_obj->exp;
@@ -198,21 +221,124 @@
                     $double_exp = 0;
                 }
                 
-                $exp_total = intval($exp_recebido) + intval($exp_extra) + intval($double_exp);
+                // ✅ NEW: Capsule bonus from personagens_buffs
+                $sql_capsule_reward = "SELECT * FROM personagens_buffs 
+                                    WHERE idPersonagem = ? 
+                                    AND tipo = 'experiencia' 
+                                    AND ativo = 1 
+                                    AND tempo_fim > NOW()";
+                $stmt_capsule_reward = DB::prepare($sql_capsule_reward);
+                $stmt_capsule_reward->execute([$idPersonagem]);
+                $buff_capsule_reward = $stmt_capsule_reward->fetch();
                 
-                // Award EXP
+                if($buff_capsule_reward){
+                    $capsula_bonus = intval($exp_recebido) * (intval($buff_capsule_reward->porcentagem) / 100);
+                } else {
+                    $capsula_bonus = 0;
+                }
+                
+                $exp_total = intval($exp_recebido) + intval($exp_extra) + intval($double_exp) + intval($capsula_bonus);
+
+                                
+                // ✅ Award EXP and increment TAM
                 $campos_usuario = array(
                     'tam' => intval($personagem_atual->tam) + 1,
                     'exp' => intval($personagem_atual->exp) + $exp_total
                 );
                 $core->update('usuarios_personagens', $campos_usuario, 'id = "' . $idPersonagem . '"');
                 $personagem->checkLevelUp($idPersonagem);
-                
+                // Auto-update graduation based on new level
+
+
+                // ✅ Award Chest Based on Graduation (COMPLETE - ALL 25 GRADUATIONS)
+                $sql_graduacao = "SELECT g.graduacao as graduacao_nome 
+                                FROM usuarios_personagens up
+                                INNER JOIN graduacoes g ON up.graduacao = g.id
+                                WHERE up.id = ?";
+                $stmt_graduacao = DB::prepare($sql_graduacao);
+                $stmt_graduacao->execute([$idPersonagem]);
+                $player_graduation = $stmt_graduacao->fetch();
+
+                if($player_graduation){
+                    $graduation_name = mb_strtolower(trim($player_graduation->graduacao_nome), 'UTF-8');
+                    
+                    // Map graduation to chest item name (ALL 25 LEVELS)
+                    $chest_map = array(
+                        'estudante aprendiz' => 'Baú Estudante Fechado',
+                        'estudante prodígio' => 'Baú Estudante Fechado',
+                        'estudante graduado' => 'Baú Estudante Fechado',
+                        'professor técnico' => 'Baú Professor Fechado',
+                        'professor instrutor' => 'Baú Professor Fechado',
+                        'professor perito' => 'Baú Professor Fechado',
+                        'mestre brilhante' => 'Baú Mestre Fechado',
+                        'mestre consagrado' => 'Baú Mestre Fechado',
+                        'mestre absoluto' => 'Baú Mestre Fechado',
+                        'eremita sábio' => 'Baú Eremita Fechado',
+                        'eremita grandioso' => 'Baú Eremita Fechado',
+                        'eremita sagrado' => 'Baú Eremita Fechado',
+                        'lendário supremo' => 'Baú Lendário Fechado',
+                        'lendário divino' => 'Baú Lendário Fechado',
+                        'lendário épico' => 'Baú Lendário Fechado',
+                        'místico colossal' => 'Baú Místico Fechado',
+                        'místico celestial' => 'Baú Místico Fechado',
+                        'místico perfeito' => 'Baú Místico Fechado',
+                        'místico celestial supremo' => 'Baú Místico Fechado',
+                        'místico celestial avançado' => 'Baú Místico Fechado',
+                        'místico colossal supremo' => 'Baú Místico Fechado',
+                        'místico esplendido' => 'Baú Místico Fechado',
+                        'místico extraordinário' => 'Baú Místico Fechado',
+                        'místico fantástico i' => 'Baú Místico Fechado',
+                        'místico glorioso ii' => 'Baú Místico Fechado'
+                    );
+                    
+                    // Get chest name (fallback to Estudante if not found)
+                    $chest_name = isset($chest_map[$graduation_name]) ? $chest_map[$graduation_name] : 'Baú Estudante Fechado';
+                    
+                    // ===== DEBUG =====
+                    file_put_contents('debug_final.txt', 
+                        date('Y-m-d H:i:s') . "\n" .
+                        "Player ID: " . $idPersonagem . "\n" .
+                        "Raw: '" . $player_graduation->graduacao_nome . "'\n" .
+                        "After lower+trim: '" . $graduation_name . "'\n" .
+                        "Found in map: " . (isset($chest_map[$graduation_name]) ? 'YES' : 'NO') . "\n" .
+                        "Chest: '" . $chest_name . "'\n\n",
+                        FILE_APPEND
+                    );
+                    // ===== END DEBUG =====
+                    
+                    // Find chest item in database
+                    $sql_chest = "SELECT * FROM itens WHERE nome = ?";
+                    $stmt_chest = DB::prepare($sql_chest);
+                    $stmt_chest->execute([$chest_name]);
+                    $chest_item = $stmt_chest->fetch();
+                    
+                    if($chest_item){
+                        $inventario = new Inventario();
+                        $slot_check = $inventario->verificaItemIgual($chest_item->nome, $idPersonagem);
+                        
+                        if($slot_check){
+                            $slot_recebido = $slot_check;
+                            $campos = array('novo' => 1);
+                            $where = 'id = "'.$slot_recebido.'"';
+                            $core->update('personagens_inventario', $campos, $where);
+                            
+                            $campos_add = array(
+                                'idItem' => $chest_item->id,
+                                'idSlot' => $slot_recebido,
+                                'idPersonagem' => $idPersonagem
+                            );
+                            $core->insert('personagens_inventario_itens', $campos_add);
+                        }
+                    }
+                }
+
+
+
                 // ✅ Reload after EXP update for HP calculation
                 $personagem_atual = $core->getDados('usuarios_personagens', 'WHERE id = "'.$idPersonagem.'"');
             }
-
-            // ✅ CRITICAL: Save remaining HP - RECALCULATE from battle damage
+            
+            // ✅ Save remaining HP
             if($battle_won){
                 // Player won - calculate remaining HP from battle
                 $lifes_final = $npc->getLifeRestante($battle_id);
@@ -224,15 +350,19 @@
                 );
                 $core->update('usuarios_personagens', $campos_hp, 'id = "'.$idPersonagem.'"');
             } else {
-                // Player lost - set HP to 1 (defeated but alive)
+                // Player lost - set HP to 0
                 $campos_hp = array(
                     'hp' => 0,
                     'time_hp' => time()
                 );
                 $core->update('usuarios_personagens', $campos_hp, 'id = "'.$idPersonagem.'"');
             }
-
-            // ✅ Clean up ALL battle session variables
+            
+            // ✅ CRITICAL: Mark reward as claimed in database
+            $campos_recompensa = array('recompensa_recebida' => 1);
+            $core->update('npc', $campos_recompensa, 'id = '.$battle_id);
+            
+            // ✅ CRITICAL: Clear ALL battle sessions IMMEDIATELY
             unset(
                 $_SESSION['npc'],
                 $_SESSION['npc_id'],
@@ -246,11 +376,15 @@
                 $_SESSION['npc_ki_oponente'],
                 $_SESSION['npc_final']
             );
-
+            
+            // ✅ Force session write to disk
+            session_write_close();
+            
             // Redirect to tournament page
             header('Location: ' . BASE . 'torneio');
             exit;
         }
+
 
 
 
@@ -306,9 +440,10 @@
                             // Reset timer for next round
                             $campos_timer = array(
                                 'time_final' => time() + 30,
-                                'atacado' => 1,
-                                'atacou' => 1
+                                'atacado' => 1,  // ✅ Keep as player's turn
+                                'atacou' => 0    // ✅ Reset attack flag
                             );
+                            $core->update('npc', $campos_timer, 'id = "'.$npcid.'"');
                             $where_timer = 'id = "'.$dados_npc->id.'"';
                             $core->update('npc', $campos_timer, $where_timer);
                             
@@ -316,16 +451,10 @@
                             exit();
                         }
                     }
-                    
-                    // If it was NPC's turn (atacou=1), NPC took too long (shouldn't happen, but reset)
-                    if($dados_npc->atacou == 1){
-                        $campos_timer_reset = array('time_final' => time() + 30);
-                        $where_timer_reset = 'id = "'.$dados_npc->id.'"';
-                        $core->update('npc', $campos_timer_reset, $where_timer_reset);
-                    }
+                    // ✅ REMOVED: The "if($dados_npc->atacou == 1)" block
                 }
 
-                // ✅ Check if NPC needs to counter-attack
+                // ✅ Check if NPC needs to counter-attack (when player manually attacks)
                 if($dados_npc->atacou == 1 && $dados_npc->atacado == 0 && $dados_npc->pausado == 0){
                     // Calculate NPC current HP
                     $lifes = $npc->getLifeRestante($dados_npc->id);
@@ -339,7 +468,7 @@
                         $hp_npc_max = round($oponente->hp - $porcentagemFree);
                     }
                     $npc_hp = $hp_npc_max - $lifes->dano_atacado;
-
+                    
                     // Only attack if NPC is alive AND timer hasn't expired
                     if($npc_hp > 0 && $dados_npc->time_final > time()){
                         $npc->atack(4, $parametro_1, $idPersonagem, 0, 0);
@@ -347,6 +476,7 @@
                 }
             }
         }
+
 
         // ===== SECTION 3: PAUSE/RESUME HANDLING =====
         if($npc->npcRun($idPersonagem, $parametro_1)){
@@ -431,20 +561,20 @@
                 $stmt_check->execute();
                 
                 if($stmt_check->rowCount() == 0){
-                    // No active battle, check if one just finished
-                    $sql_safety = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $parametro_1 AND concluido = 1 ORDER BY id DESC LIMIT 1";
+                    // No active battle, check if one just finished AND hasn't been rewarded
+                    $sql_safety = "SELECT * FROM npc WHERE idPersonagem = $idPersonagem AND idDesafiado = $parametro_1 AND concluido = 1 AND recompensa_recebida = 0 ORDER BY id DESC LIMIT 1";
                     $stmt_safety = DB::prepare($sql_safety);
                     $stmt_safety->execute();
-                    
+
                     $can_create_battle = true; // Default: allow battle creation
-                    
+
                     if($stmt_safety->rowCount() > 0){
                         $last_battle = $stmt_safety->fetch();
                         
                         // ✅ FIX: Use time_inicial (UNIX timestamp) instead of data (date only)
                         $time_since_battle = time() - $last_battle->time_inicial;
                         
-                        // If battle ended within last 30 seconds, DON'T create new one
+                        // If battle ended within last 30 seconds AND reward not claimed, DON'T create new one
                         if($time_since_battle < 30){
                             // Restore victory/defeat state
                             if($last_battle->vencedor == 1){
@@ -452,6 +582,7 @@
                             } else {
                                 $_SESSION['npc_derrota'] = true;
                             }
+
                             $_SESSION['npc_id'] = $last_battle->id;
                             $_SESSION['npc'] = true;
                             $_SESSION['npc_finalizado'] = 1;
@@ -541,10 +672,18 @@
 
 
 
-        // ✅ CRITICAL: Calculate HP for BOTH active AND finished battles (for popup display)
+        // ✅ CRITICAL: Calculate HP for ACTIVE battles OR finished battles with popup
         if($npc->npcRun($idPersonagem, $parametro_1) || isset($_SESSION['npc_vitoria']) || isset($_SESSION['npc_derrota'])){
-            // ✅ Get battle data (active OR finished) - NO concluido filter for popup!
-            $npc_dados = $core->getDados('npc', 'WHERE idPersonagem = '.$idPersonagem.' AND idDesafiado = '.$parametro_1.' ORDER BY id DESC LIMIT 1');
+            // Get battle data - include finished battles ONLY if popup is active
+            if(isset($_SESSION['npc_vitoria']) || isset($_SESSION['npc_derrota'])){
+                // Get finished battle for popup display
+                $npc_dados = $core->getDados('npc', 'WHERE id = '.$_SESSION['npc_id'].' ORDER BY id DESC LIMIT 1');
+            } else {
+                // Get active battle only
+                $npc_dados = $core->getDados('npc', 'WHERE idPersonagem = '.$idPersonagem.' AND idDesafiado = '.$parametro_1.' AND concluido = 0 ORDER BY id DESC LIMIT 1');
+            }
+
+
             
             // ✅ Only calculate if battle exists
             if($npc_dados){
@@ -609,7 +748,7 @@
                     }
                 }
             }
-        }
+        
 
         } else {
             $core->msg('error', 'Você está em uma batalha PVP no momento.');
@@ -617,46 +756,124 @@
         }
         ?>
 
-
+<!-- ⬇️ ADD THE BANNER HERE -->
+<div class="arena">
+    <div class="tam-banner">
+    </div>
+</div>
 <?php if(isset($_SESSION['npc_vitoria'])){ ?>
     <script type="text/javascript">
         $('html, body').animate({scrollTop: $('.conteudo').offset().top}, 'slow');
+        
     </script>
+    
+    <?php 
+    $exp_recebido = $oponente->exp;
+
+    // VIP Bonus
+    if($user->vip == 1){
+        $exp_extra = intval($exp_recebido) * (20 / 100);
+        $txt_exp_extra = '<p>+ <strong>'.intval($exp_extra).'</strong> por ser jogador VIP.</p>';
+    } else {
+        $exp_extra = 0;
+        $txt_exp_extra = '';
+    }
+
+    // Double XP Event
+    if($core->verifyDoubleEXP()){
+        $double_exp_dados = $core->getDoubleEXP();
+        $double_exp = intval($exp_recebido) * (intval($double_exp_dados->porcentagem) / 100);
+        $txt_double_exp = '<p><strong>'.intval($double_exp).'</strong> de experiência extra.</p>';
+    } else {
+        $double_exp = 0;
+        $txt_double_exp = '';
+    }
+
+    // ✅ Capsule Bonus from personagens_buffs table
+    $sql_capsule = "SELECT * FROM personagens_buffs 
+                    WHERE idPersonagem = ? 
+                    AND tipo = 'experiencia' 
+                    AND ativo = 1 
+                    AND tempo_fim > NOW()";
+    $stmt_capsule = DB::prepare($sql_capsule);
+    $stmt_capsule->execute([$idPersonagem]);
+    $buff_capsule = $stmt_capsule->fetch();
+
+    if($buff_capsule){
+        $capsula_bonus = intval($exp_recebido) * (intval($buff_capsule->porcentagem) / 100);
+        $txt_capsula_bonus = '<p>🧪 + <strong>'.intval($capsula_bonus).'</strong> bônus de Cápsula de EXP.</p>';
+    } else {
+        $capsula_bonus = 0;
+        $txt_capsula_bonus = '';
+    }
+
+
+    // ✅ Chest Reward Message (FIXED - CORRECT COLUMN NAME)
+    $sql_get_grad = "SELECT g.graduacao as graduacao_nome 
+                    FROM usuarios_personagens up
+                    INNER JOIN graduacoes g ON up.graduacao = g.id
+                    WHERE up.id = ?";
+
+    $stmt_get_grad = DB::prepare($sql_get_grad);
+    $stmt_get_grad->execute([$idPersonagem]);
+    $player_grad_popup = $stmt_get_grad->fetch();
+
+    $chest_map_popup = array(
+        'estudante aprendiz' => 'Baú Estudante Fechado',
+        'estudante prodígio' => 'Baú Estudante Fechado',
+        'estudante graduado' => 'Baú Estudante Fechado',
+        'professor técnico' => 'Baú Professor Fechado',
+        'professor instrutor' => 'Baú Professor Fechado',
+        'professor perito' => 'Baú Professor Fechado',
+        'mestre brilhante' => 'Baú Mestre Fechado',
+        'mestre consagrado' => 'Baú Mestre Fechado',
+        'mestre absoluto' => 'Baú Mestre Fechado',
+        'eremita sábio' => 'Baú Eremita Fechado',
+        'eremita grandioso' => 'Baú Eremita Fechado',
+        'eremita sagrado' => 'Baú Eremita Fechado',
+        'lendário supremo' => 'Baú Lendário Fechado',
+        'lendário divino' => 'Baú Lendário Fechado',
+        'lendário épico' => 'Baú Lendário Fechado',
+        'místico colossal' => 'Baú Místico Fechado',
+        'místico celestial' => 'Baú Místico Fechado',
+        'místico perfeito' => 'Baú Místico Fechado',
+        'místico celestial supremo' => 'Baú Místico Fechado',
+        'místico celestial avançado' => 'Baú Místico Fechado',
+        'místico colossal supremo' => 'Baú Místico Fechado',
+        'místico esplendido' => 'Baú Místico Fechado',
+        'místico extraordinário' => 'Baú Místico Fechado',
+        'místico fantástico i' => 'Baú Místico Fechado',
+        'místico glorioso ii' => 'Baú Místico Fechado'
+    );
+
+    // 🔥 OTIMIZAÇÃO: Converter UMA VEZ só
+    $graduation_lower_popup = mb_strtolower($player_grad_popup->graduacao_nome, 'UTF-8');
+    $chest_reward_name = isset($chest_map_popup[$graduation_lower_popup]) ? 
+                        $chest_map_popup[$graduation_lower_popup] : 
+                        'Baú Estudante Fechado';
+
+    $txt_chest_reward = '<p>📦 Você recebeu um <strong>'.$chest_reward_name.'</strong>!</p>';
+
+
+    ?>
+    
+    <!-- Victory Popup Display -->
     <div class="npc-vitoria">
         <div class="dados">
-            <?php
-                $exp_recebido = $oponente->exp;
-                
-                if($user->vip == 1){
-                    $exp_extra = intval($exp_recebido) * (20 / 100);
-                    $txt_exp_extra = '<p>+ '.intval($exp_extra).' por ser jogador VIP.</p>';
-                } else {
-                    $exp_extra = 0;
-                    $gold_extra = 0;
-                    $txt_exp_extra = '';
-                }
-                
-                if($core->verifyDoubleEXP()){
-                    $double_exp_dados = $core->getDoubleEXP();
-                    $double_exp = intval($exp_recebido) * (intval($double_exp_dados->porcentagem) / 100);
-                    $txt_double_exp = '<p>+ <strong>'.intval($double_exp).'</strong> de experiência extra.</p>';
-                } else {
-                    $double_exp = 0;
-                    $txt_double_exp = '';
-                }
-            ?>
             <i class="fas fa-trophy"></i>
             <div class="info-vitoria">
                 <p>Você venceu!</p>
                 <p><strong><?php echo $oponente->nome; ?></strong> desmaiou após o seu último ataque.</p>
-                <p>Você ganhou <?php echo intval($exp_recebido) ?> de  experiência.</p>
+                <p>Você ganhou <strong><?php echo intval($exp_recebido); ?></strong> de experiência.</p>
                 <?php echo $txt_exp_extra; ?>
                 <?php echo $txt_double_exp; ?>
-                <p>Você aumentou em <?php echo intval($exp_recebido) + intval($exp_extra) + intval($double_exp); ?> sua experiência.</p>
+                <?php echo $txt_capsula_bonus; ?>
+                <?php echo $txt_chest_reward; ?>
+                <p>Você aumentou em <strong><?php echo intval($exp_recebido) + intval($exp_extra) + intval($double_exp) + intval($capsula_bonus); ?></strong> sua experiência.</p>
             </div>
         </div>
         <form id="concluirBatalha" method="post">
-            <input type="submit" class="bts-form" name="concluir" value="Concluir" />
+            <input type="submit" class="bts-form" name="concluir" value="Concluir">
         </form>
     </div>
 <?php } ?>
@@ -708,10 +925,11 @@
     ?>
 </div>
 
-<!-- Conceder Button - Styled -->
+<!-- Conceder Button - Only show during ACTIVE battles -->
+<?php if(!isset($_SESSION['npc_vitoria']) && !isset($_SESSION['npc_derrota'])): ?>
 <div style="text-align: center; margin-top: 15px;">
     <form method="post" style="margin: 0;">
-        <button type="submit" name="conceder" class="btn-conceder" onclick="return confirm('Tem certeza que deseja desistir da batalha?');">
+        <button type="submit" name="conceder" class="btn-conceder" onclick="return confirm('Tem certeza que deseja desistir da batalha?')">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: middle; margin-right: 5px;">
                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                 <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
@@ -720,6 +938,8 @@
         </button>
     </form>
 </div>
+<?php endif; ?>
+
 <style>
     .btn-conceder {
     background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
@@ -759,8 +979,21 @@
 </style>
 
 <script>
+// 🔥 DISABLE F5 KEY DURING BATTLE
+document.addEventListener('keydown', function(e) {
+    <?php if(isset($_SESSION['npc_id'])): ?>
+    if(e.key === 'F5' || (e.ctrlKey && e.key === 'r')){
+        e.preventDefault();
+        alert('F5 e Ctrl+R desabilitados durante a batalha!');
+        console.log('F5 blocked during NPC battle');
+        return false;
+    }
+    <?php endif; ?>
+});
+
+<script>
 // Pause battle when player leaves page
-window.addEventListener('beforeunload', function(e) {
+window.addEventListener('beforeunload, function(e) {
     // Use Navigator.sendBeacon for reliable page unload request
     var formData = new FormData();
     formData.append('action', 'pause');
@@ -770,3 +1003,5 @@ window.addEventListener('beforeunload', function(e) {
     navigator.sendBeacon('<?php echo BASE; ?>ajax/ajaxNPC.php', formData);
 });
 </script>
+
+

@@ -371,3 +371,10 @@
         </form>
     </li>
 </ul>
+<script>
+    const pixelsToScroll = 390; 
+    window.scrollTo({
+        top: pixelsToScroll,
+        behavior: "smooth"
+    });
+    </script>

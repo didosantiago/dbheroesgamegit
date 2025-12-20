@@ -357,11 +357,20 @@ if(isset($_GET['edit'])) {
     display: flex;
     align-items: center;
     margin-bottom: 5px;
+    cursor: pointer;
 }
 
 .flag-checkbox input {
     width: auto;
     margin-right: 8px;
+    cursor: pointer;
+}
+
+.flag-checkbox span {
+    display: inline-block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    font-weight: bold !important;
 }
 </style>
 
@@ -608,7 +617,21 @@ if(isset($_GET['edit'])) {
                 
                 // Combine flags
                 $finalFlag = implode(', ', $selectedFlags);
-                
+
+                // 🔥 AUTO-CALCULATE RARIDADE NUMBER
+                $raridade = null;
+                if(isset($_POST['flag_mitico'])) {
+                    $raridade = 5;
+                } elseif(isset($_POST['flag_lendario'])) {
+                    $raridade = 4;
+                } elseif(isset($_POST['flag_epico'])) {
+                    $raridade = 3;
+                } elseif(isset($_POST['flag_raro'])) {
+                    $raridade = 2;
+                } elseif(isset($_POST['flag_comum'])) {
+                    $raridade = 1;
+                }
+
                 // If no errors, proceed with add/edit
                 if(empty($errors)) {
                     $data = [
@@ -621,7 +644,8 @@ if(isset($_GET['edit'])) {
                         'idItem' => $_POST['idItem'] ? intval($_POST['idItem']) : null,
                         'novo' => isset($_POST['novo']),
                         'promocao' => isset($_POST['promocao']),
-                        'flag' => $finalFlag
+                        'flag' => $finalFlag,
+                        'raridade' => $raridade
                     ];
                         // ⭐ KEY UPDATE: Update photo raridade if this is a photo item
                     if($data['modulo'] == 1 && !empty($data['foto'])) {
@@ -629,22 +653,59 @@ if(isset($_GET['edit'])) {
                     }
                     
                     if($action === 'add') {
-                        if($administrar->addLojaItem($data)) {
-                            echo '<div class="success-msg">✅ Item adicionado com sucesso!</div>';
+                        // 🔥 DIRECT SQL INSERT WITH RARIDADE SUPPORT
+                        try {
+                            $sql = "INSERT INTO adm_loja_itens (nome, descricao, valor, modulo, foto, idBoneco, idItem, novo, promocao, flag, raridade, loja) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)";
+                            $stmt = DB::prepare($sql);
+                            $stmt->execute([
+                                $data['nome'],
+                                $data['descricao'],
+                                $data['valor'],
+                                $data['modulo'],
+                                $data['foto'],
+                                $data['idBoneco'],
+                                $data['idItem'],
+                                $data['novo'] ? 1 : 0,
+                                $data['promocao'] ? 1 : 0,
+                                $data['flag'],
+                                $data['raridade']
+                            ]);
+                            echo '<div class="success-msg">✅ Item adicionado com sucesso! (Raridade: ' . ($data['raridade'] ?? 'NULL') . ')</div>';
                             $success = true;
-                        } else {
-                            $errors[] = "Erro ao adicionar item no banco de dados";
+                        } catch(Exception $e) {
+                            $errors[] = "Erro ao adicionar item: " . $e->getMessage();
                         }
                     } else if($action === 'edit') {
                         $editId = intval($_POST['edit_id']);
-                        if($administrar->updateLojaItem($editId, $data)) {
-                            echo '<div class="success-msg">✅ Item editado com sucesso!</div>';
+                        // 🔥 DIRECT SQL UPDATE WITH RARIDADE SUPPORT
+                        try {
+                            $sql = "UPDATE adm_loja_itens 
+                                    SET nome = ?, descricao = ?, valor = ?, modulo = ?, foto = ?, 
+                                        idBoneco = ?, idItem = ?, novo = ?, promocao = ?, flag = ?, raridade = ?
+                                    WHERE id = ? AND loja = 1";
+                            $stmt = DB::prepare($sql);
+                            $stmt->execute([
+                                $data['nome'],
+                                $data['descricao'],
+                                $data['valor'],
+                                $data['modulo'],
+                                $data['foto'],
+                                $data['idBoneco'],
+                                $data['idItem'],
+                                $data['novo'] ? 1 : 0,
+                                $data['promocao'] ? 1 : 0,
+                                $data['flag'],
+                                $data['raridade'],
+                                $editId
+                            ]);
+                            echo '<div class="success-msg">✅ Item editado com sucesso! (Raridade: ' . ($data['raridade'] ?? 'NULL') . ')</div>';
                             $success = true;
                             // Clear edit mode
                             $editId = null;
                             $editItem = null;
-                        } else {
-                            $errors[] = "Erro ao editar item no banco de dados";
+                        } catch(Exception $e) {
+                            $errors[] = "Erro ao editar item: " . $e->getMessage();
                         }
                     }
                 }
@@ -760,24 +821,24 @@ if(isset($_GET['edit'])) {
                                 <h5>🎯 Raridade</h5>
                                 <div class="flags-grid">
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_comum">
+                                        <input type="checkbox" name="flag_comum" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Comum') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #28a745;">⬤ Comum</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_raro">
+                                        <input type="checkbox" name="flag_raro" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Raro') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #007bff;">⬤ Raro</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_epico">
+                                        <input type="checkbox" name="flag_epico" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Épico') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #6f42c1;">⬤ Épico</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_lendario">
+                                        <input type="checkbox" name="flag_lendario" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Lendário') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #fd7e14;">⬤ Lendário</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_mitico">
-                                        <span style="color: #dc3545;">⬤ Mítico</span>
+                                        <input type="checkbox" name="flag_mitico" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Mítico') !== false ? 'checked' : ''; ?>>
+                                        <span style="color: #ffc107;">⬤ Mítico</span>
                                     </label>
                                 </div>
                             </div>
@@ -786,15 +847,15 @@ if(isset($_GET['edit'])) {
                                 <h5>⭐ Status Especial</h5>
                                 <div class="flags-grid">
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_limitado">
+                                        <input type="checkbox" name="flag_limitado" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Limitado') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #ffc107;">🔥 Limitado</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_exclusivo">
+                                        <input type="checkbox" name="flag_exclusivo" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Exclusivo') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #e83e8c;">💎 Exclusivo</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_evento">
+                                        <input type="checkbox" name="flag_evento" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Evento') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #20c997;">🎉 Evento</span>
                                     </label>
                                 </div>
@@ -804,19 +865,19 @@ if(isset($_GET['edit'])) {
                                 <h5>⚡ Tipo de Poder</h5>
                                 <div class="flags-grid">
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_poder">
+                                        <input type="checkbox" name="flag_poder" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Poder') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #dc3545;">⚡ Poder</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_defesa">
+                                        <input type="checkbox" name="flag_defesa" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Defesa') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #6c757d;">🛡️ Defesa</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_velocidade">
+                                        <input type="checkbox" name="flag_velocidade" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Velocidade') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #17a2b8;">💨 Velocidade</span>
                                     </label>
                                     <label class="flag-checkbox">
-                                        <input type="checkbox" name="flag_especial">
+                                        <input type="checkbox" name="flag_especial" <?php echo !empty($editItem) && !empty($editItem->flag) && strpos($editItem->flag, 'Especial') !== false ? 'checked' : ''; ?>>
                                         <span style="color: #6f42c1;">✨ Especial</span>
                                     </label>
                                 </div>
@@ -874,11 +935,11 @@ if(isset($_GET['edit'])) {
                         WHERE ali.loja = 1 
                         ORDER BY ali.id DESC 
                         LIMIT 20";
-                
+
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
                 $items = $stmt->fetchAll();
-                
+
                 if(count($items) > 0) {
                     foreach($items as $item) {
                         $tipo_texto = '';
@@ -889,35 +950,48 @@ if(isset($_GET['edit'])) {
                         }
                         
                         $status_badges = '';
-                        if($item->novo) $status_badges .= '<span class="badge badge-novo">Novo</span> ';
-                        if($item->promocao) $status_badges .= '<span class="badge badge-promo">Promoção</span> ';
+                        if($item->novo)      $status_badges .= '<span class="badge badge-novo">Novo</span> ';
+                        if($item->promocao)  $status_badges .= '<span class="badge badge-promo">Promoção</span> ';
                         if($item->flag) {
                             // Split flags and create colored badges
                             $flags = explode(', ', $item->flag);
                             foreach($flags as $flag) {
                                 $color = '';
                                 switch(trim($flag)) {
-                                    case 'Comum': $color = '#28a745'; break;
-                                    case 'Raro': $color = '#007bff'; break;
-                                    case 'Épico': $color = '#6f42c1'; break;
-                                    case 'Lendário': $color = '#fd7e14'; break;
-                                    case 'Mítico': $color = '#dc3545'; break;
-                                    case 'Limitado': $color = '#ffc107'; break;
+                                    case 'Comum':     $color = '#28a745'; break;
+                                    case 'Raro':      $color = '#007bff'; break;
+                                    case 'Épico':     $color = '#6f42c1'; break;
+                                    case 'Lendário':  $color = '#fd7e14'; break;
+                                    case 'Mítico':    $color = '#dc3545'; break;
+                                    case 'Limitado':  $color = '#ffc107'; break;
                                     case 'Exclusivo': $color = '#e83e8c'; break;
-                                    case 'Evento': $color = '#20c997'; break;
-                                    case 'Poder': $color = '#dc3545'; break;
-                                    case 'Defesa': $color = '#6c757d'; break;
-                                    case 'Velocidade': $color = '#17a2b8'; break;
-                                    case 'Especial': $color = '#6f42c1'; break;
-                                    default: $color = '#6c757d'; break;
+                                    case 'Evento':    $color = '#20c997'; break;
+                                    case 'Poder':     $color = '#dc3545'; break;
+                                    case 'Defesa':    $color = '#6c757d'; break;
+                                    case 'Velocidade':$color = '#17a2b8'; break;
+                                    case 'Especial':  $color = '#6f42c1'; break;
+                                    default:          $color = '#6c757d'; break;
                                 }
                                 $status_badges .= '<span class="badge" style="background: '.$color.'; color: white; margin-right: 4px;">'.trim($flag).'</span>';
                             }
                         }
-                        
+
+                        // caminhos de imagem
+                        $imgPathUploads = BASE.'uploads/'.$item->foto;
+                        $imgPathCards   = BASE.'assets/cards/'.$item->foto;
+
                         echo '<tr>';
                         echo '<td>'.$item->id.'</td>';
-                        echo '<td>'.($item->foto ? '<img src="'.BASE.'assets/cards/'.$item->foto.'" style="width:40px;height:40px;border-radius:4px;" alt="'.$item->nome.'">' : 'N/A').'</td>';
+                        echo '<td>';
+                        if ($item->foto) {
+                            echo '<img src="'.$imgPathUploads.'" '.
+                                'onerror="this.onerror=null;this.src=\''.$imgPathCards.'\';" '.
+                                'style="width:40px;height:40px;border-radius:4px;" '.
+                                'alt="'.htmlspecialchars($item->nome, ENT_QUOTES, 'UTF-8').'">';
+                        } else {
+                            echo 'N/A';
+                        }
+                        echo '</td>';
                         echo '<td><strong>'.$item->nome.'</strong><br><small>'.$item->descricao.'</small></td>';
                         echo '<td>'.$item->valor.' coins</td>';
                         echo '<td>'.$tipo_texto.'</td>';
@@ -936,9 +1010,6 @@ if(isset($_GET['edit'])) {
                     echo '<tr><td colspan="7" class="not">Nenhum item encontrado na loja.</td></tr>';
                 }
                 ?>
-            </tbody>
-        </table>
-    <?php break; ?>
 
     <?php case 'produtos': ?>
         <h2 class="title">📦 Configurar Produtos Diários</h2>

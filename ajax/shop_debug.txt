@@ -1,0 +1,4 @@
+2025-12-16 12:38:23 - === SHOP PURCHASE STARTED ===
+2025-12-16 12:38:23 - POST: id=19, personagem=95, valor=10, modulo=3
+2025-12-16 12:44:29 - === SHOP PURCHASE STARTED ===
+2025-12-16 12:44:29 - POST: id=19, personagem=95, valor=10, modulo=3
