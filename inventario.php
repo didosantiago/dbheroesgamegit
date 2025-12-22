@@ -1,4 +1,5 @@
 <?php   
+require_once 'core/CharacterRequired.php';
 if(!isset($_SESSION['PERSONAGEMID'])){
     header('Location: '.BASE.'portal');
 }

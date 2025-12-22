@@ -1,5 +1,5 @@
 <?php 
-
+require_once 'core/CharacterRequired.php';
     if (isset($_POST['conceder'])) {
         if (isset($_SESSION['npc_id'])) {
             $core = new Core();

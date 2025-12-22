@@ -85,117 +85,127 @@
         </h1>
     </div>
     
-    <ul class="menu-superior desktop">
-        <div class="container">
-            <li>
-                <a href="<?php echo BASE; ?>portal">Inicio</a>
-            </li>
-            
-            <li>
-                <a href="#"><i class="fas fa-question"></i> Suporte</a>
-                <ul class="submenu">
-                    <li>
-                        <a href="https://discord.gg/zbSWtcs" target="_blank"><i class="fab fa-discord"></i> Chat da Comunidade</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>forum"><i class="fas fa-user-tie"></i> Fórum</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>faq"><i class="fas fa-question"></i> Faq</a>
-                    </li>
-                </ul>
-            </li>
+<!-- FIXED VERSION - Lines 60-140 approximately -->
+<ul class="menu-superior desktop">
+    <div class="container">
+        <li>
+            <a href="<?php echo BASE; ?>portal">Inicio</a>
+        </li>
+        
+        <li>
+            <a href="#"><i class="fas fa-question"></i> Suporte</a>
+            <ul class="submenu">
+                <li>
+                    <a href="https://discord.gg/zbSWtcs" target="_blank"><i class="fab fa-discord"></i> Chat da Comunidade</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>forum"><i class="fas fa-user-tie"></i> Fórum</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>faq"><i class="fas fa-question"></i> Faq</a>
+                </li>
+            </ul>
+        </li>
+        
+        <li>
+            <a href="#"><i class="far fa-user"></i> Usuário</a>
+            <ul class="submenu">
                 <li>
                     <a href="<?php echo BASE; ?>criar-personagem"><i class="fa fa-plus"></i> Novo Guerreiro</a>
                 </li>
                 <li>
                     <a href="<?php echo BASE; ?>meus-personagens"><i class="fas fa-users"></i> Meus Guerreiros</a>
                 </li>
-            <li>
-                <a href="#"><i class="far fa-user"></i> Usuário</a>
-                <ul class="submenu">
-                    <li>
-                        <a href="<?php echo BASE; ?>criar-personagem"><i class="fa fa-plus"></i> Novo Guerreiro</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>meus-personagens"><i class="fas fa-users"></i> Meus Guerreiros</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>amigos"><i class="fas fa-users"></i> Lista de Amigos</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>perfil"><i class="fas fa-edit"></i> Editar Perfil</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>trocar-senha"><i class="fas fa-key"></i> Trocar Senha</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>transacoes"><i class="far fa-credit-card"></i> Transações</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="#"><i class="far fa-play-circle"></i> Jogar</a>
-                <ul class="submenu">
-                    <li>
-                        <a href="<?php echo BASE; ?>profile"><i class="fas fa-user"></i> Profile</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>publico"><i class="fas fa-user-shield"></i> Perfil Público</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>golpes"><i class="fas fa-chart-line"></i> Treinar Golpes</a>
-                    </li>
-                    <?php if(!isset($_SESSION['missao']) && !isset($_SESSION['cacada'])){ ?>
-                        <li>
-                            <a href="<?php echo BASE; ?>missoes"><i class="far fa-clock"></i> Iniciar uma Missão</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo BASE; ?>cacadas"><i class="fas fa-search-location"></i> Iniciar uma Caçada</a>
-                        </li>
-                        <li>
-                            <a href="<?php echo BASE; ?>torneio"><i class="fas fa-award"></i> TAM (Ganhe EXP)</a>
-                        </li>
-                    <?php } ?>
-                    <li>
-                        <a href="<?php echo BASE; ?>historico"><i class="fas fa-archive"></i> Histórico PVP</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>inventario"><i class="fas fa-archive"></i> Inventário</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>equipes"><i class="fas fa-users"></i> Equipes</a>
-                    </li>
-                </ul>
-            </li>
-            <li>
-                <a href="<?php echo BASE; ?>hospital"><i class="fas fa-calendar-plus"></i> Hospital</a>
-            </li>
-            <li>
-                <a href="<?php echo BASE; ?>torneio"><i class="fas fa-award"></i> TAM (Ganhe EXP)</a>
-            </li>
-            <li>
-                <a href="<?php echo BASE; ?>pvp"><i class="fas fa-globe-americas"></i> PVP Global</a>
-            </li>
-            <li>
-                <a href="#">Ranking</a>
-                <ul class="submenu">
-                    <li>
-                        <a href="<?php echo BASE; ?>ranking"><i class="far fa-chart-bar"></i> Jogadores</a>
-                    </li>
-                    <li>
-                        <a href="<?php echo BASE; ?>equipes/ranking"><i class="far fa-chart-bar"></i> Equipes</a>
-                    </li>
-                </ul>
-            </li>
-            <li class="sair">
-                <a href="<?php echo BASE; ?>logout">Sair</a>
-            </li>
-            <div class="radar">
-                <span><?php echo isset($user->coins) ? $user->coins : '0'; ?></span>
-                <strong>Coins</strong>
-            </div>
+                <li>
+                    <a href="<?php echo BASE; ?>amigos"><i class="fas fa-users"></i> Lista de Amigos</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>perfil"><i class="fas fa-edit"></i> Editar Perfil</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>trocar-senha"><i class="fas fa-key"></i> Trocar Senha</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>transacoes"><i class="far fa-credit-card"></i> Transações</a>
+                </li>
+            </ul>
+        </li>
+        
+        <?php if(isset($_SESSION['PERSONAGEMID'])): ?>
+        <li>
+            <a href="#"><i class="far fa-play-circle"></i> Jogar</a>
+            <ul class="submenu">
+                <li>
+                    <a href="<?php echo BASE; ?>profile"><i class="fas fa-user"></i> Profile</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>publico"><i class="fas fa-user-shield"></i> Perfil Público</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>treinar"><i class="fas fa-dumbbell"></i> Treinar</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>golpes"><i class="fas fa-fist-raised"></i> Treinar Golpes</a>
+                </li>
+                <?php if(!isset($_SESSION['missao']) && !isset($_SESSION['cacada']) && !isset($_SESSION['npc']) && !isset($_SESSION['pvp'])): ?>
+                <li>
+                    <a href="<?php echo BASE; ?>missoes"><i class="far fa-clock"></i> Iniciar uma Missão</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>cacadas"><i class="fas fa-search-location"></i> Iniciar uma Caçada</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>torneio"><i class="fas fa-award"></i> TAM (Ganhe EXP)</a>
+                </li>
+                <?php endif; ?>
+                <li>
+                    <a href="<?php echo BASE; ?>historico"><i class="fas fa-archive"></i> Histórico PVP</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>inventario"><i class="fas fa-boxes"></i> Inventário</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>equipes"><i class="fas fa-users"></i> Equipes</a>
+                </li>
+            </ul>
+        </li>
+        
+        <li>
+            <a href="<?php echo BASE; ?>hospital"><i class="fas fa-heart"></i> Hospital</a>
+        </li>
+        <li>
+            <a href="<?php echo BASE; ?>pvp"><i class="fas fa-globe-americas"></i> PVP Global</a>
+        </li>
+        <li>
+            <a href="<?php echo BASE; ?>loja"><i class="fas fa-shopping-cart"></i> Loja</a>
+        </li>
+        <li>
+            <a href="<?php echo BASE; ?>market"><i class="fas fa-store"></i> Mercado</a>
+        </li>
+        <?php endif; ?>
+        
+        <li>
+            <a href="#"><i class="fas fa-trophy"></i> Ranking</a>
+            <ul class="submenu">
+                <li>
+                    <a href="<?php echo BASE; ?>ranking"><i class="far fa-chart-bar"></i> Jogadores</a>
+                </li>
+                <li>
+                    <a href="<?php echo BASE; ?>equipes/ranking"><i class="far fa-chart-bar"></i> Equipes</a>
+                </li>
+            </ul>
+        </li>
+        
+        <li class="sair">
+            <a href="<?php echo BASE; ?>logout"><i class="fas fa-sign-out-alt"></i> Sair</a>
+        </li>
+        
+        <div class="radar">
+            <span><?php echo isset($user->coins) ? $user->coins : '0'; ?></span>
+            <strong>Coins</strong>
         </div>
-    </ul>
+    </div>
+</ul>
+
     
     <!-- (rest of your file remains the same) -->

@@ -7,7 +7,7 @@
     enable_page_level_ads: true
   });
 </script>
-
+<div class="bg-overlay"></div>   <!-- overlay em todas as páginas -->
 <div class="secao-sobre">
     <div class="stm-container">
         <h2>O que é RPG?</h2>

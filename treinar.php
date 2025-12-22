@@ -1,4 +1,10 @@
+<?php
+require_once 'core/config.php';   // onde define BASE
+require_once 'core/auth.php';     // proteção
+require_once 'core/CharacterRequired.php';     // proteção
+?>
 <?php 
+    require_once 'core/CharacterRequired.php';
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
     }

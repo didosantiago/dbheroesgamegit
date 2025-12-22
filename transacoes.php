@@ -1,4 +1,10 @@
 <?php
+require_once 'core/config.php';   // onde define BASE
+require_once 'core/auth.php';     // proteção
+
+
+?>
+<?php
     $pay->setViewTransaction($user->id); 
 ?>
 

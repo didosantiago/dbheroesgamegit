@@ -1,6 +1,9 @@
 <?php
     require_once './init.php';
     
+    // Store username before clearing session (for welcome back message)
+    $username = isset($_SESSION['username']) ? $_SESSION['username'] : '';
+    
     // Delete monitoring before destroying session
     if(isset($_SERVER['REMOTE_ADDR'])){
         $user->deleteMonitoramento($_SERVER['REMOTE_ADDR']);
@@ -24,7 +27,14 @@
     // Destroy the session
     session_destroy();
     
-    // Redirect to home page
-    header('Location: '.BASE.'home');
+    // Start new session for logout message
+    session_start();
+    $_SESSION['logout_success'] = true;
+    if($username){
+        $_SESSION['logout_username'] = $username;
+    }
+    
+    // Redirect to home page (public landing page)
+    header('Location: '.BASE.'home?logout=success');
     exit;
 ?>

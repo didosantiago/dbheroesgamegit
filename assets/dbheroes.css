@@ -12,7 +12,7 @@ body.home {
 
 body.home .stm-container {
     width: 100%;
-    max-width: 1240px;
+    max-width: 1032px;
     padding: 0 15px;
     margin: 0 auto;
     box-sizing: border-box;
@@ -2668,11 +2668,11 @@ body.meus-personagens .lista-meus-personagens {
 
 .loja-de-itens-banner {
   width: 100%;
-  max-width: 1250px;       /* Or your desired max */
+  max-width: 950px;       /* Or your desired max */
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/loja-de-itens.gif") center center no-repeat;
+  background: url("../assets/banners/adiquirir-coin.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -2697,7 +2697,7 @@ body.meus-personagens .lista-meus-personagens {
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/tabela-de-exp.png") center center no-repeat;
+  background: url("../assets/banners/tabela-de-exp.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -12656,7 +12656,7 @@ body.market .conteudo .market_header_bg #BG_top>.user_info {
   max-width: 400px;
   height: 40px;
   right: 0;
-  top: 255px
+  top: 245px
 }
 
 body.market .conteudo .market_header_bg #BG_top .avatarIcon {
@@ -12693,7 +12693,7 @@ body.market .conteudo .market_header_bg .market_header {
 
 body.market .conteudo .market_header_bg .market_header .market_header_logo {
   position: relative;
-  margin: 0 auto;
+  margin: 10px auto;
   display: block;
   background-image: url("banners/feira-do-rolo.gif");
   background-repeat: no-repeat;
@@ -12722,7 +12722,7 @@ body.market .conteudo .market_header_bg .market_header .market_header_logo .mark
 
 body.market .conteudo .tabs-mercado {
   height: 45px;
-  margin: 50px 0;
+  margin: 70px 0px 0px 0px;
   text-align: center
 }
 
@@ -19259,13 +19259,34 @@ body.sobre {
   background: #1b2838 url("body_top.png") center top no-repeat
 }
 
+body.home {
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* overlay preto translúcido */
+.bg-overlay {
+    position: fixed;
+    inset: 0;                       /* top:0; right:0; bottom:0; left:0; */
+    background: rgba(0,20,0,0.55);   /* ajuste o 0.55 para mais/menos escuro */
+    pointer-events: none;           /* não bloquear cliques */
+    z-index: -1;
+}
+
+/* garantir que o conteúdo fique acima */
+body.home > *:not(.bg-overlay) {
+    position: relative;
+    z-index: 2;
+}
+
+
 body.login .stm-container,
 body.cadastro .stm-container,
 body.home .stm-container,
 body.assistir .stm-container,
 body.rank .stm-container,
 body.sobre .stm-container {
-  width: 1240px;
+  width: 1032px;
   padding: 0 15px;
   margin: 0 auto;
   -moz-box-sizing: border-box;
@@ -21798,6 +21819,24 @@ a {
   text-decoration: none
 }
 
+
+/* Conteúdo específico para páginas públicas - 1400px e centralizado */
+body.home .conteudo,
+body.cadastro .conteudo,
+body.rank .conteudo,
+body.assistir .conteudo,
+body.sobre .conteudo,
+body.forum .conteudo {
+  width: 100% !important;
+  max-width: 1400px !important;
+  display: block !important;
+  margin: 10px auto 20px auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+
+
 .conteudo {
   width: 1032px;
   min-height: 820px;
@@ -21810,6 +21849,7 @@ a {
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
+
 
 
 @media (max-width: 1200px) {

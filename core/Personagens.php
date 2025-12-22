@@ -1242,13 +1242,73 @@ class Personagens {
         
         return $total;
     }
+    
 
-    public function getRankingFront(){
-        $user = new Usuarios();
-        $core = new Core();
-        
+public function getRankingFront(){
+    $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC";
+
+    $sql = "SELECT "
+        . "up.*, up.id as idP, up.foto as foto_personagem, "
+        . "u.*, "
+        . "up.nome as nome_guerreiro, "
+        . "p.nome as planeta, p.imagem as img_planeta "
+        . "FROM usuarios_personagens as up "
+        . "INNER JOIN usuarios as u ON u.id = up.idUsuario "
+        . "INNER JOIN planetas as p ON up.idPlaneta = p.id "
+        . $orderBY." LIMIT 10";
+
+    $stmt = DB::prepare($sql);
+    $stmt->execute();
+
+    $row  = '';
+    $rank = 0;
+
+    if($stmt->rowCount() > 0){
+        $item = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        foreach ($item as $value) {
+            $rank++;
+            $top = ($rank == 1) ? 'top-player' : '';
+
+            $ft = str_replace('cards/', '', $value->foto_personagem);
+
+            // pega nome + ícone da graduação
+            $grad = $this->verificaGraduacao($value->nivel);
+            $gradNome  = $grad['nome'];
+            $gradIcone = $grad['icone'];
+
+            $row .= '<tr class="'.$top.'">
+                        <td class="rank"><strong>'.$rank.'º</strong></td>
+                        <td>
+                            <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" />
+                        </td>
+                        <td width="250">
+                            <strong>'.$value->nome_guerreiro.'</strong>
+                        </td>
+                        <td width="250" class="col-graduacao">
+                            <img class="icone-graduacao" src="'.$gradIcone.'" alt="'.$gradNome.'" />
+                            <span>'.$gradNome.'</span>
+                        </td>
+                        <td>'.$value->nivel.'</td>
+                        <td class="planeta">
+                            <img src="'.BASE.'assets/'.$value->img_planeta.'" alt="'.$value->planeta.'" />
+                            <span>'.$value->planeta.'</span>
+                        </td>
+                    </tr>';
+        }
+
+    } else {
+        $row .= '<tr>
+                    <td colspan="6">Nenhum guerreiro cadastrado.</td>
+                 </tr>';
+    }
+
+    echo $row;
+}
+
+    public function getRankingArray() {
         $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC";
-        
+
         $sql = "SELECT "
             . "up.*, up.id as idP, up.foto as foto_personagem, "
             . "u.*, "
@@ -1257,55 +1317,71 @@ class Personagens {
             . "FROM usuarios_personagens as up "
             . "INNER JOIN usuarios as u ON u.id = up.idUsuario "
             . "INNER JOIN planetas as p ON up.idPlaneta = p.id "
-            . $orderBY." LIMIT 10";
-        
+            . $orderBY . " LIMIT 10";
+
         $stmt = DB::prepare($sql);
         $stmt->execute();
-        
-        $row = '';
 
-        $rank = 0;
-        
-        if($stmt->rowCount() > 0){
-            $item = $stmt->fetchAll();
-            
-            foreach ($item as $key => $value) {
-                
-                $rank++;
-                
-                if($rank == 1){
-                    $top = 'top-player';
-                } else {
-                    $top = '';
-                }
-                
+        $dados = array();
+
+        if ($stmt->rowCount() > 0) {
+            $itens = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+            foreach ($itens as $value) {
                 $ft = str_replace('cards/', '', $value->foto_personagem);
 
-                $row .= '<tr class="'.$top.'">
-                            <td class="rank"><strong>'.$rank.'º</strong></td>
-                            <td>
-                                <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" />
-                            </td>
-                            <td width="250">
-                                <strong>'.$value->nome_guerreiro.'</strong>
-                            </td>
-                            <td width="250">'.$this->verificaGraduacao($value->nivel).'</td>
-                            <td>'.$value->nivel.'</td>
-                            <td class="planeta">
-                                <img src="'.BASE.'assets/'.$value->img_planeta.'" alt="'.$value->planeta.'" />
-                                <span>'.$value->planeta.'</span>
-                            </td>
-                         </tr>';
+                // usa mesma função de graduação
+                $grad = $this->verificaGraduacao($value->nivel);
+
+                $dados[] = array(
+                    'foto'            => BASE . 'assets/cards/' . $ft,
+                    'guerreiro'       => $value->nome_guerreiro,
+                    'graduacao'       => $grad['nome'],   // texto
+                    'graduacao_icone' => $grad['icone'],  // ícone
+                    'level'           => (int)$value->nivel,
+                    'planeta'         => $value->planeta,
+                    'planeta_img'     => BASE . 'assets/' . $value->img_planeta
+                );
             }
-            
-        } else {
-           $row .= '<tr>'
-                   . '<td colspan="6">Nenhum guerreiro cadastrado.</td>'
-                 . '</tr>'; 
         }
-        
-        echo $row;
+
+        return $dados;
     }
+
+
+    public function verificaGraduacao($nivel){
+        $sql = "SELECT * FROM graduacoes";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $graduacao = $stmt->fetchAll(PDO::FETCH_OBJ);
+
+        $resultado = array(
+            'nome'  => '',
+            'icone' => ''
+        );
+
+        foreach ($graduacao as $value) {
+            if ($nivel >= $value->level_inicial && $nivel <= $value->level_final) {
+                $resultado['nome'] = $value->graduacao;
+
+                // se no BD o campo correto é 'emblema' e já vem como 'graduacoes/arquivo.png'
+                $caminho = !empty($value->emblema) ? $value->emblema : 'graduacoes/default.png';
+
+                // monta URL completa
+                $resultado['icone'] = BASE . 'assets/' . $caminho;
+
+                break;
+            }
+        }
+
+        return $resultado;
+    }
+
+
+    
+
+
+
 
     public function getGraduacaoBadgeRanking($nivel){        
     $sql = "SELECT * FROM graduacoes";
@@ -1316,13 +1392,13 @@ class Personagens {
     foreach ($graduacao as $key => $value) {
         if($nivel >= $value->level_inicial && $nivel <= $value->level_final){
             return '<img src="'.BASE.'assets/'.$value->emblema.'" 
-                         alt="'.$value->graduacao.'" 
-                         title="'.$value->graduacao.'"
-                         style="width: 70px; height: 70px; object-fit: contain; 
+                        alt="'.$value->graduacao.'" 
+                        title="'.$value->graduacao.'"
+                        style="width: 70px; height: 70px; object-fit: contain; 
                                 filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
                                 transition: transform 0.2s;"
-                         onmouseover="this.style.transform=\'scale(1.1)\'" 
-                         onmouseout="this.style.transform=\'scale(1)\'" />';
+                        onmouseover="this.style.transform=\'scale(1.1)\'" 
+                        onmouseout="this.style.transform=\'scale(1)\'" />';
         } 
     }
     
@@ -1330,24 +1406,7 @@ class Personagens {
 }
 
     
-    public function verificaGraduacao($level){
-        $core = new Core();
 
-        $sql = "SELECT * FROM graduacoes";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $graduacao = $stmt->fetchAll();
-        
-        $txt_graduacao = '';
-
-        foreach ($graduacao as $key => $value) {
-            if($level >= $value->level_inicial && $level <= $value->level_final){
-                $txt_graduacao = $value->graduacao;
-            } 
-        }
-        
-        return $txt_graduacao;
-    }
     
     public function printGoldsCacada($nivel){
         $sql = "SELECT * FROM cacadas_gold";

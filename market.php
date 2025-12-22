@@ -1,6 +1,7 @@
 <?php switch($acao) {
     default: ?>
         <?php
+            require_once 'core/CharacterRequired.php';
             $idPersonagem = $_SESSION["PERSONAGEMID"];
             
             $filtro_busca = '';

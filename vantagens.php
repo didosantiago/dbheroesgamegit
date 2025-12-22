@@ -1,3 +1,8 @@
+<?php
+require_once 'core/config.php';   // onde define BASE
+require_once 'core/auth.php';     // proteção
+?>
+
 <div class="seja-vip-banner"></div>
 <h2 class="title">Vantagens VIP</h2>
 

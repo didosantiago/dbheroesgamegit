@@ -61,6 +61,25 @@ if(isset($_POST['jogar'])){
     }
 }
 ?>
+<?php if($showErrorNotification): ?>
+<div class="notification-error" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; padding: 15px 20px; border-radius: 10px; margin: 20px auto; max-width: 600px; text-align: center; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); animation: slideDown 0.3s ease;">
+    <i class="fas fa-exclamation-triangle" style="font-size: 24px; margin-right: 10px;"></i>
+    <strong style="font-size: 18px;"><?php echo $notificationMessage; ?></strong>
+</div>
+<style>
+@keyframes slideDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+<?php endif; ?>
+
+<?php if($showSuccessNotification): ?>
+<div class="notification-success" style="background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%); color: white; padding: 15px 20px; border-radius: 10px; margin: 20px auto; max-width: 600px; text-align: center; box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4); animation: slideDown 0.3s ease;">
+    <i class="fas fa-check-circle" style="font-size: 24px; margin-right: 10px;"></i>
+    <strong style="font-size: 18px;"><?php echo $notificationMessage; ?></strong>
+</div>
+<?php endif; ?>
 
 
 <div class="personagem-atual">

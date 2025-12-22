@@ -1,3 +1,14 @@
+<?php
+require_once 'core/config.php';
+require_once 'core/auth.php';
+require_once 'core/CharacterRequired.php';
+
+// ação vem do segundo segmento: /forum/[acao]/...
+$acao = Url::getURL(1);
+if ($acao === null || $acao === '') {
+    $acao = 'index'; // valor que cai no "default" do switch
+}
+?>
 <?php switch($acao) {
     default: ?>
     <h2 class="title">Bem vindo ao Fórum DB Heroes</h2>

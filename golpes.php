@@ -1,4 +1,5 @@
 <?php 
+require_once 'core/CharacterRequired.php';
 $errorMessages = array();
 $successMessage = false;
 

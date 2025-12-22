@@ -1,4 +1,5 @@
 <?php
+require_once 'core/CharacterRequired.php';
         // Calculate daily hunt time used (VIP members use half time)
         if($user->vip == 1){
             // VIP members: Count HALF of the tempo value
