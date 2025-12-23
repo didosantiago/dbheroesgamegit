@@ -9,35 +9,67 @@
 /**
  * Description of Equipes
  *
- * @author Felipe Faciroli
+ * @author Dido Santiago
  */
 class Equipes {
-    public function getBandeiras(){
-        $sql = "SELECT * FROM equipes_bandeiras";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetchAll();
-        
-        $row = '';
-        
-        foreach ($item as $key => $value) {
-            
-            if($value->id == 1){
-                $checked = 'checked';
+    /**
+     * Retorna todas as bandeiras disponíveis para equipes
+     * @param string $tipo - 'all', 'gratis', 'premium', 'vip'
+     * @return array
+     */
+    public function getBandeiras($tipo = 'all') {
+        try {
+            if($tipo == 'all') {
+                $sql = "SELECT * FROM equipes_bandeiras WHERE ativo = 1 ORDER BY tipo, preco";
+                $stmt = DB::prepare($sql);
             } else {
-                $checked = '';
+                $sql = "SELECT * FROM equipes_bandeiras WHERE tipo = :tipo AND ativo = 1 ORDER BY preco";
+                $stmt = DB::prepare($sql);
+                $stmt->bindParam(':tipo', $tipo, PDO::PARAM_STR);
             }
             
-            $row .= '<label for="bandeira-'.$value->id.'">
-                        <i class="fas fa-check-circle"></i>
-                        <input type="radio" id="bandeira-'.$value->id.'" '.$checked.' name="idBandeira" value="'.$value->bandeira.'" />
-                        <img src="'.BASE.'assets/equipes/'.$value->bandeira.'" alt="" />
-                     </label>';
+            $stmt->execute();
+            $bandeiras = $stmt->fetchAll(PDO::FETCH_OBJ);
             
+            $row = "";
+            
+            if(count($bandeiras) > 0) {
+                foreach($bandeiras as $index => $bandeira) {
+                    $checked = ($index == 0) ? 'checked' : '';
+                    $preco_display = $bandeira->preco == 0 ? 'Grátis' : $bandeira->preco.' coins';
+                    $tipo_class = $bandeira->tipo;
+                    
+                    // Update the radio value to send: "id|imagem"
+                    $valor = $bandeira->id . '|' . $bandeira->imagem;
+
+                    $row .= '
+                    <label class="bandeira-item '.$tipo_class.'">
+                        <input type="radio" name="idBandeira" value="'.$valor.'" '.$checked.' required>
+                        <div class="bandeira-card">
+                            <img src="'.BASE.'assets/equipes/'.$bandeira->imagem.'" alt="'.$bandeira->nome.'">
+                            <span class="bandeira-nome">'.$bandeira->nome.'</span>
+                            <span class="bandeira-preco">'.$preco_display.'</span>
+                        </div>
+                    </label>';
+
+                }
+            } else {
+                $row = '<p style="color: #fff; text-align: center;">Nenhuma bandeira disponível</p>';
+            }
+            
+            echo $row;
+            return $bandeiras;
+            
+        } catch(PDOException $e) {
+            error_log("Erro getBandeiras: " . $e->getMessage());
+            echo '<p style="color: #ff6b6b;">Erro ao carregar bandeiras: '.$e->getMessage().'</p>';
+            return [];
         }
-        
-        echo $row;
     }
+
+
+
+
     
     public function existsSigla($sigla){
         $sql = "SELECT * FROM equipes WHERE sigla = '$sigla'";
@@ -81,43 +113,65 @@ class Equipes {
         }
     }
     
-    public function dadosEquipeAtual($idMembro, $idEquipe = ''){
-        
-        if($idEquipe == ''){
-            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
+    public function dadosEquipeAtual($idMembro, $idEquipe = '') {
+        // Add NULL check to prevent SQL syntax error
+        if($idMembro === NULL || $idMembro === '') {
+            return 0;
+        }
+
+        if($idEquipe == '') {
+            // FIXED: Use idPersonagem instead of idMembro
+            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = :idMembro AND status = 1";
             $stmt = DB::prepare($sql);
+            $stmt->bindParam(':idMembro', $idMembro, PDO::PARAM_INT);
             $stmt->execute();
-            $equipeMembros = $stmt->fetch();
+            $equipeMembros = $stmt->fetch(PDO::FETCH_OBJ);
             
             $idE = '';
-
-            if($stmt->rowCount() > 0){
+            if($stmt->rowCount() > 0) {
                 $idE = $equipeMembros->idEquipe;
-            }
-
-            $sql = "SELECT * FROM equipes WHERE idCriador = $idMembro";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $equipeDados = $stmt->fetch();
-
-            if($stmt->rowCount() > 0){
-                $idE = $equipeDados->id;
+            } else {
+                // Check if user is the creator
+                $sql = "SELECT * FROM equipes WHERE idCriador = :idCriador";
+                $stmt = DB::prepare($sql);
+                $stmt->bindParam(':idCriador', $idMembro, PDO::PARAM_INT);
+                $stmt->execute();
+                $equipeDados = $stmt->fetch(PDO::FETCH_OBJ);
+                
+                if($stmt->rowCount() > 0) {
+                    $idE = $equipeDados->id;
+                }
             }
         } else {
             $idE = $idEquipe;
         }
-        
-        if($idE != ''){
-            $sql = "SELECT * FROM equipes WHERE id = $idE";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $dados = $stmt->fetch();
 
+        if($idE != '') {
+            $sql = "SELECT * FROM equipes WHERE id = :id";
+            $stmt = DB::prepare($sql);
+            $stmt->bindParam(':id', $idE, PDO::PARAM_INT);
+            $stmt->execute();
+            $dados = $stmt->fetch(PDO::FETCH_OBJ);
             return $dados;
         } else {
             return 0;
         }
     }
+
+
+    // Calculate team bonuses based on level
+    public function getTeamBonuses($level) {
+        $bonuses = [
+            'forca' => floor($level * 1.0),      // 0.5 per level
+            'agilidade' => floor($level * 1.0),  // 0.5 per level  
+            'habilidade' => floor($level * 1.0), // 0.5 per level
+            'resistencia' => floor($level * 1.0), // 0.5 per level
+            'sorte' => floor($level * 1.0)       // 0.3 per level
+        ];
+        return $bonuses;
+    }
+
+
     
     public function existsInEquipe($idMembro){
         $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1";
@@ -222,8 +276,12 @@ class Equipes {
         $stmt->execute();
         $membros = $stmt->fetchAll();
         
-        $lista_membros = array();
+        // Check if there are any members
+        if(count($membros) == 0) {
+            return 0; // Return 0 if no members
+        }
         
+        $lista_membros = array();
         foreach ($membros as $chave => $d_membro) {
             array_push($lista_membros, $d_membro->idPersonagem);
         }
@@ -233,8 +291,9 @@ class Equipes {
         $stmt->execute();
         $vitorias = $stmt->fetch();
         
-        return $vitorias->total;
+        return $vitorias->total ?? 0;
     }
+
     
     public function getTotalVitoriasTAM($idEquipe){
         $sql = "SELECT * FROM equipes_membros WHERE idEquipe = $idEquipe AND status = 1";
@@ -242,8 +301,12 @@ class Equipes {
         $stmt->execute();
         $membros = $stmt->fetchAll();
         
-        $lista_membros = array();
+        // Check if there are any members
+        if(count($membros) == 0) {
+            return 0; // Return 0 if no members
+        }
         
+        $lista_membros = array();
         foreach ($membros as $chave => $d_membro) {
             array_push($lista_membros, $d_membro->idPersonagem);
         }
@@ -253,8 +316,9 @@ class Equipes {
         $stmt->execute();
         $vitorias = $stmt->fetch();
         
-        return $vitorias->total;
+        return $vitorias->total ?? 0;
     }
+
     
     public function getTotalGold($idEquipe){
         $sql = "SELECT sum(valor) as total FROM equipes_doacoes WHERE idEquipe = $idEquipe";
@@ -664,48 +728,64 @@ class Equipes {
         echo $row;
     }
     
-    public function isMembro($id, $idEquipe = ''){
-        if($idEquipe == ''){
-            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND status = 1";
+    public function isMembro($id, $idEquipe) {
+        // ✅ Add NULL check
+        if($id === NULL || $id === '' || $id === 0) {
+            return false;
+        }
+        
+        if($idEquipe) {
+            $sql = "SELECT * FROM equipes_membros 
+                    WHERE idPersonagem = :id 
+                    AND status = 1";
+            
             $stmt = DB::prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
         } else {
-            $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe AND status = 1";
+            $sql = "SELECT * FROM equipes_membros 
+                    WHERE idPersonagem = :id 
+                    AND idEquipe = :idEquipe 
+                    AND status = 1";
+            
             $stmt = DB::prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':idEquipe', $idEquipe, PDO::PARAM_INT);
             $stmt->execute();
         }
         
-        if($stmt->rowCount() > 0){
+        if($stmt->rowCount() > 0) {
             return true;
         } else {
             return false;
         }
     }
+
     
-    public function existsMembro($id, $idEquipe){
-        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe";
+    public function isLider($id, $idEquipe) {
+        // ✅ Add NULL check to prevent SQL syntax errors
+        if($id === NULL || $id === '' || $id === 0) {
+            return false;
+        }
+        
+        $sql = "SELECT * FROM equipes_membros 
+                WHERE idPersonagem = :id 
+                AND idEquipe = :idEquipe 
+                AND (lider = 1 OR vicelider = 1) 
+                AND status = 1";
+        
         $stmt = DB::prepare($sql);
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':idEquipe', $idEquipe, PDO::PARAM_INT);
         $stmt->execute();
         
-        if($stmt->rowCount() > 0){
+        if($stmt->rowCount() > 0) {
             return true;
         } else {
             return false;
         }
     }
-    
-    public function isLider($id, $idEquipe){
-        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $id AND idEquipe = $idEquipe AND (lider = 1 OR vice_lider = 1) AND status = 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $membro = $stmt->fetch();
-        
-        if($stmt->rowCount() > 0){
-            return true;
-        } else {
-            return false;
-        }
-    }
+
     
     public function verificaLevel(){
         $core = new Core();

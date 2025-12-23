@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <?php endif; ?>
-
+<div class="treinar-golpes-banner"></div>
 <h2 class="title">Escolha aqui os golpes que irá usar nas batalhas</h2>
 
 <ul class="lista-golpes">

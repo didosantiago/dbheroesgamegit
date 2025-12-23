@@ -113,7 +113,8 @@ document.addEventListener('keydown', function(e) {
     }
 });
 </script>
-
+    <!-- ⭐ ADICIONAR JAVASCRIPT DO BACKGROUND (antes do </body>) ⭐ -->
+    <script src="Scripts/modules/dbheroes-background.js"></script>
 <style>
 /* Small font for "Sem Energia" button */
 .btn-text-small {

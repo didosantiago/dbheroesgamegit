@@ -304,3 +304,47 @@
 2025-12-19 22:26:53 - Insert personagens_inventario_itens result: success
 2025-12-19 22:26:53 - Module 3 completed
 2025-12-19 22:26:53 - === PURCHASE SUCCESS ===
+2025-12-22 23:51:38 - === PURCHASE STARTED ===
+2025-12-22 19:51:38 - POST DATA: id=22, valor=10, idUsuario=10, idPersonagem=97, modulo=3, idItem=27
+2025-12-22 19:51:38 - User found: ID=10, Coins=25
+2025-12-22 19:51:38 - Product found: Cápsula 1, Module: 3
+2025-12-22 19:51:38 - Coins deducted: Old=25, New=15
+2025-12-22 19:51:38 - Processing Module 3 (Game Item)
+2025-12-22 19:51:38 - Getting item from itens table with ID: 27
+2025-12-22 19:51:38 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-22 19:51:38 - verificaItemIgual returned: 3247
+2025-12-22 19:51:38 - Item exists - adding to slot: 3247
+2025-12-22 19:51:38 - Update personagens_inventario result: success
+2025-12-22 19:51:38 - Insert personagens_inventario_itens result: success
+2025-12-22 19:51:38 - Module 3 completed
+2025-12-22 19:51:38 - === PURCHASE SUCCESS ===
+2025-12-23 00:05:49 - === PURCHASE STARTED ===
+2025-12-22 20:05:49 - POST DATA: id=9, valor=10, idUsuario=10, idPersonagem=97, modulo=1, idItem=
+2025-12-22 20:05:49 - User found: ID=10, Coins=15
+2025-12-22 20:05:49 - Product found: Vegeta, Module: 1
+2025-12-22 20:05:49 - Coins deducted: Old=15, New=5
+2025-12-22 20:05:49 - Processing Module 1 (Photo)
+2025-12-22 20:05:49 - Photo purchased successfully
+2025-12-22 20:05:49 - === PURCHASE SUCCESS ===
+2025-12-23 03:50:41 - === PURCHASE STARTED ===
+2025-12-22 23:50:41 - POST DATA: id=9, valor=10, idUsuario=8, idPersonagem=84, modulo=1, idItem=
+2025-12-22 23:50:41 - User found: ID=8, Coins=20
+2025-12-22 23:50:41 - Product found: Vegeta, Module: 1
+2025-12-22 23:50:41 - Coins deducted: Old=20, New=10
+2025-12-22 23:50:41 - Processing Module 1 (Photo)
+2025-12-22 23:50:41 - Photo purchased successfully
+2025-12-22 23:50:41 - === PURCHASE SUCCESS ===
+2025-12-23 03:51:13 - === PURCHASE STARTED ===
+2025-12-22 23:51:13 - POST DATA: id=22, valor=10, idUsuario=8, idPersonagem=84, modulo=3, idItem=27
+2025-12-22 23:51:13 - User found: ID=8, Coins=10
+2025-12-22 23:51:13 - Product found: Cápsula 1, Module: 3
+2025-12-22 23:51:13 - Coins deducted: Old=10, New=0
+2025-12-22 23:51:13 - Processing Module 3 (Game Item)
+2025-12-22 23:51:13 - Getting item from itens table with ID: 27
+2025-12-22 23:51:13 - Item found in itens table: ID=27, Name=Cápsula 1
+2025-12-22 23:51:13 - verificaItemIgual returned: 2624
+2025-12-22 23:51:13 - Item exists - adding to slot: 2624
+2025-12-22 23:51:13 - Update personagens_inventario result: success
+2025-12-22 23:51:13 - Insert personagens_inventario_itens result: success
+2025-12-22 23:51:13 - Module 3 completed
+2025-12-22 23:51:13 - === PURCHASE SUCCESS ===

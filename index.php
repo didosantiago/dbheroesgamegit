@@ -64,7 +64,8 @@
     <script type="text/javascript" src="<?php echo BASE; ?>assets/jquery.js"></script>
     <!-- <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js" integrity="sha384-kW+oWsYx3YpxvjtZjFXqazFpA7UP/MbiY4jvs+RWZo2+N94PFZ36T6TFkc9O3qoB" crossorigin="anonymous"></script> -->
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" />
-    
+    <!-- ⭐ ADICIONAR BACKGROUND GLOBAL ⭐ -->
+    <link rel="stylesheet" href="assets/dbheroes-background.css">
     <?php if(!$isPublicPage): ?>
         <!-- GAME PAGES ONLY - JavaScript -->
         <script type="text/javascript" src="<?php echo BASE; ?>assets/db-heroes-vendor.min.js?v=15042019.2"></script>
@@ -76,6 +77,7 @@
 
         <!-- ✅ COMPLETE NPC TIMER FIX -->
         <script>
+            
         // Override startCountdownNPC globally BEFORE any AJAX calls
         window.startCountdownNPC = function(tempo){
             if(tempo > 0){
@@ -132,7 +134,7 @@
                 <source src="<?php echo BASE; ?>assets/soco.mp3" type="audio/mpeg">
             </audio>
         </div>
-    
+
         <?php if(!$isPublicPage){ ?>
             <?php require_once 'includes/menu-mobile.php'; ?>
             <?php require_once 'includes/header.php'; ?>
@@ -764,6 +766,7 @@
     });
 
 </script>
-
+    <!-- ⭐ ADICIONAR JAVASCRIPT DO BACKGROUND (antes do </body>) ⭐ -->
+    <script src="Scripts/modules/dbheroes-background.js"></script>
 </body>
 </html>

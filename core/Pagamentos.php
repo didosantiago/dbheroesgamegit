@@ -75,20 +75,13 @@ class Pagamentos extends Usuarios{
         if($status == 3){
             $coins_atualizado = $usuario->coins + $transacao->coins;
             
-            if($transacao->valor >= 10){
-                $campos = array(
-                    'vip' => '1',
-                    'coins' => $coins_atualizado
-                );
-            } else {
-                
-                $campos = array(
-                    'coins' => $coins_atualizado
-                );
-            }
+            // REMOVED: No more auto-VIP activation
+            // Players must manually activate VIP using coins in ativar-vip.php
+            $campos = array(
+                'coins' => $coins_atualizado
+            );
 
             $where = 'id="'.$transacao->idUsuario.'"';
-
             $core->update('usuarios', $campos, $where);
         }
         
@@ -96,6 +89,7 @@ class Pagamentos extends Usuarios{
         $stmt = DB::prepare($sql);
         $stmt->execute();
     }
+
 
     public function setPayment($descricao, $idUsuario, $idPersonagem){
         

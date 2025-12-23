@@ -1,5 +1,8 @@
 @import url("https://fonts.googleapis.com/css?family=Anton|Bungee");
 @import url("https://fonts.googleapis.com/css?family=Francois+One");
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Exo+2:wght@400;700;900&display=swap');
 
 /* ========================================
    FRONT PAGE - HOME FIX
@@ -330,10 +333,11 @@ header .menu-superior li.sair a {
 }
 
 header .menu-superior li a {
+  font-family: 'Rajdhani', sans-serif;
   display: block;
-  padding: 0 20px;
+  padding: 0 15px;
   color: #FFF;
-  font-size: 14px;
+  font-size: 16px;
   text-transform: uppercase
 }
 
@@ -717,6 +721,7 @@ header .user-logado strong {
   width: 100%;
   color: #FFF;
   text-align: center;
+  font-family: 'Exo 2', sans-serif;
   text-transform: uppercase;
   font-size: 12px
 }
@@ -731,6 +736,7 @@ header .user-logado strong {
   border-radius: 10px;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
+  
   box-sizing: border-box
 }
 
@@ -739,6 +745,7 @@ header .user-logado strong {
   color: #FFF;
   text-align: center;
   text-transform: uppercase;
+  
   font-size: 11px;
   padding: 10px 0 0 0
 }
@@ -777,6 +784,7 @@ header .user-logado strong {
   font-size: 12px;
   padding-right: 10px;
   font-style: italic
+  
 }
 
 .menu-lateral .personagem-logado .exp .meter {
@@ -842,7 +850,7 @@ header .user-logado strong {
 
 .menu-lateral .personagem-logado .graduacao-patente h4 {
   display: block;
-  font-family: 'Francois One', sans-serif;
+  font-family: 'Exo 2', sans-serif;
   font-size: 18px;
   color: #FFF;
   text-align: center;
@@ -987,13 +995,16 @@ header .user-logado strong {
   top: 12px;
   left: 8%;
   z-index: 20;
+  font-family: 'Exo 2', sans-serif;
   font-size: 10px
 }
 
 .menu-lateral .personagem-logado .info .atributos.hp .meter em,
 .menu-lateral .personagem-logado .info .atributos.mana .meter em,
 .menu-lateral .personagem-logado .info .atributos.energia .meter em {
+  font-family: 'Exo 2', sans-serif;
   font-size: 12px
+  
 }
 
 .menu-lateral .personagem-logado .info .atributos>strong {
@@ -1078,6 +1089,7 @@ header .user-logado strong {
   color: #FFF;
   text-transform: uppercase;
   font-size: 12px;
+  font-family: 'Exo 2', sans-serif;
   -moz-transition: all .2s ease;
   -o-transition: all .2s ease;
   -webkit-transition: all .2s ease;
@@ -2648,7 +2660,7 @@ body.meus-personagens .lista-meus-personagens {
   height: 180px;          /* Adjust as needed */
   margin: 22px auto 24px auto;
   border-radius: 18px;
-  background: url("../assets/banners/bonus.png") center center no-repeat;
+  background: url("../assets/banners/bonus.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -2852,6 +2864,30 @@ body.meus-personagens .lista-meus-personagens {
   margin: 0px auto -20px auto;
   border-radius: 18px;
   background: url("../assets/banners/pvp-kaio-banner.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.treinar-golpes-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 0px auto -5px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/treinar-golpes.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.rank-banner {
+  width: 100%;
+  max-width: 950px;       /* Or your desired max */
+  height: 180px;          /* Adjust as needed */
+  margin: 20px auto 0px auto;
+  border-radius: 18px;
+  background: url("../assets/banners/rank.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -7007,7 +7043,7 @@ body.cacadas .forms-cacadas #formCacada .campos {
 }
 
 body.cacadas .conteudo {
-  height: 1043px;
+  height: 1190px;
   background: #131d28;
   /* background: url("../assets/bg-cacadas.jpg"); */
   background-position: center center;
@@ -7428,16 +7464,18 @@ body.portal .lista-acesso-rapido li span {
   display: block;
   color: #FFF;
   text-transform: uppercase;
-  font-size: 14px;
+  font-family: 'Exo 2', sans-serif;
+  font-size: 15px;
   margin: 0 0 10px 0
 }
 
 body.portal .lista-acesso-rapido li p {
   display: block;
   width: 80%;
-  color: #FFF;
+  color: #FFC600;
   text-transform: uppercase;
-  font-size: 12px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
   line-height: 20px;
   margin: 0 auto 10px auto
 }
@@ -20300,7 +20338,7 @@ body.rank .secao-ranking h2 {
   text-transform: uppercase;
   font-size: 20px;
   font-weight: 600;
-  margin: 20px 0
+  margin: 10px 0
 }
 
 body.rank .secao-ranking .lista-ranking {
@@ -22356,7 +22394,7 @@ ul[class*="dropdown"] i {
 a[href*="amigos"] i,
 .amigos-link i {
     color: #2ECC71 !important;
-    font-size: 28px !important;
+    font-size: 18px !important;
 }
 
 /* Convite Equipes icon - Orange */
@@ -24189,3 +24227,570 @@ body.publico .infos-guerreiro .foto .painel-guerreiro .botoes-publico li {
         margin-top: 10px !important;
     }
 }
+
+/* ========== BACKGROUND GLOBAL DBHEROES ========== */
+.digital-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(0, 150, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(0, 255, 150, 0.1) 0%, transparent 50%),
+        linear-gradient(180deg, #0d1117 0%, #161b22 100%);
+    z-index: -2;
+    pointer-events: none;
+}
+
+.hud-grid {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(rgba(0, 150, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 150, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+@keyframes dataFloat {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-100px) translateX(50px); opacity: 0; }
+}
+
+.data-particle {
+    position: fixed;
+    color: #0096ff;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    animation: dataFloat 10s linear infinite;
+    pointer-events: none;
+    opacity: 0.6;
+    z-index: -1;
+}
+
+@keyframes orbFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-30px); }
+}
+
+.glowing-orb {
+    position: fixed;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 150, 255, 0.3), transparent);
+    animation: orbFloat 4s ease-in-out infinite;
+    pointer-events: none;
+    filter: blur(20px);
+    z-index: -1;
+}
+
+/* ========== GALERIA DE BANDEIRAS ========== */
+.lista-bandeiras {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.bandeira-item {
+    position: relative;
+    cursor: pointer;
+    display: block;
+}
+
+.bandeira-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.bandeira-card {
+    background: rgba(13, 17, 23, 0.8);
+    border: 2px solid rgba(0, 150, 255, 0.3);
+    border-radius: 10px;
+    padding: 15px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.bandeira-card:hover {
+    border-color: rgba(0, 150, 255, 0.6);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 150, 255, 0.3);
+}
+
+.bandeira-card img {
+    width: 100%;
+    height: 100px;
+    object-fit: contain;
+    margin-bottom: 10px;
+}
+
+.bandeira-nome {
+    display: block;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.bandeira-preco {
+    display: block;
+    color: #00ff96;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* Bandeira Selecionada */
+.bandeira-item input[type="radio"]:checked + .bandeira-card {
+    border-color: #00ff96;
+    background: rgba(0, 255, 150, 0.2);
+    box-shadow: 0 0 20px rgba(0, 255, 150, 0.5);
+    transform: scale(1.05);
+}
+
+.bandeira-item input[type="radio"]:checked + .bandeira-card::before {
+    content: "✓";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #00ff96;
+    color: #000;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+/* Bandeiras Premium */
+.bandeira-item.premium .bandeira-card {
+    border-color: rgba(255, 215, 0, 0.5);
+}
+
+.bandeira-item.premium input[type="radio"]:checked + .bandeira-card {
+    border-color: #ffd700;
+    background: rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+/* Bandeiras VIP */
+.bandeira-item.vip .bandeira-card {
+    border-color: rgba(255, 107, 107, 0.5);
+}
+
+.bandeira-item.vip input[type="radio"]:checked + .bandeira-card {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.2);
+    box-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    .lista-bandeiras {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 15px;
+    }
+    
+    .bandeira-card {
+        padding: 10px;
+    }
+    
+    .bandeira-card img {
+        height: 80px;
+    }
+}
+
+
+
+/* ========================================
+   CRIAR EQUIPE - LAYOUT MODERNO
+   ======================================== */
+
+.criar-equipe-container {
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(13, 17, 23, 0.95), rgba(22, 27, 34, 0.95));
+    border-radius: 15px;
+    border: 2px solid rgba(0, 150, 255, 0.3);
+    box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
+}
+
+.criar-equipe-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(0, 150, 255, 0.3);
+}
+
+.criar-equipe-header h2 {
+    color: #00d4ff;
+    font-size: 32px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+.criar-equipe-header h2 i {
+    margin-right: 15px;
+    color: #ffd700;
+}
+
+.criar-equipe-header p {
+    color: #b8c5d6;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* ========== SEÇÕES ========== */
+.equipe-section {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(0, 150, 255, 0.2);
+}
+
+.equipe-section h3 {
+    color: #fff;
+    font-size: 22px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.equipe-section h3 i {
+    color: #00d4ff;
+    font-size: 24px;
+}
+
+/* ========== FORMULÁRIO ========== */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group label {
+    color: #00d4ff;
+    font-size: 16px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.form-group label i {
+    color: #ffd700;
+}
+
+.input-field {
+    
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(0, 150, 255, 0.3);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #00d4ff;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.input-field::placeholder {
+    color: #6e7681;
+    font-weight: normal;
+}
+
+.sigla-input {
+    text-align: center;
+    font-size: 16px;
+    letter-spacing: 5px;
+}
+
+.form-group small {
+    color: #8b949e;
+    font-size: 13px;
+    margin-top: -5px;
+}
+
+/* ========== GRID DE BANDEIRAS ========== */
+.bandeiras-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.bandeira-item {
+    position: relative;
+    cursor: pointer;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.bandeira-item:hover {
+    transform: translateY(-5px);
+}
+
+.bandeira-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.bandeira-card {
+    background: linear-gradient(135deg, rgba(13, 17, 23, 0.9), rgba(22, 27, 34, 0.9));
+    border: 3px solid rgba(0, 150, 255, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.bandeira-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(0, 212, 255, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.bandeira-card:hover::before {
+    opacity: 1;
+}
+
+.bandeira-card:hover {
+    border-color: rgba(0, 212, 255, 0.6);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.3);
+    transform: scale(1.02);
+}
+
+.bandeira-card img {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.bandeira-card:hover img {
+    transform: scale(1.05);
+}
+
+.bandeira-nome {
+    display: block;
+    color: #fff;
+    font-size: 15px;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.bandeira-preco {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffd700, #ffed4e);
+    color: #000;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+/* Bandeira Selecionada */
+.bandeira-item input[type="radio"]:checked + .bandeira-card {
+    border-color: #00ff96;
+    background: linear-gradient(135deg, rgba(0, 255, 150, 0.2), rgba(0, 212, 255, 0.2));
+    box-shadow: 0 0 30px rgba(0, 255, 150, 0.5);
+    transform: scale(1.05);
+}
+
+.bandeira-item input[type="radio"]:checked + .bandeira-card::after {
+    content: "✓";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #00ff96;
+    color: #000;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 150, 0.8);
+    animation: checkmark 0.3s ease;
+}
+
+@keyframes checkmark {
+    0% {
+        transform: scale(0) rotate(0deg);
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+    }
+    100% {
+        transform: scale(1) rotate(360deg);
+    }
+}
+
+/* Bandeiras Premium */
+.bandeira-item.premium .bandeira-card {
+    border-color: rgba(255, 215, 0, 0.4);
+}
+
+.bandeira-item.premium input[type="radio"]:checked + .bandeira-card {
+    border-color: #ffd700;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 165, 0, 0.2));
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+}
+
+/* Bandeiras VIP */
+.bandeira-item.vip .bandeira-card {
+    border-color: rgba(255, 107, 107, 0.4);
+}
+
+.bandeira-item.vip input[type="radio"]:checked + .bandeira-card {
+    border-color: #ff6b6b;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.2), rgba(255, 0, 0, 0.2));
+    box-shadow: 0 0 30px rgba(255, 107, 107, 0.5);
+}
+
+/* ========== BOTÕES DE AÇÃO ========== */
+.form-actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 2px solid rgba(0, 150, 255, 0.2);
+}
+
+.btn-criar-equipe {
+    background: linear-gradient(135deg, #00d4ff, #0096ff);
+    color: #fff;
+    padding: 18px 50px;
+    border: none;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-criar-equipe:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 212, 255, 0.6);
+    background: linear-gradient(135deg, #00ff96, #00d4ff);
+}
+
+.btn-criar-equipe:active {
+    transform: translateY(0);
+}
+
+.btn-cancelar {
+    background: rgba(255, 107, 107, 0.2);
+    color: #ff6b6b;
+    padding: 18px 40px;
+    border: 2px solid #ff6b6b;
+    border-radius: 50px;
+    font-size: 18px;
+    font-weight: bold;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.btn-cancelar:hover {
+    background: rgba(255, 107, 107, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+/* ========== RESPONSIVO ========== */
+@media (max-width: 768px) {
+    .criar-equipe-container {
+        margin: 15px;
+        padding: 15px;
+    }
+
+    .criar-equipe-header h2 {
+        font-size: 24px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .bandeiras-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        gap: 15px;
+    }
+
+    .bandeira-card {
+        padding: 15px;
+    }
+
+    .bandeira-card img {
+        height: 100px;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-criar-equipe,
+    .btn-cancelar {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+

@@ -262,6 +262,7 @@
         }
     }
 </style>
+<div class="rank-banner"></div>
 <div class="bg-overlay"></div>   <!-- overlay em todas as páginas -->
 <div class="secao-ranking">
     <div class="stm-container">
