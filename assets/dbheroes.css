@@ -19311,11 +19311,6 @@ body.home {
     z-index: -1;
 }
 
-/* garantir que o conteúdo fique acima */
-body.home > *:not(.bg-overlay) {
-    position: relative;
-    z-index: 2;
-}
 
 
 body.login .stm-container,
@@ -22394,7 +22389,7 @@ ul[class*="dropdown"] i {
 a[href*="amigos"] i,
 .amigos-link i {
     color: #2ECC71 !important;
-    font-size: 18px !important;
+    font-size: 28px !important;
 }
 
 /* Convite Equipes icon - Orange */

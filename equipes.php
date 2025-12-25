@@ -4,21 +4,20 @@ switch($acao){
 ?>
 
 <?php 
-    // Only set variables if session exists, don't redirect
+    // Centralized session ID retrieval
+    $idPersonagem = null;
     if(isset($_SESSION['PERSONAGEM']['ID']) && !empty($_SESSION['PERSONAGEM']['ID'])) {
         $idPersonagem = $_SESSION['PERSONAGEM']['ID'];
+    } else if(isset($_SESSION['PERSONAGEM_ID']) && !empty($_SESSION['PERSONAGEM_ID'])) {
+        $idPersonagem = $_SESSION['PERSONAGEM_ID'];
     } else if(isset($_SESSION['PERSONAGEMID']) && !empty($_SESSION['PERSONAGEMID'])) {
-        // Fallback for alternative session structure
         $idPersonagem = $_SESSION['PERSONAGEMID'];
-    } else {
-        $idPersonagem = null;
     }
 
+    // ✅ FIX: Use Url::getURL() as STATIC method (not $Url->getURL())
     if(Url::getURL(1) != null && Url::getURL(1) != 'ajax'){
         $idGet = Url::getURL(1);
-        if($idGet != 'ajax'){
-            $dados_equipe = $equipes->dadosEquipeAtual($idPersonagem, $idGet);
-        }
+        $dados_equipe = $equipes->dadosEquipeAtual($idPersonagem, $idGet);
     } else {
         $dados_equipe = $equipes->dadosEquipeAtual($idPersonagem, '');
         if($dados_equipe != 0){
@@ -27,101 +26,124 @@ switch($acao){
             $idGet = '';
         }
     }
+
+    // ✅ ADDED: Check and update team level before displaying
+    if($dados_equipe != 0 && !empty($idGet)){
+        $equipes->verificaLevel($idGet); // Check only this team
+        // Reload team data after level update
+        $dados_equipe = $equipes->dadosEquipeAtual($idPersonagem, $idGet);
+    }
+
+    // ✅ Check if we have valid team data
+    if(!$dados_equipe || $dados_equipe == 0 || empty($idGet)) {
+        // No team found - show create team message
+        ?>
+        <div style="padding: 40px; text-align: center;">
+            <?php if($idPersonagem): ?>
+                <?php if(isset($personagem->nivel) && $personagem->nivel >= 10): ?>
+                    <h2 style="color: #fff; margin-bottom: 20px;">Você não está em uma equipe</h2>
+                    <a class="bt-criar-equipe" href="<?php echo BASE; ?>equipes/add">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Criar Equipe</span>
+                    </a>
+                <?php else: ?>
+                    <h2 class="title" style="color: #FFF;">É necessário ter level 10 no mínimo para criar equipes.</h2>
+                <?php endif; ?>
+            <?php else: ?>
+                <h2 style="color: #fff;">Faça login para visualizar equipes.</h2>
+            <?php endif; ?>
+        </div>
+        <?php
+        break; // Stop processing here
+    }
+
+    // ✅ NOW check permissions (only if we have valid team data)
+    $isLeader = false;
+    $isMember = false;
+    $isVisitor = true;
+
+    if($idPersonagem) {
+        $isLeader = ($idPersonagem == $dados_equipe->idCriador) || $equipes->isLider($idPersonagem, $idGet);
+        $isMember = $equipes->isMembro($idPersonagem, $idGet);
+        $isVisitor = (!$isLeader && !$isMember);
+    }
 ?>
 
-<?php if($idPersonagem && $equipes->existsEquipe($idPersonagem)){ ?>
-
-    
+<!-- ✅ CHAT SECTION - Only for members -->
+<?php if(!$isVisitor && $idPersonagem && !empty($idGet)): ?>
     <?php require_once 'includes/chat-equipe.php'; ?>
+<?php endif; ?>
+
+<div class="perfil-equipe">
+    <div class="foto-equipe">
+        <img src="<?php echo BASE.'assets/equipes/'.$dados_equipe->foto; ?>" alt="<?php echo $dados_equipe->nome; ?>">
+        <?php if($isLeader): ?>
+            <a class="editar-dados" href="<?php echo BASE; ?>equipes/editar/<?php echo $dados_equipe->id; ?>">
+                <i class="fas fa-edit"></i>
+                <span>Editar Dados da Equipe</span>
+            </a>
+        <?php endif; ?>
+    </div>
     
-    <div class="perfil-equipe">
-        <div class="foto-equipe">
-            <img src="<?php echo BASE.'assets/equipes/'.$dados_equipe->foto; ?>" alt="<?php echo $dados_equipe->nome; ?>">
-            <?php if($equipes->isLider($_SESSION['PERSONAGEM']['ID'], $idGet)){ ?>
-                <a class="editar-dados" href="<?php echo BASE; ?>equipes/editar/<?php echo $dados_equipe->id; ?>">
-                    <i class="fas fa-edit"></i>
-                    <span>Editar Dados da Equipe</span>
+    <div class="info-equipe">
+        <h4><?php echo $dados_equipe->nome ?></h4>
+        <span class="sigla"><?php echo $dados_equipe->sigla ?></span>
+        
+        <!-- Líder da Equipe -->
+        <div class="lider">
+            <h5>Líder da Equipe</h5>
+            <?php $dadosLider = $equipes->getDadosCriador($dados_equipe->idCriador); ?>
+            <p>
+                <a href="<?php echo BASE ?>publico/<?php echo $dados_equipe->idCriador ?>">
+                    <img src="<?php echo BASE ?>assets/cards/<?php echo $dadosLider->foto ?>">
+                    <span><?php echo $dadosLider->nome ?></span>
                 </a>
-            <?php } ?>
+            </p>
         </div>
         
-        <div class="info-equipe">
-            <h4><?php echo $dados_equipe->nome ?></h4>
-            <span class="sigla"><?php echo $dados_equipe->sigla ?></span>
-            
-            <!-- Líder da Equipe -->
-            <div class="lider">
-                <h5>Líder da Equipe</h5>
-                <?php $dadosLider = $equipes->getDadosCriador($dados_equipe->idCriador); ?>
-                <p>
-                    <a href="<?php echo BASE ?>publico/<?php echo $dados_equipe->idCriador ?>">
-                        <img src="<?php echo BASE ?>assets/cards/<?php echo $dadosLider->foto ?>">
-                        <span><?php echo $dadosLider->nome ?></span>
-                    </a>
-                </p>
-            </div>
-            
-            <!-- Gold Doados -->
-            <div class="indice-gold">
-                <h5>Gold Doados</h5>
-                <p>
-                    <img src="<?php echo BASE ?>assets/icones/gold.png">
-                    <span><?php echo $equipes->getTotalGold($dados_equipe->id) ?></span>
-                </p>
-            </div>
-            
-            <!-- LEVEL -->
-            <div class="level">
-                <h5>LEVEL</h5>
-                <p><span><?php echo $dados_equipe->level ?></span></p>
-            </div>
-            
-            <!-- Total Membros -->
-            <div class="totalMembros">
-                <h5>Membros</h5>
-                <p>
-                    <i class="far fa-user"></i>
-                    <span><?php echo $equipes->getTotalMembros($dados_equipe->id) ?> / 30</span>
-                </p>
-            </div>
-            
-            <!-- PVP -->
-            <div class="pvp">
-                <h5>PVP</h5>
-                <p>
-                    <i class="fas fa-medal"></i>
-                    <span><?php echo $equipes->getTotalVitoriasPVP($dados_equipe->id) ?></span>
-                </p>
-            </div>
-            
-            <!-- Torneio -->
-            <div class="tam">
-                <h5>Torneio</h5>
-                <p>
-                    <i class="fas fa-medal"></i>
-                    <span><?php echo $equipes->getTotalVitoriasTAM($dados_equipe->id) ?></span>
-                </p>
-            </div>
+        <!-- Gold Doados -->
+        <div class="indice-gold">
+            <h5>Gold Doados</h5>
+            <p>
+                <img src="<?php echo BASE ?>assets/icones/gold.png">
+                <span><?php echo $equipes->getTotalGold($dados_equipe->id) ?></span>
+            </p>
+        </div>
         
-<?php
-// 3-TIER PERMISSION SYSTEM
-$isLeader = (isset($_SESSION['PERSONAGEM_ID']) && $_SESSION['PERSONAGEM_ID'] == $dados_equipe->idCriador);
-$isMember = (isset($_SESSION['PERSONAGEM_ID']) && $equipes->isMembro($_SESSION['PERSONAGEM_ID'], $idGet));
-$isPublic = (!$isLeader && !$isMember);
+        <!-- LEVEL -->
+        <div class="level">
+            <h5>LEVEL</h5>
+            <p><span><?php echo $dados_equipe->level ?></span></p>
+        </div>
+        
+        <!-- Total Membros -->
+        <div class="totalMembros">
+            <h5>Membros</h5>
+            <p>
+                <i class="far fa-user"></i>
+                <span><?php echo $equipes->getTotalMembros($dados_equipe->id) ?> / 30</span>
+            </p>
+        </div>
+        
+        <!-- PVP -->
+        <div class="pvp">
+            <h5>PVP</h5>
+            <p>
+                <i class="fas fa-medal"></i>
+                <span><?php echo $equipes->getTotalVitoriasPVP($dados_equipe->id) ?></span>
+            </p>
+        </div>
+        
+        <!-- Torneio -->
+        <div class="tam">
+            <h5>Torneio</h5>
+            <p>
+                <i class="fas fa-medal"></i>
+                <span><?php echo $equipes->getTotalVitoriasTAM($dados_equipe->id) ?></span>
+            </p>
+        </div>
 
-// Show member sections for BOTH leader AND members
-if($isLeader || $isMember){
-?>
-
-// DEBUG: Print permission values
-echo "<!-- DEBUG INFO:\n";
-echo "SESSION ID: " . (isset($_SESSION['PERSONAGEM_ID']) ? $_SESSION['PERSONAGEM_ID'] : 'NOT SET') . "\n";
-echo "Team Creator ID: " . $dados_equipe->idCriador . "\n";
-echo "isLeader: " . ($isLeader ? 'TRUE' : 'FALSE') . "\n";
-echo "isMember: " . ($isMember ? 'TRUE' : 'FALSE') . "\n";
-echo "Condition ($isLeader || $isMember): " . (($isLeader || $isMember) ? 'TRUE' : 'FALSE') . "\n";
-echo "-->";
-
+         <?php if($isMember){ ?>
             <?php
                 $idP = $_SESSION['PERSONAGEM']['ID'];
                 $dataHora = date('Y-m-d H:i:s');
@@ -134,23 +156,25 @@ echo "-->";
                 }
             ?>
             
-            <?php if($_SESSION['PERSONAGEM']['ID'] == $dados_equipe->idCriador){ ?>
+            <?php if($idPersonagem == $dados_equipe->idCriador): ?>
                 <a class="sair-equipe" href="<?php echo BASE; ?>equipes/delete/<?php echo $dados_equipe->id; ?>" title="Excluir">
                     <i class="far fa-trash-alt"></i>
                     <span>Excluir Equipe</span>
                 </a>
-            <?php } else { ?>
+            <?php else: ?>
                 <a class="sair-equipe" href="<?php echo BASE; ?>equipes/sair/<?php echo $dados_equipe->id; ?>" title="Sair">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Sair da Equipe</span>
                 </a>
-            <?php } ?>
+            <?php endif; ?>
+
         <?php } ?>
     </div>
+
     
     <?php if(!empty($dados_equipe->descricao)){ ?>
         <div class="mensagem">
-            <h4>Mensagem do Líder</h4>
+            <h4>Mensagem do Lider</h4>
             <p><?php echo $dados_equipe->descricao; ?></p>
         </div>
     <?php } ?>
@@ -165,7 +189,7 @@ echo "-->";
     <h4>Status Adicionais para Cada Membro</h4>
     <?php 
     // Calculate team bonuses
-    $teamLevel = isset($dadosequipe->level) ? $dadosequipe->level : 1;
+    $teamLevel = isset($dados_equipe->level) ? $dados_equipe->level : 1;
     $bonuses = $equipes->getTeamBonuses($teamLevel);
     
     // For the bars: assume max bonus is around level*5 for percentage calc
@@ -213,22 +237,8 @@ echo "-->";
     </li>
 </ul>
 
-<!-- ==================== NEW SECTIONS START HERE ==================== -->
-<?php if($equipes->isMembro($_SESSION['PERSONAGEM_ID'], $idGet)): ?>
-    
-    <!-- Exit/Delete Team Button -->
-    <?php if($_SESSION['PERSONAGEM_ID'] == $dados_equipe->idCriador): ?>
-        <a class="sair-equipe" href="<?php echo BASE; ?>equipes/delete/<?php echo $dados_equipe->id; ?>" title="Excluir">
-            <i class="far fa-trash-alt"></i>
-            <span>Excluir Equipe</span>
-        </a>
-    <?php elseif($equipes->existsEquipe($_SESSION['PERSONAGEM_ID'])): ?>
-        <a class="sair-equipe" href="<?php echo BASE; ?>equipes/sair/<?php echo $dados_equipe->id; ?>" title="Sair">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Sair da Equipe</span>
-        </a>
-    <?php endif; ?>
-
+<!-- ==================== MEMBER-ONLY SECTIONS ==================== -->
+<?php if($isLeader || $isMember): ?>
 
     <!-- 1. PRÓXIMO LEVEL Section -->
     <div class="barra-level">
@@ -239,7 +249,7 @@ echo "-->";
         } else {
             $prox_level = intval($dados_equipe->level + 1);
         }
-        $porcentagem_level = $equipes->getPorcentagemLevel($_SESSION['PERSONAGEM_ID'], $dados_equipe->level, $equipes->getTotalGold($dados_equipe->id));
+        $porcentagem_level = $equipes->getPorcentagemLevel($idPersonagem, $dados_equipe->level, $equipes->getTotalGold($dados_equipe->id));
         ?>
         <div class="content-gold">
             <div class="exp-faltante">
@@ -259,22 +269,23 @@ echo "-->";
     <!-- 2. DOAÇÕES DOS MEMBROS Section -->
     <?php
     if(isset($_REQUEST['doar'])){
-        if($personagem->getSaldo($_REQUEST['valor'], $_SESSION['PERSONAGEM_ID'])){
+        if($personagem->getSaldo($_REQUEST['valor'], $idPersonagem)){
             $campos = array(
-                'idMembro' => $_SESSION['PERSONAGEM_ID'],
+                'idPersonagem' => $idPersonagem,
                 'idEquipe' => $dados_equipe->id,
                 'valor' => addslashes($_POST['valor']),
                 'data' => date('Y-m-d')
             );
             if($core->insert('equipes_doacoes', $campos)){
-                $equipes->verificaLevel($dados_equipe->id);
+                $equipes->verificaLevel();
                 $campos = array(
                     'gold' => intval($personagem->gold) - intval(addslashes($_POST['valor']))
                 );
-                $where = "id = ".$_SESSION['PERSONAGEM_ID'];
+                $where = "id = ".$idPersonagem;
                 $core->update('usuarios_personagens', $campos, $where);
                 $core->msg('sucesso', 'Doação realizada com sucesso.');
                 header("Location: ".BASE."equipes/".$dados_equipe->id);
+                exit;
             } else {
                 $core->msg('error', 'Erro ao efetuar Doação.');
             }
@@ -330,26 +341,23 @@ echo "-->";
     </div>
 
     <!-- 6. ADICIONAR MEMBROS / PENDENTES (Leader Only) -->
-    <?php if($equipes->isLider($_SESSION['PERSONAGEM_ID'], $idGet)): ?>
+    <?php if($isLeader): ?>
         <?php
         if(isset($_POST['adicionarmembro'])){
             if($core->isExists('usuarios_personagens', "WHERE nome = '".addslashes($_POST['nickname'])."'")){
                 $dados_membro = $core->getDados('usuarios_personagens', "WHERE nome = '".addslashes($_POST['nickname'])."'");
                 if(!$equipes->existsEquipe($dados_membro->id)){
-                    if(!$equipes->existsMembro($dados_membro->id, $idGet)){
-                        $campos = array(
-                            'idEquipe' => $dados_equipe->id,
-                            'idPersonagem' => $dados_membro->id,
-                            'status' => 0
-                        );
-                        if($core->insert('equipes_membros', $campos)){
-                            $core->msg('sucesso', 'Convite Enviado.');
-                            header("Location: ".BASE."equipes/".$dados_equipe->id);
-                        } else {
-                            $core->msg('error', 'Ocorreu um Erro ao enviar o convite.');
-                        }
+                    $campos = array(
+                        'idEquipe' => $dados_equipe->id,
+                        'idPersonagem' => $dados_membro->id,
+                        'status' => 0
+                    );
+                    if($core->insert('equipes_membros', $campos)){
+                        $core->msg('sucesso', 'Convite Enviado.');
+                        header("Location: ".BASE."equipes/".$dados_equipe->id);
+                        exit;
                     } else {
-                        $core->msg('error', 'Membro já está na Equipe.');
+                        $core->msg('error', 'Ocorreu um Erro ao enviar o convite.');
                     }
                 } else {
                     $core->msg('error', 'Este guerreiro já está em uma equipe.');
@@ -380,7 +388,7 @@ echo "-->";
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $equipes->getPendentes($dados_equipe->id, $pc, 10, $_SESSION['PERSONAGEM_ID']); ?>
+                    <?php $equipes->getPendentes($dados_equipe->id, $pc, 10, $idPersonagem); ?>
                 </tbody>
             </table>
 
@@ -397,15 +405,25 @@ echo "-->";
                     </tr>
                 </thead>
                 <tbody>
-                    <?php $equipes->getAceitos($dados_equipe->id, $pc, 5, $_SESSION['PERSONAGEM_ID']); ?>
+                    <?php $equipes->getAceitos($dados_equipe->id, $pc, 5, $idPersonagem); ?>
                 </tbody>
             </table>
         </div>
     <?php endif; ?>
 
+<?php endif; // END MEMBER-ONLY SECTIONS ?>
+
+<!-- VISITOR MESSAGE -->
+<?php if($isVisitor && $idPersonagem): ?>
+    <div class="visitor-message" style="padding: 20px; background: rgba(255,107,107,0.1); border-left: 4px solid #ff6b6b; margin: 20px 0;">
+        <h4 style="color: #ff6b6b; margin-bottom: 10px;">
+            <i class="fas fa-eye"></i> Você está visualizando como visitante
+        </h4>
+        <p style="color: #fff;">Você não é membro desta equipe. Para ver o chat, doações e recursos de membros, você precisa ser convidado e aceitar o convite.</p>
+    </div>
 <?php endif; ?>
 
-<!-- 7. RANKING DOS MEMBROS -->
+<!-- 7. RANKING DOS MEMBROS - VISIBLE TO ALL -->
 <div class="ranking-equipe">
     <h4>Ranking dos Membros</h4>
     <table class="tableList">
@@ -425,206 +443,19 @@ echo "-->";
         </tbody>
     </table>
 </div>
-<!-- ==================== NEW SECTIONS END HERE ==================== -->
 
-    
-    <?php if($equipes->isMembro($_SESSION['PERSONAGEM_ID'], $idGet)){ ?>
-        <div class="barra-level">
-            <h4>Próximo Level</h4>
-            <?php
-                if($dados_equipe->level >= 150){
-                    $proxlevel = 150;
-                } else {
-                    $proxlevel = intval($dados_equipe->level) + 1;
-                }
-                $porcentagem_level = $equipes->getPorcentagemLevel($_SESSION['PERSONAGEM']['ID'], $dados_equipe->level, $equipes->getTotalGold($dados_equipe->id));
-            ?>
-            <div class="content-gold">
-                <div class="exp-faltante">
-                    Falta <strong><?php echo $equipes->getGoldRestante($dados_equipe->level, $equipes->getTotalGold($dados_equipe->id)); ?></strong> golds para avançar de Level
-                </div>
-                <div class="label-exp">
-                    Próximo Level <span class="txt"><?php echo $proxlevel; ?></span>
-                </div>
-            </div>
-            <div class="meter animate roxo">
-                <em><?php echo $equipes->getTotalGold($dados_equipe->id); ?> / <?php echo $equipes->getProximoLevel($dados_equipe->level); ?></em>
-                <span style="width: <?php echo $porcentagem_level; ?>%"><span></span></span>
-            </div>
-        </div>
-        
-        <?php
-            if(isset($_REQUEST['doar'])){
-                if($personagem->getSaldo($_REQUEST['valor'], $_SESSION['PERSONAGEM']['ID'])){
-                    $campos = array(
-                        'idMembro' => $_SESSION['PERSONAGEM']['ID'],
-                        'idEquipe' => $dados_equipe->id,
-                        'valor' => addslashes($_POST['valor']),
-                        'data' => date('Y-m-d')
-                    );
-                    
-                    if($core->insert('equipes_doacoes', $campos)){
-                        $equipes->verificaLevel($dados_equipe->id);
-                        
-                        $campos = array(
-                            'gold' => intval($personagem->gold) - intval(addslashes($_POST['valor']))
-                        );
-                        $where = "id = ".$_SESSION['PERSONAGEM']['ID'];
-                        $core->update('usuarios_personagens', $campos, $where);
-                        
-                        $core->msg('sucesso', 'Doação realizada com sucesso.');
-                        header('Location: '.BASE.'equipes/'.$dados_equipe->id);
-                    } else {
-                        $core->msg('error', 'Erro ao efetuar Doação.');
-                    }
-                } else {
-                    $core->msg('error', 'Gold insuficiente para Doação.');
-                }
-            }
-        ?>
-        
-        <div class="doacoes">
-            <h4>Doações dos Membros</h4>
-            <form id="formDoacoes" class="forms" action="" method="post">
-                <input type="text" name="valor" value="" required>
-                <input type="submit" id="doar" class="bts-form" name="doar" value="Fazer Doação">
-            </form>
-            
-            <h4 style="margin-top: 20px; text-align: center; color: #fff207;">Total Doado por Membro</h4>
-            <ul class="total-doacoes">
-                <?php $equipes->getIndicadorDoacao($dados_equipe->id); ?>
-            </ul>
-            
-            <h4 style="margin-top: 20px;">Ranking Semanal de Doações</h4>
-            <table class="tableList">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Foto</th>
-                        <th>Nome</th>
-                        <th>Data</th>
-                        <th>Total Doado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $equipes->getDoacoesSemanal($dados_equipe->id); ?>
-                </tbody>
-            </table>
-            
-            <h4 style="margin-top: 40px;">Histórico de Doações</h4>
-            <table class="tableList">
-                <thead>
-                    <tr>
-                        <th>Doador</th>
-                        <th>Data</th>
-                        <th>Valor</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php $equipes->getDoacoes($dados_equipe->id, $pc, 10); ?>
-                </tbody>
-            </table>
-        </div>
-        
-        <?php if($equipes->isLider($_SESSION['PERSONAGEM']['ID'], $idGet)){ ?>
-            <?php
-                if(isset($_POST['adicionarmembro'])){
-                    if($core->isExists('usuarios_personagens', "WHERE nome = '".addslashes($_POST['nickname'])."'")){
-                        $dadosmembro = $core->getDados('usuarios_personagens', "WHERE nome = '".addslashes($_POST['nickname'])."'");
-                        
-                        if(!$equipes->existsEquipe($dadosmembro->id)){
-                            if(!$equipes->existsMembro($dadosmembro->id, $idGet)){
-                                $campos = array(
-                                    'idEquipe' => $dados_equipe->id,
-                                    'idMembro' => $dadosmembro->id,
-                                    'status' => 0
-                                );
-                                
-                                if($core->insert('equipes_membros', $campos)){
-                                    $core->msg('sucesso', 'Convite Enviado.');
-                                    header('Location: '.BASE.'equipes/'.$dados_equipe->id);
-                                } else {
-                                    $core->msg('error', 'Ocorreu um Erro ao enviar o convite.');
-                                }
-                            } else {
-                                $core->msg('error', 'Membro já está na Equipe.');
-                            }
-                        } else {
-                            $core->msg('error', 'Este guerreiro já está em uma equipe.');
-                        }
-                    } else {
-                        $core->msg('error', 'Guerreiro não encontrado com este Nickname.');
-                    }
-                }
-            ?>
-            
-            <div class="adicionar-membros">
-                <h4>Convites Pendentes</h4>
-                
-                <?php if($equipes->getTotalMembrosConvidados($dados_equipe->id) < 30){ ?>
-                    <form id="formMembros" class="forms" action="" method="post">
-                        <input type="text" name="nickname" value="" placeholder="Insira o nome do Guerreiro" required>
-                        <input type="submit" id="adicionar" class="bts-form" name="adicionarmembro" value="Enviar Convite">
-                    </form>
-                <?php } ?>
-                
-                <table class="tableList">
-                    <thead>
-                        <tr>
-                            <th>Foto</th>
-                            <th>Guerreiro</th>
-                            <th width="250">Graduação</th>
-                            <th>Level</th>
-                            <th>Gold Faturado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $equipes->getPendentes($dados_equipe->id, $pc, 10, $_SESSION['PERSONAGEM']['ID']); ?>
-                    </tbody>
-                </table>
-                
-                <h4 style="margin-top: 20px;">Membros Aceitos</h4>
-                <table class="tableList">
-                    <thead>
-                        <tr>
-                            <th>Foto</th>
-                            <th>Guerreiro</th>
-                            <th width="250">Graduação</th>
-                            <th>Level</th>
-                            <th>Gold Faturado</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php $equipes->getAceitos($dados_equipe->id, $pc, 5, $_SESSION['PERSONAGEM']['ID']); ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php } ?>
-    <?php } ?>
-    
-<?php } else { ?>
-    
-    <?php if($personagem->nivel >= 10){ ?>
-        <a class="bt-criar-equipe" href="<?php echo BASE; ?>equipes/add">
-            <i class="fas fa-plus-circle"></i>
-            <span>Criar Equipe</span>
-        </a>
-    <?php } else { ?>
-        <h2 class="title" style="color: #FFF;">É necessário ter level 10 no mínimo para criar equipes.</h2>
-    <?php } ?>
-    
-<?php } 
-    break;
+</div>
 
-case 'add':
-?>
+<?php break; ?>
+
+<?php case 'add': ?>
 
 <?php
 if(isset($_POST['criar'])){
+    $idPersonagemCriador = $_SESSION['PERSONAGEMID'] ?? $_SESSION['PERSONAGEM']['ID'] ?? $_SESSION['PERSONAGEM_ID'];
+    
     // Check 1: User already in a team
-    if($equipes->existsEquipe($_SESSION['PERSONAGEMID'])){
+    if($equipes->existsEquipe($idPersonagemCriador)){
         $core->msg('error', 'Você já está em uma equipe.');
         header('Location: '.BASE.'equipes/add');
         exit;
@@ -658,7 +489,7 @@ if(isset($_POST['criar'])){
         exit;
     }
     
-    // ✅ Split bandeira value to get ID and image
+    // Split bandeira value to get ID and image
     $bandeiraData = explode('|', $_POST['idBandeira']);
     $bandeiraId = isset($bandeiraData[0]) ? intval($bandeiraData[0]) : 0;
     $bandeiraImagem = isset($bandeiraData[1]) ? $bandeiraData[1] : 'default.png';
@@ -669,7 +500,8 @@ if(isset($_POST['criar'])){
         'sigla' => strtoupper(addslashes($_POST['sigla'])),
         'foto' => $bandeiraImagem,
         'bandeira_id' => $bandeiraId,
-        'idCriador' => $_SESSION['PERSONAGEMID'],
+        'idCriador' => $idPersonagemCriador,
+        'idLider' => $idPersonagemCriador,
         'level' => 1,
         'pvp' => 0,
         'gold' => 0
@@ -677,13 +509,13 @@ if(isset($_POST['criar'])){
     
     // Try to create the team
     if($core->insert('equipes', $campos)){
-        $dadosequipe = $core->getDados('equipes', "WHERE idCriador = ".$_SESSION['PERSONAGEMID']." ORDER BY id DESC LIMIT 1");
+        $dadosequipe = $core->getDados('equipes', "WHERE idCriador = ".$idPersonagemCriador." ORDER BY id DESC LIMIT 1");
         
         if($dadosequipe){
             // Add creator as team leader
             $campos = array(
                 'idEquipe' => $dadosequipe->id,
-                'idPersonagem' => $_SESSION['PERSONAGEMID'],
+                'idPersonagem' => $idPersonagemCriador,
                 'lider' => 1,
                 'status' => 1
             );
@@ -779,9 +611,6 @@ if(isset($_POST['criar'])){
 
 <?php break; ?>
 
-
-<?php break; ?>
-
 <?php case 'convites': ?>
 
 <div class="solicitacoes-equipes">
@@ -798,7 +627,10 @@ if(isset($_POST['criar'])){
             </tr>
         </thead>
         <tbody>
-            <?php $equipes->getEquipesPendentes($_SESSION['PERSONAGEM']['ID'], $pc, 10); ?>
+            <?php 
+            $idP = $_SESSION['PERSONAGEM']['ID'] ?? $_SESSION['PERSONAGEM_ID'] ?? $_SESSION['PERSONAGEMID'];
+            $equipes->getEquipesPendentes($idP, $pc, 10); 
+            ?>
         </tbody>
     </table>
 </div>
@@ -808,8 +640,11 @@ if(isset($_POST['criar'])){
 <?php case 'editar': ?>
 
 <?php
-    if(!$equipes->isLider($_SESSION['PERSONAGEM']['ID'], Url::getURL(2))){
+    $idPersonagemLogado = $_SESSION['PERSONAGEM']['ID'] ?? $_SESSION['PERSONAGEM_ID'] ?? $_SESSION['PERSONAGEMID'];
+    
+    if(!$equipes->isLider($idPersonagemLogado, Url::getURL(2))){
         header('Location: '.BASE.'equipes');
+        exit;
     } else {
         $id = Url::getURL(2);
         $idGet = Url::getURL(2);
@@ -824,9 +659,11 @@ if(isset($_POST['criar'])){
             if($core->update('equipes', $campos, $where)){
                 $core->msg('sucesso', 'Mensagem Alterada.');
                 header('Location: '.BASE.'equipes/editar/'.$id);
+                exit;
             } else {
                 $core->msg('error', 'Erro ao alterar Mensagem.');
                 header('Location: '.BASE.'equipes/editar/'.$id);
+                exit;
             }
         }
         
@@ -838,23 +675,26 @@ if(isset($_POST['criar'])){
                 $where = "id = ".$dadosEquipe->id;
                 
                 if($core->update('equipes', $campos, $where)){
-                    $core->delete('equipes_membros', "idMembro = ".$_SESSION['PERSONAGEM']['ID']." AND idEquipe = ".$dadosEquipe->id);
+                    $core->delete('equipes_membros', "idPersonagem = ".$idPersonagemLogado." AND idEquipe = ".$dadosEquipe->id);
                     
                     $campos_novo_personagem = array(
                         'lider' => 1
                     );
-                    $where_novo_personagem = "idMembro = ".addslashes($_POST['idMembro'])." AND idEquipe = ".$dadosEquipe->id;
+                    $where_novo_personagem = "idPersonagem = ".addslashes($_POST['idMembro'])." AND idEquipe = ".$dadosEquipe->id;
                     $core->update('equipes_membros', $campos_novo_personagem, $where_novo_personagem);
                     
                     $core->msg('sucesso', 'Equipe Transferida.');
                     header('Location: '.BASE.'equipes');
+                    exit;
                 } else {
                     $core->msg('error', 'Erro ao Transferir Equipe.');
                     header('Location: '.BASE.'equipes/editar/'.$id);
+                    exit;
                 }
             } else {
                 $core->msg('error', 'Você só pode transferir para membros da equipe.');
                 header('Location: '.BASE.'equipes/editar/'.$id);
+                exit;
             }
         }
         
@@ -873,6 +713,7 @@ if(isset($_POST['criar'])){
                 if($core->update('equipes', $campos, $where)){
                     $core->msg('sucesso', 'Foto Alterada.');
                     header('Location: '.BASE.'equipes/editar/'.Url::getURL(2));
+                    exit;
                 } else {
                     $core->msg('error', 'Erro na Alteração.');
                 }
@@ -891,17 +732,17 @@ if(isset($_POST['criar'])){
 
 <?php $dadosChat = $core->getDados('equipes_chat', "WHERE idEquipe = ".$dadosEquipe->id); ?>
 
-<?php if($dadosChat->status == 0){ ?>
+<?php if($dadosChat->status == 0): ?>
     <a class="bt-voltar bt-ativar-chat" href="<?php echo BASE; ?>equipes/ativarchat/<?php echo $dadosEquipe->id; ?>">
         <i class="fas fa-comment"></i>
         <span>Ativar Chat</span>
     </a>
-<?php } else { ?>
+<?php else: ?>
     <a class="bt-voltar bt-desativar-chat" href="<?php echo BASE; ?>equipes/desativarchat/<?php echo $dadosEquipe->id; ?>">
         <i class="fas fa-comment"></i>
         <span>Desativar Chat</span>
     </a>
-<?php } ?>
+<?php endif; ?>
 
 <div class="editar-foto">
     <h4>Alterar Foto</h4>
@@ -922,7 +763,7 @@ if(isset($_POST['criar'])){
     </form>
 </div>
 
-<?php if($_SESSION['PERSONAGEM']['ID'] == $dados_equipe->idCriador){ ?>
+<?php if($idPersonagemLogado == $dadosEquipe->idCriador): ?>
     <div class="transferir-equipe">
         <h4>Transferir Equipe</h4>
         <form id="formTransferir" class="forms" action="" method="post">
@@ -930,7 +771,7 @@ if(isset($_POST['criar'])){
             <input type="submit" id="transferirEquipe" class="bts-form" name="transferir" value="Transferir">
         </form>
     </div>
-<?php } ?>
+<?php endif; ?>
 
 <div class="moderar-membros">
     <h4>Inserir Vice Líderes</h4>
@@ -954,7 +795,7 @@ if(isset($_POST['criar'])){
 
 <?php break; ?>
 
-<?php case 'addlider': ?>
+<?php case 'add_lider': ?>
 
 <?php
     $id = Url::getURL(2);
@@ -968,15 +809,17 @@ if(isset($_POST['criar'])){
     if($core->update('equipes_membros', $campos, $where)){
         $core->msg('sucesso', 'Novo Vice Líder.');
         header('Location: '.BASE.'equipes/editar/'.$dadosEquipe->idEquipe);
+        exit;
     } else {
         $core->msg('error', 'Erro ao adicionar Vice Líder.');
         header('Location: '.BASE.'equipes/editar/'.$dadosEquipe->idEquipe);
+        exit;
     }
 ?>
 
 <?php break; ?>
 
-<?php case 'removelider': ?>
+<?php case 'remove_lider': ?>
 
 <?php
     $id = Url::getURL(2);
@@ -990,15 +833,17 @@ if(isset($_POST['criar'])){
     if($core->update('equipes_membros', $campos, $where)){
         $core->msg('sucesso', 'Alterado Vice Líder.');
         header('Location: '.BASE.'equipes/editar/'.$dadosEquipe->idEquipe);
+        exit;
     } else {
         $core->msg('error', 'Erro ao alterar Vice Líder.');
         header('Location: '.BASE.'equipes/editar/'.$dadosEquipe->idEquipe);
+        exit;
     }
 ?>
 
 <?php break; ?>
 
-<?php case 'removeconvite': ?>
+<?php case 'remove_convite': ?>
 
 <?php
     $id = Url::getURL(2);
@@ -1006,15 +851,17 @@ if(isset($_POST['criar'])){
     if($core->delete('equipes_membros', "id = ".$id)){
         $core->msg('sucesso', 'Convite removido com Sucesso.');
         header('Location: '.BASE.'equipes');
+        exit;
     } else {
         $core->msg('error', 'Erro ao excluir convite.');
         header('Location: '.BASE.'equipes');
+        exit;
     }
 ?>
 
 <?php break; ?>
 
-<?php case 'removemembro': ?>
+<?php case 'remove_membro': ?>
 
 <?php
     $id = Url::getURL(2);
@@ -1022,9 +869,11 @@ if(isset($_POST['criar'])){
     if($core->delete('equipes_membros', "id = ".$id)){
         $core->msg('sucesso', 'Membro removido com Sucesso.');
         header('Location: '.BASE.'equipes');
+        exit;
     } else {
         $core->msg('error', 'Erro ao remover membro.');
         header('Location: '.BASE.'equipes');
+        exit;
     }
 ?>
 
@@ -1034,9 +883,10 @@ if(isset($_POST['criar'])){
 
 <?php
     $id = Url::getURL(2);
-    $idEquipe = $core->getDados('equipes_membros', "WHERE idMembro = ".$id);
+    $idPersonagemAceitar = $_SESSION['PERSONAGEM']['ID'] ?? $_SESSION['PERSONAGEM_ID'] ?? $_SESSION['PERSONAGEMID'];
+    $idEquipe = $core->getDados('equipes_membros', "WHERE id = ".$id);
     
-    if(!$equipes->existsInEquipe($_SESSION['PERSONAGEM']['ID'])){
+    if(!$equipes->existsInEquipe($idPersonagemAceitar)){
         $campos = array(
             'status' => 1
         );
@@ -1045,10 +895,16 @@ if(isset($_POST['criar'])){
         if($core->update('equipes_membros', $campos, $where)){
             $core->msg('sucesso', 'Você entrou para a Equipe.');
             header('Location: '.BASE.'equipes/'.$idEquipe->idEquipe);
+            exit;
         } else {
             $core->msg('error', 'Erro ao aceitar Equipe.');
             header('Location: '.BASE.'equipes/convites');
+            exit;
         }
+    } else {
+        $core->msg('error', 'Você já está em uma equipe.');
+        header('Location: '.BASE.'equipes/convites');
+        exit;
     }
 ?>
 
@@ -1062,9 +918,11 @@ if(isset($_POST['criar'])){
     if($core->delete('equipes_membros', "id = ".$id)){
         $core->msg('sucesso', 'Convite Recusado.');
         header('Location: '.BASE.'equipes/convites');
+        exit;
     } else {
         $core->msg('error', 'Erro ao recusar convite.');
         header('Location: '.BASE.'equipes/convites');
+        exit;
     }
 ?>
 
@@ -1079,9 +937,11 @@ if(isset($_POST['criar'])){
         $core->delete('equipes_membros', "idEquipe = ".$id);
         $core->msg('sucesso', 'Equipe excluida com Sucesso.');
         header('Location: '.BASE.'equipes');
+        exit;
     } else {
         $core->msg('error', 'Erro ao excluir Equipe.');
         header('Location: '.BASE.'equipes');
+        exit;
     }
 ?>
 
@@ -1091,13 +951,16 @@ if(isset($_POST['criar'])){
 
 <?php
     $id = Url::getURL(2);
+    $idPersonagemSair = $_SESSION['PERSONAGEM']['ID'] ?? $_SESSION['PERSONAGEM_ID'] ?? $_SESSION['PERSONAGEMID'];
     
-    if($core->delete('equipes_membros', "idEquipe = ".$id." AND idMembro = ".$personagem->id)){
+    if($core->delete('equipes_membros', "idEquipe = ".$id." AND idPersonagem = ".$idPersonagemSair)){
         $core->msg('sucesso', 'Você saiu da Equipe.');
         header('Location: '.BASE.'equipes');
+        exit;
     } else {
         $core->msg('error', 'Erro ao sair da Equipe.');
         header('Location: '.BASE.'equipes');
+        exit;
     }
 ?>
 
@@ -1115,6 +978,7 @@ if(isset($_POST['criar'])){
     $core->update('equipes_chat', $campos, $where);
     
     header('Location: '.BASE.'equipes/editar/'.$id);
+    exit;
 ?>
 
 <?php break; ?>
@@ -1131,6 +995,7 @@ if(isset($_POST['criar'])){
     $core->update('equipes_chat', $campos, $where);
     
     header('Location: '.BASE.'equipes/editar/'.$id);
+    exit;
 ?>
 
 <?php break; ?>
@@ -1138,19 +1003,7 @@ if(isset($_POST['criar'])){
 <?php case 'ranking': ?>
 
 <div class="ranking-equipes">
-    <h4>Ranking de Equipes</h2>
-    
-    <div class="pub-02" style="text-align: center;">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Ranking -->
-        <ins class="adsbygoogle"
-             style="display:inline-block;width:970px;height:90px"
-             data-ad-client="ca-pub-7787997452337920"
-             data-ad-slot="5723949251"></ins>
-        <script>
-        (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
-    </div>
+    <h4>Ranking de Equipes</h4>
     
     <table class="tableList">
         <thead>
@@ -1172,4 +1025,3 @@ if(isset($_POST['criar'])){
 <?php break; ?>
 
 <?php } ?>
-

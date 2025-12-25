@@ -768,5 +768,6 @@
 </script>
     <!-- ⭐ ADICIONAR JAVASCRIPT DO BACKGROUND (antes do </body>) ⭐ -->
     <script src="Scripts/modules/dbheroes-background.js"></script>
+
 </body>
 </html>

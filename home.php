@@ -704,13 +704,35 @@ if (isset($_GET['logout']) && $_GET['logout'] == 'success') {
         transform: translateY(-3px);
         box-shadow: 0 10px 30px rgba(76, 175, 80, 0.5);
         }   
+        /* ===== BACKGROUND ANIMADO ===== */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+        /* Make sure your content is above the canvas */
+        body > * {
+            position: relative;
+            z-index: 1;
+        }
+
+
 
     </style>
 </head>
 <body>
+
+
+    <!-- ⭐ JAVASCRIPT DO BACKGROUND ⭐ -->
+    <script src="Scripts/modules/dbheroes-background.js"></script>
     <div class="bg-overlay"></div>   <!-- overlay em todas as páginas -->
     <!-- ===== HEADER ===== -->
     <div class="home-header">
+        
         <div class="container">
             <!-- ===== BIGGER LOGO ===== -->
             <div class="home-logo">
@@ -815,7 +837,9 @@ if (isset($_GET['logout']) && $_GET['logout'] == 'success') {
         if (popup)   popup.remove();
     }
     </script>
+    
 <?php endif; ?>
+
 </body>
 </html>
 

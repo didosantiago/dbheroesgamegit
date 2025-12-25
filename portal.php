@@ -269,3 +269,50 @@
 </script>
     <!-- ⭐ ADICIONAR JAVASCRIPT DO BACKGROUND (antes do </body>) ⭐ -->
     <script src="Scripts/modules/dbheroes-background.js"></script>
+<script>
+// Auto-regenerate stats every 5 seconds
+setInterval(function() {
+    $.ajax({
+        url: '<?php echo BASE; ?>ajaxPersonagens.php',
+        method: 'POST',
+        dataType: 'html', // Change to html to see what's returned
+        success: function(data) {
+            console.log('✅ AJAX Response received!');
+            console.log(data);
+            
+            // Try to reload the stats display
+            $('#player-stats-container').load('<?php echo BASE; ?>ajaxPersonagens.php');
+        },
+        error: function(xhr, status, error) {
+            console.error('❌ AJAX Error:', error);
+            console.error('Status:', status);
+            console.error('Response:', xhr.responseText);
+        }
+    });
+}, 10000); // Every 10 seconds ✅
+
+$.ajax({
+    url: 'classes/ajaxPersonagens.php',
+    type: 'POST',
+    dataType: 'json',
+    success: function(data) {
+        console.log('✅ AJAX Response received!');
+        
+        // 🔍 DECODE AND DISPLAY DEBUG INFO
+        if(data.debug){
+            let debugText = atob(data.debug); // Decode base64
+            console.log('\n' + debugText);
+        }
+        
+        if(data.success) {
+            atualizarBarras(data.hp, data.ki, data.energia);
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error('❌ AJAX Error:', error);
+    }
+});
+
+</script>
+
+    

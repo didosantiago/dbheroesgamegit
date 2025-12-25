@@ -1,23 +1,19 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of Treino
  *
  * @author Felipe Faciroli
  */
 class Treino {
+    
     public function getValoresTreino($idPersonagem){
         $core = new Core();
         
         $sql = "SELECT * FROM personagens_treino WHERE idPersonagem = $idPersonagem";
         $stmt = DB::prepare($sql);
         $stmt->execute();
+        
         $atributo = $stmt->fetch();
         
         return $atributo;
@@ -137,10 +133,10 @@ class Treino {
                 $campos = array(
                     'nivel' => $level,
                     'graduacao' => $nova_graduacao,
-                    'hp' => $new_hp,  // ✅ Preserve battle damage (or revive if dead)
-                    'mana' => $ki_max_novo,  // ✅ Increase max KI
-                    'ki_usado' => $current_ki_usado,  // ✅ Preserve KI usage from battle
-                    'energia_usada' => 0,  // ✅ Reset energy (OK for battles)
+                    'hp' => $new_hp, // ✅ Preserve battle damage (or revive if dead)
+                    'mana' => $ki_max_novo, // ✅ Increase max KI
+                    'ki_usado' => $current_ki_usado, // ✅ Preserve KI usage from battle
+                    'energia_usada' => 0, // ✅ Reset energy (OK for battles)
                     'pontos' => intval($dados_personagem->pontos) + 1,
                     'forca' => intval($dados_personagem->forca) + 1,
                     'agilidade' => intval($dados_personagem->agilidade) + 1,
@@ -153,6 +149,7 @@ class Treino {
 
                 $core->update('usuarios_personagens', $campos, $where);
                 
+                
                 //ADICIONA OS GOLPES DO LEVEL
                 $this->newUpGolpes($level, $idPersonagem);
                 
@@ -160,8 +157,6 @@ class Treino {
                 $this->newUpGraduation($nova_graduacao, $graduacao, $idPersonagem);
             }
         }
-
-
         
         $du = $core->getDados('usuarios_personagens', 'WHERE id ='.$idPersonagem);
         
@@ -232,18 +227,17 @@ class Treino {
         }
         
         $ki_restante = $ki - $ki_usado;
-        
         if($ki_restante < 0){
             $ki_restante = 0;
         }
         
         $total = $ki_restante / intval($ki);
-        $resultado = intval($total * 98);
+        
+        $resultado = intval($total * 100);
 
         return $resultado;
-}
-
-        
+    }
+    
     public function getPorcentagemEnergia($energia, $energia_usada){
         // Safety check
         if($energia == null || $energia <= 0){
@@ -255,41 +249,38 @@ class Treino {
         }
         
         $energia_restante = $energia - $energia_usada;
-        
         if($energia_restante < 0){
             $energia_restante = 0;
         }
         
         $total = $energia_restante / intval($energia);
-        $resultado = intval($total * 98);
+        
+        $resultado = intval($total * 100);
 
         return $resultado;
     }
-
     
-    public function getPorcentagemHP($hp, $hp_usado){
+    public function getPorcentagemHP($hp, $hp_max){
         // Safety check to prevent division by zero
-        if($hp == null || $hp <= 0){
+        if($hp_max == null || $hp_max <= 0){
             return 0;
         }
         
-        if($hp_usado == null || $hp_usado < 0){
-            $hp_usado = 0;
+        if($hp == null || $hp < 0){
+            $hp = 0;
         }
         
-        $hp_restante = $hp - $hp_usado;
-        
-        // Additional check: ensure hp_restante is not negative
-        if($hp_restante < 0){
-            $hp_restante = 0;
+        // Ensure HP doesn't exceed max
+        if($hp > $hp_max){
+            $hp = $hp_max;
         }
         
-        $total = $hp_restante / intval($hp);
-        $resultado = intval($total * 98);
+        $total = $hp / intval($hp_max);
+        
+        $resultado = intval($total * 100);
 
         return $resultado;
     }
-
     
     public function getProximoNivel($nivel){
         $core = new Core();
@@ -454,178 +445,143 @@ class Treino {
         }
     }
     
+    /**
+     * ✅ ENERGIA regenerates every 10 seconds
+     */
     public function recoveryEnergia($idPersonagem, $vip){
         $core = new Core();
-        $personagem = new Personagens();
         
-        $personagem->getGuerreiro($idPersonagem);
-
-        $energia = ($personagem->energia) * (3 / 100);
-        $energia_usada = $personagem->energia_usada;
+        $sql = "SELECT * FROM usuarios_personagens WHERE id = $idPersonagem";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $p = $stmt->fetch();
         
-        if($vip == 1){
-            $minutos = 1;
-        } else {
-            $minutos = 2;
+        $energia_max = intval($p->energia);
+        $energia_usada = intval($p->energia_usada);
+        $time_stamina = intval($p->time_stamina);
+        $now = time();
+        
+        // Initialize timestamp if zero
+        if($time_stamina == 0){
+            $core->update('usuarios_personagens',
+                array('time_stamina' => $now),
+                'id = '.$idPersonagem);
+            return;
         }
         
-        $segundos_energia = $minutos * 60;
+        // Check if enough time has passed (10 seconds)
+        $elapsed = $now - $time_stamina;
+        if($elapsed < 10) return; // ✅ Changed from 5 to 10
         
-        $time_stamina = $personagem->time_stamina;
-        $tempo_decorrido = time() - $time_stamina;
-        
-        $total = floor(($tempo_decorrido / $segundos_energia) * $energia);
-        
+        // Regenerate if needed
         if($energia_usada > 0){
-            if($total >= 1){
-                if($personagem->energia_usada >= $total){
-                    $up_guerreiro = array(
-                        'energia_usada' => intval($personagem->energia_usada) - $total,
-                        'time_stamina' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                } else {
-                    $up_guerreiro = array(
-                        'energia_usada' => 0,
-                        'time_stamina' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                }
-            }
-        } else {
-            $campos = array(
-                'time_stamina' => time()
-            );
-
-            $where = 'id = "'.$idPersonagem.'"';
-
-            $core->update('usuarios_personagens', $campos, $where);
+            $regen = ceil($energia_max * 0.03); // 3% per cycle
+            $ciclos = floor($elapsed / 10); // ✅ Changed from 5 to 10
+            $total_regen = $ciclos * $regen;
+            
+            $novo_valor = max(0, $energia_usada - $total_regen);
+            
+            $core->update('usuarios_personagens',
+                array(
+                    'energia_usada' => $novo_valor,
+                    'time_stamina' => $now
+                ),
+                'id = '.$idPersonagem);
         }
     }
-    
+
+    /**
+     * ✅ KI regenerates every 10 seconds
+     */
     public function recoveryKI($idPersonagem, $vip){
         $core = new Core();
-        $personagem = new Personagens();
         
-        $personagem->getGuerreiro($idPersonagem);
-
-        $ki = ($personagem->mana) * (10 / 100);
-        $ki_usado = $personagem->ki_usado;
+        $sql = "SELECT * FROM usuarios_personagens WHERE id = $idPersonagem";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $p = $stmt->fetch();
         
-        if($vip == 1){
-            $minutos = 1;
-        } else {
-            $minutos = 2;
+        $ki_max = intval($p->mana);
+        $ki_usado = intval($p->ki_usado);
+        $time_ki = intval($p->time_ki);
+        $now = time();
+        
+        // Initialize timestamp if zero
+        if($time_ki == 0){
+            $core->update('usuarios_personagens',
+                array('time_ki' => $now),
+                'id = '.$idPersonagem);
+            return;
         }
         
-        $segundos_ki = $minutos * 60;
+        // Check if enough time has passed (10 seconds)
+        $elapsed = $now - $time_ki;
+        if($elapsed < 10) return; // Already correct
         
-        $time_ki = $personagem->time_ki;
-        $tempo_decorrido = time() - $time_ki;
-        
-        $total = floor(($tempo_decorrido / $segundos_ki) * $ki);
-        
+        // Regenerate if needed
         if($ki_usado > 0){
-            if($total >= 1){
-                if($personagem->ki_usado >= $total){                    
-                    $up_guerreiro = array(
-                        'ki_usado' => intval($personagem->ki_usado) - $total,
-                        'time_ki' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                } else {
-                    $up_guerreiro = array(
-                        'ki_usado' => 0,
-                        'time_ki' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                }
-            }
-        } else {
-            $campos = array(
-                'time_ki' => time()
-            );
-
-            $where = 'id = "'.$idPersonagem.'"';
-
-            $core->update('usuarios_personagens', $campos, $where);
+            $regen = ceil($ki_max * 0.10); // 10% per cycle
+            $ciclos = floor($elapsed / 10); // Already correct
+            $total_regen = $ciclos * $regen;
+            
+            $novo_valor = max(0, $ki_usado - $total_regen);
+            
+            $core->update('usuarios_personagens',
+                array(
+                    'ki_usado' => $novo_valor,
+                    'time_ki' => $now
+                ),
+                'id = '.$idPersonagem);
         }
     }
-    
+
+    /**
+     * ✅ HP regenerates every 10 seconds
+     */
     public function recoveryHP($idPersonagem, $vip){
         $core = new Core();
-        $personagem = new Personagens();
         
-        $personagem->getGuerreiro($idPersonagem);
-
+        $sql = "SELECT * FROM usuarios_personagens WHERE id = $idPersonagem";
+        $stmt = DB::prepare($sql);
+        $stmt->execute();
+        $p = $stmt->fetch();
+        
         $hp_level = 50;
-
-        $hp = $personagem->hp;
-        $level = $personagem->nivel;
-
-        $valor_hp = ($level * $hp_level) + 100;
-
-        $hp_usado = $valor_hp - $hp;
+        $level = intval($p->nivel);
+        $hp_max = ($level * $hp_level) + 100;
+        $hp_atual = intval($p->hp);
+        $time_hp = intval($p->time_hp);
+        $now = time();
         
-        $hp_porcentagem = $valor_hp * (10 / 100);
-        
-        if($vip == 1){
-            $minutos = 5;
-        } else {
-            $minutos = 10;
+        // Initialize timestamp if zero
+        if($time_hp == 0){
+            $core->update('usuarios_personagens',
+                array('time_hp' => $now),
+                'id = '.$idPersonagem);
+            return;
         }
         
-        $segundos_hp = $minutos * 60;
+        // Check if enough time has passed (10 seconds)
+        $elapsed = $now - $time_hp;
+        if($elapsed < 10) return; // Already correct
         
-        $time_hp = $personagem->time_hp;
-        $tempo_decorrido = time() - $time_hp;
-        
-        $total = floor(($tempo_decorrido / $segundos_hp) * $hp_porcentagem);
-        
-        if($hp_usado > 0){
-            if($total >= 1){
-                if($hp_usado >= $total){
-                    $up_guerreiro = array(
-                        'hp' => intval($personagem->hp) + $total,
-                        'time_hp' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                } else {
-                    $up_guerreiro = array(
-                        'hp' => $valor_hp,
-                        'time_hp' => time()
-                    );
-
-                    $where_guerreiro = 'id = "'.$idPersonagem.'"';
-
-                    $core->update('usuarios_personagens', $up_guerreiro, $where_guerreiro);
-                }
-            }
-        } else {
-            $campos = array(
-                'time_hp' => time()
-            );
-
-            $where = 'id = "'.$idPersonagem.'"';
-
-            $core->update('usuarios_personagens', $campos, $where);
+        // Regenerate if needed
+        if($hp_atual < $hp_max){
+            $regen = ceil($hp_max * 0.10); // 10% per cycle
+            $ciclos = floor($elapsed / 10); // Already correct
+            $total_regen = $ciclos * $regen;
+            
+            $novo_hp = min($hp_max, $hp_atual + $total_regen);
+            
+            $core->update('usuarios_personagens',
+                array(
+                    'hp' => $novo_hp,
+                    'time_hp' => $now
+                ),
+                'id = '.$idPersonagem);
         }
     }
+
     
     public function getListBonus($dia, $idPersonagem){
         $sql = "SELECT * FROM adm_recompensas";
@@ -634,97 +590,103 @@ class Treino {
         $itens = $stmt->fetchAll();
         
         $row = '';
+
         foreach ($itens as $key => $value) {
+            
             $hoje = '';
             $img = '';
             $conteudo = '';
             $disabled = '';
             $txtDia = '';
             $coletado = '';
-            $button = '<input type="submit" name="coletar" value="Coletar">';
+            $button = '<input type="submit" '.$disabled.' name="coletar" value="Coletar" />';
             
-            // Convert array to object for consistent access
-            $value = (object) $value;
-            
-            // Check if this is today's bonus
-            if($dia == $value->diasemana){
+            if($dia == $value->dia_semana){
                 $hoje = 'atual';
             } else {
                 $disabled = 'disabled';
-                $button = '<input type="submit" disabled name="coletar" value="Indisponível">';
+                $button = '<input type="submit" '.$disabled.' name="coletar" value="Indisponível" />';
             }
             
-            // Check if already collected today
-            if($this->verifyBonusColetado($idPersonagem, $value->id)){
+            if($this->verifyBonusColetado($idPersonagem, $value->dia_semana)){
                 $coletado = 'coletado';
                 $disabled = 'disabled';
                 $hoje = '';
-                $button = '<input type="submit" disabled name="coletar" value="Coletado">';
+                $button = '<input type="submit" '.$disabled.' name="coletar" value="Coletado" />';
             }
             
-            // Set day name
-            if($value->diasemana == 'domingo'){
+            if($value->dia_semana == 'domingo'){
                 $txtDia = 'Domingo';
-            } else if($value->diasemana == 'segunda'){
+            } else if($value->dia_semana == 'segunda'){
                 $txtDia = 'Segunda';
-            } else if($value->diasemana == 'terca'){
+            } else if($value->dia_semana == 'terca'){
                 $txtDia = 'Terça';
-            } else if($value->diasemana == 'quarta'){
+            } else if($value->dia_semana == 'quarta'){
                 $txtDia = 'Quarta';
-            } else if($value->diasemana == 'quinta'){
+            } else if($value->dia_semana == 'quinta'){
                 $txtDia = 'Quinta';
-            } else if($value->diasemana == 'sexta'){
+            } else if($value->dia_semana == 'sexta'){
                 $txtDia = 'Sexta';
-            } else if($value->diasemana == 'sabado'){
+            } else if($value->dia_semana == 'sabado'){
                 $txtDia = 'Sábado';
             }
             
-            // Set image and content
             if($value->premio == 'gold'){
                 $img = BASE.'assets/icones/gold.png';
                 $conteudo = '<h3>Receba '.$value->valor.' Golds</h3>';
             } else if($value->premio == 'item'){
-                $sql = "SELECT * FROM itens WHERE id = ".$value->valor;
-                $stmt2 = DB::prepare($sql);
-                $stmt2->execute();
-                $produto = $stmt2->fetch();
+                $sql = "SELECT * FROM itens WHERE id = $value->valor";
+                $stmt = DB::prepare($sql);
+                $stmt->execute();
+                $produto = $stmt->fetch();
                 
-                // Access as object using ->
-                $img = BASE.'assets/itens/'.$produto->imagem;
+                $img = BASE.'assets/'.$produto->foto;
                 $conteudo = '<h3>Receba o item '.$produto->nome.'</h3>';
             }
             
-            $row .= '<li class="'.$hoje.' '.$coletado.' '.$disabled.'">';
-            $row .= '<h2>'.$txtDia.'</h2>';
-            $row .= '<form action="" method="post">';
-            $row .= '<img src="'.$img.'">';
-            $row .= $conteudo;
-            $row .= '<input type="hidden" name="id" value="'.$value->id.'">';
-            $row .= $button;
-            $row .= '</form>';
+            $row .= '<li class="'.$hoje.' '.$coletado.'">';
+                $row .= '<h2>'.$txtDia.'</h2>';
+                $row .= '<form action="" method="post">';
+                    $row .= '<img src="'.$img.'" />';
+                    $row .= $conteudo;
+                    $row .= '<input type="hidden" name="id" value="'.$value->id.'" />';
+                    $row .= $button;
+                $row .= '</form>';
             $row .= '</li>';
         }
         
-        return $row;
+        echo $row;
     }
-
-
-    public function verifyBonusColetado($idPersonagem, $idRecompensa){
-        $hoje = date('Y-m-d');
+    
+    public function verifyBonusColetado($idPersonagem, $dia_semana){
+        $core = new Core();
         
-        $sql = "SELECT * FROM personagens_recompensas 
-                WHERE idPersonagem = $idPersonagem 
-                AND idRecompensa = $idRecompensa 
-                AND data = '$hoje'";
+        if($dia_semana == 'domingo'){
+            $dia = 1;
+        } else if($dia_semana == 'segunda'){
+            $dia = 2;
+        } else if($dia_semana == 'terca'){
+            $dia = 3;
+        } else if($dia_semana == 'quarta'){
+            $dia = 4;
+        } else if($dia_semana == 'quinta'){
+            $dia = 5;
+        } else if($dia_semana == 'sexta'){
+            $dia = 6;
+        } else if($dia_semana == 'sabado'){
+            $dia = 7;
+        }
+        
+        $datas_semana = $core->getSemanaAtual($dia);
+        
+        $sql = "SELECT * FROM personagens_recompensas WHERE data = '$datas_semana' AND idPersonagem = $idPersonagem ";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
-        // If found = already collected = return TRUE
         if($stmt->rowCount() > 0){
             return true;
         } else {
             return false;
         }
     }
-
 }

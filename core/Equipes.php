@@ -334,80 +334,123 @@ class Equipes {
     }
     
     public function getRanking($idEquipe){
+        global $core;
+        
+        // Validate input
+        $idEquipe = intval($idEquipe);
+        if($idEquipe <= 0) {
+            echo '<tr><td colspan="7" style="text-align:center; padding: 20px;">ID de equipe inválido.</td></tr>';
+            return;
+        }
+        
         $user = new Usuarios();
         $personagem = new Personagens();
         
-        $sql = "SELECT * FROM equipes_membros WHERE idEquipe = $idEquipe AND status = 1";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $membros = $stmt->fetchAll();
-        
-        $lista_membros = array();
-        
-        foreach ($membros as $chave => $d_membro) {
-            array_push($lista_membros, $d_membro->idPersonagem);
-        }
-        
-        $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC ";
-        
-        $sql = "SELECT "
-            . "up.*, up.id as idP, up.foto as foto_personagem, "
-            . "u.*, "
-            . "up.nome as nome_guerreiro, "
-            . "p.nome as planeta, p.imagem as img_planeta "
-            . "FROM usuarios_personagens as up "
-            . "INNER JOIN usuarios as u ON u.id = up.idUsuario "
-            . "INNER JOIN planetas as p ON up.idPlaneta = p.id "
-            . "WHERE up.id in(".implode(",", array_map('intval', $lista_membros)).") "
-            . $orderBY;
-        
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        
-        $row = '';
-        
-        if($stmt->rowCount() > 0){
-            $item = $stmt->fetchAll();
-
-            $rank = 0;
-
-            foreach ($item as $key => $value) {
-                $rank++;
-                
-                if($rank == 1){
-                    $top = 'top-player';
-                } else {
-                    $top = '';
-                }
-                
-                $ft = str_replace('cards/', '', $value->foto_personagem);
-
-                $row .= '<tr class="'.$top.'">
-                            <td><strong>'.$rank.'º</strong></td>
-                            <td>
-                                <a href="'.BASE.'publico/'.$value->idP.'">
-                                    <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$value->nome_guerreiro.'" />
-                                </a>
-                            </td>
-                            <td width="250">
-                                <a href="'.BASE.'publico/'.$value->idP.'">
-                                    <strong>'.$value->nome_guerreiro.'</strong>
-                                </a>
-                            </td>
-                            <td width="250">'.$personagem->verificaGraduacao($value->nivel).'</td>
-                            <td>'.$value->nivel.'</td>
-                            <td>'.$value->gold_total.'</td>
-                            <td>'.$user->isGuerreiroOnline($value->idP).'</td>
-                         </tr>';
+        try {
+            // Get active members
+            $sql = "SELECT idPersonagem FROM equipes_membros WHERE idEquipe = :idEquipe AND status = 1";
+            $stmt = DB::prepare($sql);
+            $stmt->bindValue(':idEquipe', $idEquipe, PDO::PARAM_INT);
+            $stmt->execute();
+            $membros = $stmt->fetchAll(PDO::FETCH_OBJ);
+            
+            if(empty($membros)) {
+                echo '<tr><td colspan="7" style="text-align:center; padding: 20px;">Nenhum membro encontrado.</td></tr>';
+                return;
             }
-        } else {
-           $row .= '<tr>'
-                   . '<td colspan="7">Nenhum membro encontrado.</td>'
-                 . '</tr>'; 
+            
+            // Build list of member IDs
+            $lista_membros = array();
+            foreach ($membros as $d_membro) {
+                $lista_membros[] = intval($d_membro->idPersonagem);
+            }
+            
+            if(empty($lista_membros)) {
+                echo '<tr><td colspan="7" style="text-align:center; padding: 20px;">Nenhum membro encontrado.</td></tr>';
+                return;
+            }
+            
+            // Create placeholders for IN clause
+            $placeholders = implode(',', array_fill(0, count($lista_membros), '?'));
+            
+            $orderBY = "ORDER BY up.nivel DESC, up.vitorias_pvp DESC, up.tam DESC, up.gold_total DESC";
+            
+            $sql = "SELECT 
+                        up.*, 
+                        up.id as idP, 
+                        up.foto as foto_personagem,
+                        up.nome as nome_guerreiro,
+                        u.*,
+                        p.nome as planeta, 
+                        p.imagem as img_planeta
+                    FROM usuarios_personagens as up
+                    INNER JOIN usuarios as u ON u.id = up.idUsuario
+                    INNER JOIN planetas as p ON up.idPlaneta = p.id
+                    WHERE up.id IN ($placeholders)
+                    $orderBY";
+            
+            $stmt = DB::prepare($sql);
+            
+            // Bind each member ID
+            foreach ($lista_membros as $index => $memberId) {
+                $stmt->bindValue($index + 1, $memberId, PDO::PARAM_INT);
+            }
+            
+            $stmt->execute();
+            
+            $row = '';
+            
+            if($stmt->rowCount() > 0){
+                $item = $stmt->fetchAll(PDO::FETCH_OBJ);
+                $rank = 0;
+                
+                foreach ($item as $value) {
+                    $rank++;
+                    
+                    $top = ($rank == 1) ? 'top-player' : '';
+                    
+                    // Clean photo path
+                    $ft = str_replace('cards/', '', $value->foto_personagem);
+                    
+                    // Safe output with htmlspecialchars
+                    $nomeGuerreiro = htmlspecialchars($value->nome_guerreiro, ENT_QUOTES, 'UTF-8');
+                    $goldTotal = number_format($value->gold_total, 0, ',', '.');
+                    
+                    $row .= '<tr class="'.$top.'">
+                                <td><strong>'.$rank.'º</strong></td>
+                                <td>
+                                    <a href="'.BASE.'publico/'.$value->idP.'">
+                                        <img src="'.BASE.'assets/cards/'.$ft.'" alt="'.$nomeGuerreiro.'" />
+                                    </a>
+                                </td>
+                                <td width="250">
+                                    <a href="'.BASE.'publico/'.$value->idP.'">
+                                        <strong>'.$nomeGuerreiro.'</strong>
+                                    </a>
+                                </td>
+                                <td width="250">'.$personagem->verificaGraduacao($value->nivel).'</td>
+                                <td>'.$value->nivel.'</td>
+                                <td>'.$goldTotal.'</td>
+                                <td>'.$user->isGuerreiroOnline($value->idP).'</td>
+                            </tr>';
+                }
+            } else {
+            $row .= '<tr>
+                        <td colspan="7" style="text-align:center; padding: 20px;">Nenhum membro encontrado.</td>
+                        </tr>'; 
+            }
+            
+            echo $row;
+            
+        } catch (PDOException $e) {
+            // Log error and show user-friendly message
+            error_log("Error in getRanking(): " . $e->getMessage());
+            echo '<tr><td colspan="7" style="text-align:center; padding: 20px; color: #ff6b6b;">
+                    <i class="fas fa-exclamation-triangle"></i> Erro ao carregar ranking. Tente novamente.
+                </td></tr>';
         }
-        
-        echo $row;
     }
+
     
     public function getPendentes($idEquipe, $pc, $qtd_resultados, $idPersonagem){
         $user = new Usuarios();
@@ -613,7 +656,7 @@ class Equipes {
     }
     
     public function isViceLider($idMembro){        
-        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1 AND vice_lider = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 1 AND vicelider = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -734,26 +777,27 @@ class Equipes {
             return false;
         }
         
+        // ✅ FIXED: Check membership in SPECIFIC team when idEquipe is provided
         if($idEquipe) {
-            $sql = "SELECT * FROM equipes_membros 
-                    WHERE idPersonagem = :id 
+            $sql = "SELECT * FROM equipes_membros
+                    WHERE idPersonagem = :id
+                    AND idEquipe = :idEquipe
                     AND status = 1";
-            
-            $stmt = DB::prepare($sql);
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-            $stmt->execute();
-        } else {
-            $sql = "SELECT * FROM equipes_membros 
-                    WHERE idPersonagem = :id 
-                    AND idEquipe = :idEquipe 
-                    AND status = 1";
-            
+
             $stmt = DB::prepare($sql);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->bindParam(':idEquipe', $idEquipe, PDO::PARAM_INT);
             $stmt->execute();
+        } else {
+            // Check if user is a member of ANY team
+            $sql = "SELECT * FROM equipes_membros
+                    WHERE idPersonagem = :id
+                    AND status = 1";
+
+            $stmt = DB::prepare($sql);
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
         }
-        
         if($stmt->rowCount() > 0) {
             return true;
         } else {
@@ -787,51 +831,68 @@ class Equipes {
     }
 
     
-    public function verificaLevel(){
+    public function verificaLevel($idEquipeEspecifica = null){
         $core = new Core();
         
-        $sql = "SELECT * FROM equipes";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $equipes = $stmt->fetchAll();
-        
-        foreach ($equipes as $key => $value) {
-            $sql = "SELECT sum(valor) as total FROM equipes_doacoes WHERE idEquipe = $value->id ";
-            $stmt = DB::prepare($sql);
-            $stmt->execute();
-            $golds = $stmt->fetch();
-            
-            if($golds->total == null){
-                $level_atualiza = 1;
+        try {
+            // ✅ If specific team ID provided, only check that team
+            if($idEquipeEspecifica !== null) {
+                $sql = "SELECT * FROM equipes WHERE id = ?";
+                $stmt = DB::prepare($sql);
+                $stmt->execute([intval($idEquipeEspecifica)]);
+                $equipes = $stmt->fetchAll(PDO::FETCH_OBJ);
             } else {
-                $sql = "SELECT * FROM equipes_levels WHERE gold_minimo <= $golds->total AND gold >= $golds->total";
+                // Get all teams
+                $sql = "SELECT * FROM equipes";
                 $stmt = DB::prepare($sql);
                 $stmt->execute();
-                $levels = $stmt->fetch();
-                
-                if(!$levels){
-                    $sql = "SELECT * FROM equipes_levels ORDER BY id DESC LIMIT 1";
-                    $stmt = DB::prepare($sql);
-                    $stmt->execute();
-                    $ultimo_level = $stmt->fetch();
-                
-                    $level_atualiza = $ultimo_level->level;
-                } else {
-                    $level_atualiza = $levels->level;
-                }
+                $equipes = $stmt->fetchAll(PDO::FETCH_OBJ);
             }
             
-            if($value->level != $level_atualiza){
-                $campos = array(
-                    'level' => $level_atualiza
-                );
-
-                $where = 'id = "'.$value->id.'"';
-
-                $core->update('equipes', $campos, $where);
+            foreach ($equipes as $value) {
+                // Get total gold donated to this team
+                $sql = "SELECT SUM(valor) as total FROM equipes_doacoes WHERE idEquipe = ?";
+                $stmt = DB::prepare($sql);
+                $stmt->execute([intval($value->id)]);
+                $golds = $stmt->fetch(PDO::FETCH_OBJ);
+                
+                $totalGold = $golds->total ?? 0;
+                
+                if($totalGold == 0) {
+                    $levelAtualiza = 1;
+                } else {
+                    // Find the correct level based on total gold
+                    $sql = "SELECT * FROM equipes_levels 
+                            WHERE goldminimo <= ? 
+                            ORDER BY goldminimo DESC 
+                            LIMIT 1";
+                    $stmt = DB::prepare($sql);
+                    $stmt->execute([intval($totalGold)]);
+                    $levels = $stmt->fetch(PDO::FETCH_OBJ);
+                    
+                    if(!$levels) {
+                        // If no level found, set to level 1
+                        $levelAtualiza = 1;
+                    } else {
+                        $levelAtualiza = $levels->level;
+                    }
+                }
+                
+                // Only update if level changed
+                if($value->level != $levelAtualiza) {
+                    $campos = array(
+                        'level' => $levelAtualiza
+                    );
+                    $where = "id = " . intval($value->id);
+                    $core->update('equipes', $campos, $where);
+                }
             }
+        } catch (PDOException $e) {
+            error_log("Error in verificaLevel(): " . $e->getMessage());
         }
     }
+
+
     
     public function getStatusExtra($idPersonagem){
         $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem AND aceitou = 1";
@@ -890,58 +951,133 @@ class Equipes {
         return $minha_equipe;
     }
     
-    public function getPorcentagemLevel($idPersonagem, $level, $gold){
+    /**
+     * Calculate percentage progress towards next level
+     * Progress is calculated WITHIN the current level bracket
+     */
+    public function getPorcentagemLevel($idPersonagem, $level, $gold) {
         $core = new Core();
         
-        $sql = "SELECT * FROM equipes_levels WHERE level = $level";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetch();
-        
-        $proximo_level = $level + 1;
-        
-        $gold_anterior = $core->getDados('equipes_levels', 'WHERE level ='.$level);
-        $dadosProximoLevel = $core->getDados('equipes_levels', 'WHERE level ='.$proximo_level);
-        
-        $gold_faltante = intval($dadosProximoLevel->gold_minimo) - intval($gold_anterior->gold_minimo);
-        $gold_adquirido = intval($gold_anterior->gold) - intval($gold);
-        $gold_alcancado = intval($gold_faltante) - intval($gold_adquirido);
-        
-        $total = intval($gold_alcancado) /  intval($gold_faltante);
-        
-        $resultado = intval($total * 100);
-
-        return $resultado;
-    }
-    
-    public function getGoldRestante($level, $gold){
-        $core = new Core();
-        
-        $prox_level = $level+ 1;
-        
-        $gold_anterior = $core->getDados('equipes_levels', 'WHERE level ='.$level);
-        $gold_novo = $core->getDados('equipes_levels', 'WHERE level ='.$prox_level);
-        
-        $gold_faltante = intval($gold_novo->gold_minimo) - intval($gold);
-        
-        return $gold_faltante;
-    }
-    
-    public function getProximoLevel($nivel){
-        if($nivel == 150){
-            $level = 150;
-        } else {
-            $level = $nivel + 1;
+        // Max level reached
+        if($level >= 150) {
+            return 100;
         }
         
-        $sql = "SELECT * FROM equipes_levels WHERE level = $level";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $item = $stmt->fetch();
-
-        return $item->gold_minimo;
+        try {
+            // Get CURRENT level minimum gold requirement
+            $sql = "SELECT * FROM equipes_levels WHERE level = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($level)]);
+            
+            if($stmt->rowCount() == 0) {
+                return 0;
+            }
+            
+            $currentLevel = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            // Get NEXT level minimum gold requirement
+            $proximoLevel = $level + 1;
+            $sql = "SELECT * FROM equipes_levels WHERE level = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($proximoLevel)]);
+            $nextLevel = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if(!$nextLevel || !$currentLevel) {
+                return 100;
+            }
+            
+            // Calculate gold progress WITHIN current level
+            // Example: Level 2 (1000) -> Level 3 (1020)
+            // If total gold = 1001, progress = (1001 - 1000) / (1020 - 1000) = 1/20
+            
+            $goldCurrentLevel = intval($currentLevel->goldminimo); // Current level starts at this gold
+            $goldNextLevel = intval($nextLevel->goldminimo);       // Next level starts at this gold
+            $goldRange = $goldNextLevel - $goldCurrentLevel;        // Gold needed to level up
+            
+            // Prevent division by zero
+            if($goldRange <= 0) {
+                return 100;
+            }
+            
+            // Gold earned in this level
+            $goldProgress = intval($gold) - $goldCurrentLevel;
+            
+            // Calculate percentage (0-100)
+            $resultado = intval(($goldProgress / $goldRange) * 100);
+            
+            // Clamp between 0-100
+            return max(0, min(100, $resultado));
+            
+        } catch (PDOException $e) {
+            error_log("Error in getPorcentagemLevel: " . $e->getMessage());
+            return 0;
+        }
     }
-    
+
+    /**
+     * Calculate remaining gold needed to reach next level
+     * Returns gold needed from CURRENT total to reach NEXT level minimum
+     */
+    public function getGoldRestante($level, $gold) {
+        $core = new Core();
+        
+        try {
+            $proxLevel = $level + 1;
+            
+            // Get next level data
+            $sql = "SELECT * FROM equipes_levels WHERE level = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($proxLevel)]);
+            $goldNovo = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if(!$goldNovo) {
+                return 0; // Max level reached
+            }
+            
+            // Calculate remaining gold to reach next level
+            // Example: Next level needs 1020, current total is 1001
+            // Remaining = 1020 - 1001 = 19 gold
+            
+            $goldFaltante = intval($goldNovo->goldminimo) - intval($gold);
+            
+            return max(0, $goldFaltante);
+            
+        } catch (PDOException $e) {
+            error_log("Error in getGoldRestante: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+    /**
+     * Get the gold minimum required for the NEXT level
+     * Used to display the denominator in progress (e.g., "1/20")
+     */
+    public function getProximoLevel($nivel) {
+        try {
+            if($nivel >= 150) {
+                $level = 150;
+            } else {
+                $level = $nivel + 1;
+            }
+            
+            $sql = "SELECT * FROM equipes_levels WHERE level = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($level)]);
+            $item = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if(!$item) {
+                return 0;
+            }
+            
+            return $item->goldminimo;
+            
+        } catch (PDOException $e) {
+            error_log("Error in getProximoLevel: " . $e->getMessage());
+            return 0;
+        }
+    }
+
+
     public function getCountConvites($idMembro){
         $sql = "SELECT count(*) as total FROM equipes_membros WHERE idPersonagem = $idMembro AND status = 0";
         $stmt = DB::prepare($sql);
