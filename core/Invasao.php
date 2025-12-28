@@ -67,74 +67,76 @@ class Invasao {
         return (isset($dias[$dia_semana]) && $dias[$dia_semana] == $hoje);
     }
     
-    public function getLogInvasao($idInvasor){
-        $sql = "SELECT ai.*, up.nome as nome_personagem, at.nome as nome_ataque, i.nome as nome_invasor, atb.nome as nome_ataque_boss "
-             . "FROM adm_invasao_ataques as ai "
-             . "INNER JOIN adm_invasao_batalhas as ib ON ib.id = ai.idBatalha "
-             . "INNER JOIN adm_invasao_boss as i ON i.id = ib.idInvasao "
-             . "INNER JOIN usuarios_personagens as up ON up.id = ib.idPersonagem "
-             . "INNER JOIN ataques as at ON at.id = ai.idGolpe "
-             . "INNER JOIN ataques as atb ON atb.id = ai.idGolpeBoss "
-             . "WHERE i.id = $idInvasor "
-             . "ORDER BY round DESC LIMIT 50";
+    public function getLogInvasao($idInvasor) {
+        $sql = "SELECT ai.*, up.nome as nome_personagem, at.nome as nome_ataque, i.nome as nome_invasor, atb.nome as nome_ataque_boss " .
+            "FROM adm_invasao_ataques as ai " .
+            "INNER JOIN adm_invasao_batalhas as ib ON ib.id = ai.idBatalha " .
+            "INNER JOIN adm_invasao_boss as i ON i.id = ib.idInvasao " .
+            "INNER JOIN usuarios_personagens as up ON up.id = ib.idPersonagem " .
+            "INNER JOIN ataques as at ON at.id = ai.idGolpe " .
+            "INNER JOIN ataques as atb ON atb.id = ai.idGolpeBoss " .
+            "WHERE i.id = $idInvasor " .
+            "ORDER BY ai.id DESC LIMIT 50"; // ✅ CHANGED FROM ai.round to ai.id
         
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $log = $stmt->fetchAll();
         
         $row = '';
-        
         foreach ($log as $key => $value) {
-            $row .= '<li>
-                        <div class="dados">
-                            <p><strong class="atacando">'.$value->nome_personagem.'</strong> atacou <strong class="boss">'.$value->nome_invasor.'</strong> com um <strong class="ataque">'.$value->nome_ataque.'</strong></p>
-                            <span class="dano">Causou <strong class="causado">'.$value->dano_adversario.'</strong> de dano no Invasor</span>
-                            <span class="dano_sofrido">Sofreu <strong class="sofrido">'.$value->dano_personagem.'</strong> de dano com um <strong class="ataque">'.$value->nome_ataque_boss.'</strong></span>
-                        </div>
-                        <div class="golpe">
-                            <strong>'.$value->round.'º</strong>
-                            <span>Golpe</span>
-                        </div>
-                     </li>';
+            $row .= '<li>';
+            $row .= '<div class="dados">';
+            $row .= '<p><strong class="atacando">'.$value->nome_personagem.'</strong> atacou <strong class="boss">'.$value->nome_invasor.'</strong> com um <strong class="ataque">'.$value->nome_ataque.'</strong></p>';
+            $row .= '<span class="dano">Causou <strong class="causado">'.$value->dano_adversario.'</strong> de dano no Invasor</span>';
+            $row .= '<span class="dano-sofrido">Sofreu <strong class="sofrido">'.$value->dano_personagem.'</strong> de dano com um <strong class="ataque">'.$value->nome_ataque_boss.'</strong></span>';
+            $row .= '</div>';
+            $row .= '<div class="golpe">';
+            $row .= '<strong>'.$value->round.'</strong>';
+            $row .= '<span>Golpe</span>';
+            $row .= '</div>';
+            $row .= '</li>';
         }
         
         return $row;
     }
-    
-    public function getMeuLog($idInvasor, $idPersonagem){
-        $sql = "SELECT ai.*, up.nome as nome_personagem, at.nome as nome_ataque, i.nome as nome_invasor, atb.nome as nome_ataque_boss "
-             . "FROM adm_invasao_ataques as ai "
-             . "INNER JOIN adm_invasao_batalhas as ib ON ib.id = ai.idBatalha "
-             . "INNER JOIN adm_invasao_boss as i ON i.id = ib.idInvasao "
-             . "INNER JOIN usuarios_personagens as up ON up.id = ib.idPersonagem "
-             . "INNER JOIN ataques as at ON at.id = ai.idGolpe "
-             . "INNER JOIN ataques as atb ON atb.id = ai.idGolpeBoss "
-             . "WHERE i.id = $idInvasor "
-             . "AND ai.idPersonagem = $idPersonagem "
-             . "ORDER BY round DESC LIMIT 50";
+
+
+
+    public function getMeuLog($idInvasor, $idPersonagem) {
+        $sql = "SELECT ai.*, up.nome as nome_personagem, at.nome as nome_ataque, i.nome as nome_invasor, atb.nome as nome_ataque_boss " .
+            "FROM adm_invasao_ataques as ai " .
+            "INNER JOIN adm_invasao_batalhas as ib ON ib.id = ai.idBatalha " .
+            "INNER JOIN adm_invasao_boss as i ON i.id = ib.idInvasao " .
+            "INNER JOIN usuarios_personagens as up ON up.id = ib.idPersonagem " .
+            "INNER JOIN ataques as at ON at.id = ai.idGolpe " .
+            "INNER JOIN ataques as atb ON atb.id = ai.idGolpeBoss " .
+            "WHERE i.id = $idInvasor " .
+            "AND ib.idPersonagem = $idPersonagem " .
+            "ORDER BY ai.round DESC LIMIT 50";
         
         $stmt = DB::prepare($sql);
         $stmt->execute();
         $log = $stmt->fetchAll();
         
         $row = '';
-        
         foreach ($log as $key => $value) {
-            $row .= '<li>
-                        <div class="dados">
-                            <p><strong class="atacando">'.$value->nome_personagem.'</strong> atacou <strong class="boss">'.$value->nome_invasor.'</strong> com um <strong class="ataque">'.$value->nome_ataque.'</strong></p>
-                            <span class="dano">Causou <strong class="causado">'.$value->dano_adversario.'</strong> de dano no Invasor</span>
-                            <span class="dano_sofrido">Sofreu <strong class="sofrido">'.$value->dano_personagem.'</strong> de dano com um <strong class="ataque">'.$value->nome_ataque_boss.'</strong></span>
-                        </div>
-                        <div class="golpe">
-                            <strong>'.$value->round.'º</strong>
-                            <span>Golpe</span>
-                        </div>
-                     </li>';
+            $row .= '<li>';
+            $row .= '<div class="dados">';
+            $row .= '<p><strong class="atacando">'.$value->nome_personagem.'</strong> atacou <strong class="boss">'.$value->nome_invasor.'</strong> com um <strong class="ataque">'.$value->nome_ataque.'</strong></p>';
+            $row .= '<span class="dano">Causou <strong class="causado">'.$value->dano_adversario.'</strong> de dano no Invasor</span>'; // ✅ Changed to dano_adversario
+            $row .= '<span class="dano-sofrido">Sofreu <strong class="sofrido">'.$value->dano_personagem.'</strong> de dano com um <strong class="ataque">'.$value->nome_ataque_boss.'</strong></span>'; // ✅ Changed to dano_personagem
+            $row .= '</div>';
+            $row .= '<div class="golpe">';
+            $row .= '<strong>'.$value->round.'</strong>';
+            $row .= '<span>Golpe</span>';
+            $row .= '</div>';
+            $row .= '</li>';
         }
         
         return $row;
     }
+
+
     
     public function getRecompensas($idInvasao){
         $row = '';
@@ -225,8 +227,9 @@ class Invasao {
                     $disabled = 'disabled';
                 }
 
-                $row .= '<li dataid="'.$value2->id.'" class="'.$inativo.'">
-                            <input type="submit" '.$disabled.' dataid="'.$value2->id.'" dataestado="'.$estado.'" class="bt-atacar" '.$disabled.' value="" style="background-image: url('.BASE.'assets/ataques/'.$value2->imagem.');" />
+                // ✅ FIXED: Changed 'dataid' to 'data-id' and 'dataestado' to 'data-estado'
+                $row .= '<li data-id="'.$value2->id.'" class="'.$inativo.'">
+                            <input type="submit" '.$disabled.' data-id="'.$value2->id.'" data-estado="'.$estado.'" class="bt-atacar" '.$disabled.' value="" style="background-image: url('.BASE.'assets/ataques/'.$value2->imagem.');" />
                             <div class="info">
                                 <h3>'.$value2->nome.'</h3>
                                 <p>'.$value2->descricao.'</p>
@@ -234,12 +237,13 @@ class Invasao {
                                 <span class="level"><strong>Level Necesário: </strong> '.$value2->level.'</span>
                                 <span class="consome"><strong>Consome </strong> '.$value2->ki.' <strong>de KI</strong></span>
                             </div>
-                         </li>';
+                        </li>';
             }
         }
         
         return $row;
     }
+
     
     public function atacar($idPersonagem, $idInvasor, $idGolpe, $idBatalha){
         $core = new Core();
@@ -361,22 +365,23 @@ class Invasao {
                 if($this->getDerrotado($idInvasor)){
                     $this->premiaVencedor($dadosPersonagem->idUsuario, $idPersonagem, $idInvasor);
                 }
-                
-                $hp_restante = $dadosPersonagem->hp - $dano_final_boss;
-                
-                if($hp_restante <= 0){
-                    $hp_atualiza = 0;
+                                
+                $hprestante = $dadosPersonagem->hp - $danofinalboss;
+                if($hprestante <= 0) {
+                    $hpatualiza = 0;
+                    $timeinvasao = time() + 600; // ✅ Set 10-minute timer when HP drops to 0
                 } else {
-                    $hp_atualiza = $dadosPersonagem->hp - $dano_final_boss;
+                    $hpatualiza = $dadosPersonagem->hp - $danofinalboss;
+                    $timeinvasao = 0; // ✅ Clear timer if still has HP
                 }
-                
-                $campos_personagem = array(
-                    'hp' => $hp_atualiza
+
+                $campospersonagem = array(
+                    'hp' => $hpatualiza,
+                    'time_invasao' => $timeinvasao // ✅ Add timer field
                 );
+                $wherepersonagem = "id = " . $dadosPersonagem->id;
+                $core->update('usuarios_personagens', $campospersonagem, $wherepersonagem);
 
-                $where_personagem = 'id = '.$dadosPersonagem->id;
-
-                $core->update('usuarios_personagens', $campos_personagem, $where_personagem);
                 
                 $this->drop($dadosPersonagem->id, $dadosPersonagem->nivel);
             }
@@ -548,7 +553,43 @@ class Invasao {
         }
     }
     
-    public function drop($idPersonagem, $level){
+
+
+    public function podeAtacarInvasao($idPersonagem){
+        $core = new Core();
+        $personagem = $core->getDados('usuarios_personagens', "WHERE id = ".$idPersonagem);
+
+        // If time_invasao is 0 or NULL, can attack
+        if(empty($personagem->time_invasao) || $personagem->time_invasao == 0){
+            return true;
+        }
+
+        // If timer has expired, clear it and allow attack
+        if(time() >= $personagem->time_invasao){
+            // Timer expired, clear it
+            $campos = array('time_invasao' => 0);
+            $where = "id = ".$idPersonagem;
+            $core->update('usuarios_personagens', $campos, $where);
+            return true;
+        }
+
+        // Timer still active
+        return false;
+    }
+
+    public function getTempoRestanteInvasao($idPersonagem){
+        $core = new Core();
+        $personagem = $core->getDados('usuarios_personagens', "WHERE id = ".$idPersonagem);
+
+        if(empty($personagem->time_invasao) || $personagem->time_invasao == 0){
+            return 0;
+        }
+
+        $remaining = $personagem->time_invasao - time();
+        return $remaining > 0 ? $remaining : 0;
+    }
+
+        public function drop($idPersonagem, $level){
         $inventario = new Inventario();
         $core = new Core();
         

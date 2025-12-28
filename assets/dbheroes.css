@@ -9629,7 +9629,7 @@ body.equipes .tableList tbody tr.top-rank td.top strong svg {
 }
 
 body.equipes .tableList tbody tr.top-rank td a {
-  color: #054c08
+  color: #6eff00
 }
 
 body.equipes .tableList tbody tr td {
@@ -16658,11 +16658,11 @@ body.invasao .conteudo .log-ataques ul li .dados span {
 }
 
 body.invasao .conteudo .log-ataques ul li .dados .atacando {
-  color: #ddff00
+  color: #00adff
 }
 
 body.invasao .conteudo .log-ataques ul li .dados .boss {
-  color: #ffa100
+  color: #ff0000
 }
 
 body.invasao .conteudo .log-ataques ul li .dados .ataque {
@@ -16670,11 +16670,11 @@ body.invasao .conteudo .log-ataques ul li .dados .ataque {
 }
 
 body.invasao .conteudo .log-ataques ul li .dados .causado {
-  color: #ffa100
+  color: #00ff14
 }
 
 body.invasao .conteudo .log-ataques ul li .dados .sofrido {
-  color: #ddff00
+  color: #ff6a00
 }
 
 body.invasao .conteudo .log-ataques ul li .golpe {
@@ -16683,7 +16683,7 @@ body.invasao .conteudo .log-ataques ul li .golpe {
   width: 16%;
   min-height: 86px;
   height: 100%;
-  background: #029b00;
+  background: #6e009b;
   color: #FFF;
   text-align: center;
   -moz-box-sizing: border-box;

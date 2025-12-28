@@ -1,12 +1,22 @@
 <?php 
+    // ✅ RELOAD FRESH CHARACTER DATA
+    $personagem = $core->getDados('usuarios_personagens', 'WHERE id = '.$_SESSION['PERSONAGEMID']);
+
+
+    if($personagem->time_invasao > time()){
+        // Show countdown, block attack
+    }
+
+
     if(!isset($_SESSION['PERSONAGEMID'])){
         header('Location: '.BASE.'portal');
     }
-    
+
     $dadosInvasor = $invasao->getInvasaoSemanal();
     $porcentagem_hp_boss = $treino->getPorcentagemHP($dadosInvasor->hp_total, $dadosInvasor->hp_usado);
     $porcentagem_ki_boss = $treino->getPorcentagemKI($dadosInvasor->ki, $dadosInvasor->ki_usado);
 ?>
+
 
 <ul class="menu-invasao">
     <li>
@@ -27,6 +37,7 @@
                 } else {
                     $nivel_hp = 150;
                 }
+
 
                 $porcentagem_hp = $treino->getPorcentagemHP($nivel_hp, $nivel_hp - $personagem->hp);
             ?>
@@ -56,38 +67,44 @@
     </li>
 </ul>
 
+
 <?php switch($acao) {
     default: ?>
         <div class="regras">
             <h2>Regras do Invasor</h2>
-            
+
             <p>- O invasor pode ser atacado somente 1 vez a cada 10 minutos.</p>
-            
+
             <p>- O poder ofensivo do invasor (atributos) é sempre 50% maior do que os atributos do Guerreiro atacante. Isto significa que o mesmo invasor terá atributos diferentes para cada
             jogador que o atacar, mas sempre seguindo o valor já informado.</p>
-            
+
             <p>- O Nome do Guerreiro do vencedor será exibibo para todos jogadores.</p>
-            
+
             <p>- Somente o vencedor irá receber as recompensas descritas na tela do invasor.</p>
-            
+
             <p>- Após derrotado o invasor não poderá mais ser atacado e o evento será finalizado.</p>
-            
+
             <p>- Os eventos de invasão acontecerão semanalmente.</p>
-            
+
             <p>- Caso exista nas recompensas uma Foto de Perfil, a mesma será exclusiva, somente o vencedor terá aquela foto no jogo.</p>
-            
+
             <p>- O vencedor também tera uma chance de dropar um selo exclusivo do evento.</p>
-            
+
             <p>- Caso a foto de recompensa não seja de seu guerreiro atual, quando houver a troca de guerreiro a foto estará disponível.</p>
-            
+
             <a href="<?php echo BASE; ?>invasao/boss" class="bt-invasor">Entrar no Evento</a>
         </div>
     <?php break; ?>
 
+
     <?php case 'boss': ?>
         <?php 
+            // ✅ FIX #1: Initialize tempoRestante to 0 by default
+            $tempoRestante = 0;
+
             if($personagem->time_invasao == 0){
                 if($dadosInvasor && $dadosInvasor->id && !$invasao->getBatalhaRunning($dadosInvasor->id, $_SESSION['PERSONAGEMID'])){
+
 
                     $campos = array(
                         'idInvasao' => $dadosInvasor->id,
@@ -102,13 +119,15 @@
                         'finalizado' => 0
                     );
 
+
                     $core->insert('adm_invasao_batalhas', $campos);
                 }
             }
-                
+
             if($invasao->getBatalhaRunning($dadosInvasor->id, $_SESSION['PERSONAGEMID'])){
                 if($personagem->time_invasao < time()){
                     $time_atual = time();
+
 
                     if($invasao->getExistsLastBatalha($dadosInvasor->id, $_SESSION['PERSONAGEMID'])){
                         $dadosBatalha = $core->getDados('adm_invasao_batalhas', "WHERE idInvasao = $dadosInvasor->id AND idPersonagem = ".$_SESSION['PERSONAGEMID']." ORDER BY id DESC LIMIT 1");
@@ -116,7 +135,9 @@
                         $tempo = $dadosAtaqueInvasor->time_ataque;
                     }
 
+
                     $dadosBatalha = $invasao->getInfoBatalhaRunning($dadosInvasor->id, $_SESSION['PERSONAGEMID']);
+
 
                     if($invasao->verificaDanoHP($personagem->hp)){
                         if($invasao->getExistsAtaque($dadosBatalha->id)){
@@ -130,10 +151,12 @@
                             'finalizado' => 1
                         );
 
+
                         $where = 'id="'.$dadosBatalha->id.'"';
 
+
                         $core->update('adm_invasao_batalhas', $campos, $where);
-                        
+
                         if($config->teste == 1){
                             $campos = array(
                                 'time_invasao' => time() + 10
@@ -144,34 +167,25 @@
                             );
                         }
 
+
                         $where = 'id = '.$_SESSION['PERSONAGEMID'];
+
 
                         $core->update('usuarios_personagens', $campos, $where);
                     }
 
+
                     $tempoRestante = $tempo - $time_atual;
                 }
             } else {
-                if($personagem->time_invasao < time()){
-                    $campos = array(
-                        'idInvasao' => $dadosInvasor->id,
-                        'idPersonagem' => $_SESSION['PERSONAGEMID'],
-                        'idUsuario' => $user->id,
-                        'hp_boss_inicial' => $dadosInvasor->hp_total,
-                        'hp_boss_atual' => $dadosInvasor->hp_total,
-                        'dano_total' => 0,
-                        'tempo_inicio' => time(),
-                        'tempo_fim' => time() + (10 * 60),
-                        'concluida' => 0,
-                        'finalizado' => 0
-                    );
+                // ✅ FIX #2: Only calculate tempoRestante if timer is active
+                if($personagem->time_invasao > time()){
+                    $tempoRestante = $personagem->time_invasao - time();
                 }
-                
-                $tempoRestante = $personagem->time_invasao - time();
             }
-            
+
             $dadosBatalha = $core->getDados('adm_invasao_batalhas', "WHERE idInvasao = $dadosInvasor->id AND idPersonagem = ".$_SESSION['PERSONAGEMID']." ORDER BY id DESC LIMIT 1");
-            
+
             if($dadosInvasor->vencedor != null && $dadosInvasor->vencedor == $_SESSION['PERSONAGEMID']){
                 if($core->isExists('usuarios_personagens_fotos', "WHERE visualizado = 0 AND idPersonagem = ".$_SESSION['PERSONAGEMID'])){
                     header('Location: '.BASE.'minhas-fotos');
@@ -180,6 +194,7 @@
         ?>
         <div class="invasor">
             <img src="<?php echo BASE.'assets/boss/'.$dadosInvasor->imagem; ?>" alt="<?php echo $dadosInvasor->nome; ?>" />
+
 
             <?php if(!$invasao->getDerrotado($dadosInvasor->id)){ ?>
                 <div class="boss-atributo hp">
@@ -199,37 +214,49 @@
             <?php } ?>
         </div>
 
+
         <div class="log-ataques">
             <ul>
                 <?php echo $invasao->getLogInvasao($dadosInvasor->id); ?>
             </ul>
         </div>
 
+
         <div class="insavao-info">
             <div class="bonus">
                 <h2>O Vencedor receberá as recompensas abaixo</h2>
 
+
                 <?php echo $invasao->getRecompensas($dadosInvasor->id); ?>
             </div>
+
 
             <?php if(!$invasao->getDerrotado($dadosInvasor->id)){ ?>
                 <div class="meus-ataques">
                     <h2>Meus Golpes</h2>
 
+
                     <?php 
                         $esgotado = 0;
-                        
+
                         if(!$invasao->verificaDanoHP($personagem->hp)){
                             $esgotado = 1;
                         }
-                        
+
+                        // ✅ FIX: ALSO check timer - Block attacks if countdown is active
+                        if($personagem->time_invasao > time()){
+                            $esgotado = 1;
+                        }
+
                         if($esgotado == 0){ 
+
                     ?>
+
                         <ul>
                             <input type="hidden" id="idInvasor" value="<?php echo $dadosInvasor->id; ?>" />
                             <input type="hidden" id="idBatalha" value="<?php echo $dadosBatalha->id; ?>" />
-                            
-                            <?php echo $invasao->getAtaques($personagem->graduacao_id, $personagem->mana, $personagem->nivel, $personagem->id); ?>
+
+                            <?php echo $invasao->getAtaques($personagem->graduacao, $personagem->mana, $personagem->nivel, $personagem->id); ?>
                         </ul>
                     <?php } else { ?>
                         <div class="time-restante">
@@ -254,92 +281,112 @@
                     <?php } ?>
 
                     <script type="text/javascript">
+                        console.log('🔥 Attack debug script loaded');
+
                         $(document).ready(function(){
-                            // ✅ FIXED: Changed 'dataid' to 'data-id'
-                            $('.invasao .meus-ataques .bt-atacar').on('click', function(e){
+                            console.log('✅ jQuery ready');
+                            console.log('Attack buttons found:', $('.bt-atacar').length);
+
+                            $('body').on('click', '.bt-atacar', function(e){
                                 e.preventDefault();
-                                
-                                console.log('Attack button clicked!'); // Debug
-                                
-                                if(!$(this).hasClass('inativo')){
+
+                                console.log('🎯 Attack button clicked!');
+
+                                if(!$(this).parent().hasClass('inativo')){
                                     var idBatalha = $('#idBatalha').val();
                                     var idInvasor = $('#idInvasor').val();
                                     var idPersonagem = $('#personagemLogged').val();
-                                    var idGolpe = $(this).attr('data-id'); // ✅ FIXED: was 'dataid'
+                                    var idGolpe = $(this).attr('data-id');
 
-                                    console.log('Battle data:', {
+
+                                    console.log('📊 Battle data:', {
                                         idBatalha: idBatalha,
                                         idInvasor: idInvasor,
                                         idPersonagem: idPersonagem,
                                         idGolpe: idGolpe
-                                    }); // Debug
+                                    });
+
 
                                     var data_string = 'idPersonagem=' + idPersonagem + '&idInvasor=' + idInvasor + '&idBatalha=' + idBatalha + '&idGolpe=' + idGolpe;
+
 
                                     $.ajax({
                                         type: 'POST',
                                         url: "<?php echo BASE; ?>ajax/ajaxInvasao.php",
                                         data: data_string,
+                                        beforeSend: function(){
+                                            console.log('⏳ Sending AJAX request...');
+                                        },
                                         success: function (res) {
-                                            console.log('Attack successful!', res); // Debug
+                                            console.log('✅ AJAX Success!', res);
                                             window.location.href = "<?php echo BASE; ?>invasao/boss";
                                         },
                                         error: function(xhr, status, error){
-                                            console.error('AJAX Error:', error); // Debug
+                                            console.error('❌ AJAX Error:', error);
+                                            console.error('Status:', status);
+                                            console.error('Response:', xhr.responseText);
                                             alert('Erro ao atacar: ' + error);
                                         }
                                     });
                                 } else {
-                                    console.log('Button is inactive'); // Debug
+                                    console.log('⚠️ Button is inactive (no KI or wrong level)');
                                 }
-                                
+
                                 return false;
                             });
                         });
 
-                        startCountdown(<?php echo $tempoRestante; ?>);
+                        // ✅ FIX #3: Only run countdown if tempoRestante > 0
+                        var tempoRestante = <?php echo max(0, intval($tempoRestante)); ?>;
+
+                        if(tempoRestante > 0){
+                            startCountdown(tempoRestante);
+                        }
 
                         function startCountdown(tempo){
-                            if((tempo - 1) >= 0){
-
+                            if(tempo > 0){
                                 var min = parseInt(tempo/60);
                                 var horas = parseInt(min/60);
                                 min = min % 60;
                                 var seg = tempo%60;
+
 
                                 if(min < 10){
                                     min = "0"+min;
                                     min = min.substr(0, 2);
                                 }
 
+
                                 if(seg <=9){
                                     seg = "0"+seg;
                                 }
+
 
                                 if(horas <=9){
                                     horas = "0" + horas;
                                 }
 
+
                                 horaImprimivel = horas + ':' + min + ':' + seg;
+
 
                                 $(".time-restante .cont .horas span").html(horas);
                                 $(".time-restante .cont .minutos span").html(min);
                                 $(".time-restante .cont .segundos span").html(seg);
 
-                                setTimeout(function(){ 
-                                    startCountdown(tempo);
-                                }, 1000);
 
-                                tempo --;
+                                setTimeout(function(){ 
+                                    startCountdown(tempo - 1);
+                                }, 1000);
                             } else {
-                                if($('.time-restante').length > 0){
-                                    location.reload(true);
-                                }
+                                // ✅ FIX #4: Reload unconditionally when countdown ends
+                                console.log('⏰ Countdown finished - reloading page');
+                                location.reload(true);
                             }
                         }
                     </script>
                 </div>
-            
+
                 <div class="meu-log">
                     <h2>Meu Log</h2>
                     <ul>
@@ -366,5 +413,18 @@
                 </div>
             <?php } ?>
         </div>
+        <script>
+$(document).ready(function() {
+    // Remove Slick carousel from log
+    if($('.log-ataques ul').hasClass('slick-initialized')) {
+        $('.log-ataques ul').slick('unslick');
+    }
+
+    // Use normal scrollbar instead
+    new PerfectScrollbar('.log-ataques');
+});
+</script>
+
+
     <?php break; ?>
 <?php } ?>

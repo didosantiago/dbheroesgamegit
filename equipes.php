@@ -239,52 +239,93 @@ switch($acao){
 
 <!-- ==================== MEMBER-ONLY SECTIONS ==================== -->
 <?php if($isLeader || $isMember): ?>
-
-    <!-- 1. PRÓXIMO LEVEL Section -->
+    <!-- ✅ PRÓXIMO LEVEL Section - PER-LEVEL GOLD COST -->
     <div class="barra-level">
         <h4>Próximo Level</h4>
         <?php 
+        // Determine next level
         if($dados_equipe->level >= 150){
             $prox_level = 150;
+            $is_max_level = true;
         } else {
             $prox_level = intval($dados_equipe->level + 1);
+            $is_max_level = false;
         }
-        $porcentagem_level = $equipes->getPorcentagemLevel($idPersonagem, $dados_equipe->level, $equipes->getTotalGold($dados_equipe->id));
+
+        // Get total gold donated FOR THIS LEVEL ONLY (resets on level up)
+        $total_gold = $equipes->getTotalGold($dados_equipe->id);
+
+        // Get the COST to reach next level (e.g., 1000 for level 2, 1020 for level 3)
+        $gold_necessario = $equipes->getProximoLevel($dados_equipe->level);
+
+        // Calculate remaining gold needed
+        $gold_restante = $gold_necessario - $total_gold;
+        $gold_restante = max(0, $gold_restante);
+
+        // Calculate percentage for progress bar
+        if($gold_necessario > 0) {
+            $porcentagem_level = ($total_gold / $gold_necessario) * 100;
+            $porcentagem_level = min(100, max(0, $porcentagem_level));
+        } else {
+            $porcentagem_level = 100;
+        }
+
+        // Max level handling
+        if($is_max_level) {
+            $gold_restante = 0;
+            $porcentagem_level = 100;
+        }
         ?>
         <div class="content-gold">
             <div class="exp-faltante">
-                Falta <strong><?php echo $equipes->getGoldRestante($dados_equipe->level, $equipes->getTotalGold($dados_equipe->id)) ?></strong> golds para avançar de Level
+                <?php if($is_max_level): ?>
+                    <strong>Level Máximo Atingido!</strong>
+                <?php else: ?>
+                    Falta <strong><?php echo $gold_restante ?></strong> golds para avançar de Level
+                <?php endif; ?>
             </div>
             <div class="label-exp">
-                Próximo Level
+                <?php if($is_max_level): ?>
+                    Level Máximo
+                <?php else: ?>
+                    Próximo Level
+                <?php endif; ?>
                 <span class="txt"><?php echo $prox_level ?></span>
             </div>
             <div class="meter animate roxo">
-                <em><?php echo $equipes->getTotalGold($dados_equipe->id) ?> / <?php echo $equipes->getProximoLevel($dados_equipe->level) ?></em>
+                <!-- ✅ Shows: donated for THIS level / cost for next level -->
+                <em><?php echo $total_gold ?> / <?php echo $gold_necessario ?></em>
                 <span style="width:<?php echo $porcentagem_level ?>%"><span></span></span>
             </div>
         </div>
     </div>
 
+
     <!-- 2. DOAÇÕES DOS MEMBROS Section -->
     <?php
     if(isset($_REQUEST['doar'])){
         if($personagem->getSaldo($_REQUEST['valor'], $idPersonagem)){
+            // Get current team level
+            $dadosEquipeAtual = $core->getDados('equipes', "WHERE id = " . $dados_equipe->id);
+            
             $campos = array(
                 'idPersonagem' => $idPersonagem,
                 'idEquipe' => $dados_equipe->id,
                 'valor' => addslashes($_POST['valor']),
-                'data' => date('Y-m-d')
+                'data' => date('Y-m-d'),
+                'level_quando_doado' => $dadosEquipeAtual->level  // ✅ Track which level this was donated for
             );
+            
             if($core->insert('equipes_doacoes', $campos)){
-                $equipes->verificaLevel();
+                $equipes->verificaLevel($dados_equipe->id);
+                
                 $campos = array(
                     'gold' => intval($personagem->gold) - intval(addslashes($_POST['valor']))
                 );
-                $where = "id = ".$idPersonagem;
+                $where = "id = " . $idPersonagem;
                 $core->update('usuarios_personagens', $campos, $where);
                 $core->msg('sucesso', 'Doação realizada com sucesso.');
-                header("Location: ".BASE."equipes/".$dados_equipe->id);
+                header("Location: " . BASE . "equipes/" . $dados_equipe->id);
                 exit;
             } else {
                 $core->msg('error', 'Erro ao efetuar Doação.');
@@ -293,6 +334,7 @@ switch($acao){
             $core->msg('error', 'Gold insuficiente para Doação.');
         }
     }
+
     ?>
     <div class="doacoes">
         <h4>Doações dos Membros</h4>

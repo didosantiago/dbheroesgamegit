@@ -238,42 +238,42 @@ require_once 'core/CharacterRequired.php';     // proteção
     <li>
         <p>Aumenta o dano nos ataques do seu guerreiro</p>
         <div class="meter animate <?php $treino->setCorBarra($porcentagem_forca); ?>">
-            <em>Força <?php echo $personagem->forca + $forca_equipados + $status_extra + $status_extra_graduacao; ?></em>
+            <em>Força <?php echo $personagem->forca; ?></em>
             <span style="width: <?php echo $porcentagem_forca; ?>%"><span></span></span>
         </div>
-        <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+        <em style="color: #5b5;">+ [<?php echo $forca_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
     </li>
     <li>
         <p>Aumenta taxa de desvio contra o ataque de um inimigo</p>
         <div class="meter animate <?php $treino->setCorBarra($porcentagem_agilidade); ?>">
-            <em>Agilidade <?php echo $personagem->agilidade + $agilidade_equipados + $status_extra + $status_extra_graduacao; ?></em>
+            <em>Agilidade <?php echo $personagem->agilidade; ?></em>
             <span style="width: <?php echo $porcentagem_agilidade; ?>%"><span></span></span>
         </div>
-        <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+        <em style="color: #5b5;">+ [<?php echo $agilidade_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
     </li>
     <li>
         <p>Aumenta a chance em acerto de ataques críticos</p>
         <div class="meter animate <?php $treino->setCorBarra($porcentagem_habilidade); ?>">
-            <em>Habilidade <?php echo $personagem->habilidade + $habilidade_equipados + $status_extra + $status_extra_graduacao; ?></em>
+            <em>Habilidade <?php echo $personagem->habilidade; ?></em>
             <span style="width: <?php echo $porcentagem_habilidade; ?>%"><span></span></span>
         </div>
-        <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+        <em style="color: #5b5;">+ [<?php echo $habilidade_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
     </li>
     <li>
         <p>Aumenta sua resistência a ataques.</p>
         <div class="meter animate <?php $treino->setCorBarra($porcentagem_resistencia); ?>">
-            <em>Resistência <?php echo $personagem->resistencia + $resistencia_equipados + $status_extra + $status_extra_graduacao; ?></em>
+            <em>Resistência <?php echo $personagem->resistencia; ?></em>
             <span style="width: <?php echo $porcentagem_resistencia; ?>%"><span></span></span>
         </div>
-        <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+        <em style="color: #5b5;">+ [<?php echo $resistencia_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
     </li>
     <li>
         <p>Este atributo te dara sorte extra em cair baús nas Missões</p>
         <div class="meter animate <?php $treino->setCorBarra($porcentagem_sorte); ?>">
-            <em>Sorte <?php echo $personagem->sorte + $sorte_equipados + $status_extra + $status_extra_graduacao; ?></em>
+            <em>Sorte <?php echo $personagem->sorte; ?></em>
             <span style="width: <?php echo $porcentagem_sorte; ?>%"><span></span></span>
         </div>
-        <em>+ [<?php echo $status_extra + $status_extra_graduacao; ?>]</em>
+        <em style="color: #5b5;">+ [<?php echo $sorte_equipados + $status_extra + $status_extra_graduacao; ?>]</em>
     </li>
 </ul>
 

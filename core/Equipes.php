@@ -319,19 +319,41 @@ class Equipes {
         return $vitorias->total ?? 0;
     }
 
-    
-    public function getTotalGold($idEquipe){
-        $sql = "SELECT sum(valor) as total FROM equipes_doacoes WHERE idEquipe = $idEquipe";
-        $stmt = DB::prepare($sql);
-        $stmt->execute();
-        $gold = $stmt->fetch();
         
-        if($gold->total != null){
-            return $gold->total;
-        } else {
+    /**
+     * Get total gold donated FOR CURRENT LEVEL ONLY
+     */
+    public function getTotalGold($idEquipe) {
+        try {
+            // Get current team level
+            $sql = "SELECT level FROM equipes WHERE id = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($idEquipe)]);
+            $equipe = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if(!$equipe) {
+                return 0;
+            }
+            
+            // Get gold donated AT current level only
+            $sql = "SELECT SUM(valor) as total FROM equipes_doacoes 
+                    WHERE idEquipe = ? AND level_quando_doado = ?";
+            $stmt = DB::prepare($sql);
+            $stmt->execute([intval($idEquipe), intval($equipe->level)]);
+            $item = $stmt->fetch(PDO::FETCH_OBJ);
+            
+            if(!$item || !$item->total) {
+                return 0;
+            }
+            
+            return intval($item->total);
+            
+        } catch (PDOException $e) {
+            error_log("Error in getTotalGold: " . $e->getMessage());
             return 0;
         }
     }
+
     
     public function getRanking($idEquipe){
         global $core;
@@ -830,13 +852,16 @@ class Equipes {
         }
     }
 
-    
-    public function verificaLevel($idEquipeEspecifica = null){
+    /**
+     * Check and update team level based on gold donations
+     * Each level requires a FULL gold payment (resets on level up)
+     */
+    public function verificaLevel($idEquipeEspecifica = null) {
         $core = new Core();
         
         try {
-            // ✅ If specific team ID provided, only check that team
-            if($idEquipeEspecifica !== null) {
+            // If specific team ID provided, only check that team
+            if($idEquipeEspecifica != null) {
                 $sql = "SELECT * FROM equipes WHERE id = ?";
                 $stmt = DB::prepare($sql);
                 $stmt->execute([intval($idEquipeEspecifica)]);
@@ -850,52 +875,69 @@ class Equipes {
             }
             
             foreach ($equipes as $value) {
-                // Get total gold donated to this team
-                $sql = "SELECT SUM(valor) as total FROM equipes_doacoes WHERE idEquipe = ?";
+                // Get total gold donated FOR CURRENT LEVEL ONLY
+                // Only count donations made AT current level
+                $sql = "SELECT SUM(valor) as total FROM equipes_doacoes 
+                        WHERE idEquipe = ? AND level_quando_doado = ?";
                 $stmt = DB::prepare($sql);
-                $stmt->execute([intval($value->id)]);
+                $stmt->execute([intval($value->id), intval($value->level)]);
                 $golds = $stmt->fetch(PDO::FETCH_OBJ);
                 
                 $totalGold = $golds->total ?? 0;
                 
-                if($totalGold == 0) {
-                    $levelAtualiza = 1;
-                } else {
-                    // Find the correct level based on total gold
-                    $sql = "SELECT * FROM equipes_levels 
-                            WHERE goldminimo <= ? 
-                            ORDER BY goldminimo DESC 
-                            LIMIT 1";
-                    $stmt = DB::prepare($sql);
-                    $stmt->execute([intval($totalGold)]);
-                    $levels = $stmt->fetch(PDO::FETCH_OBJ);
-                    
-                    if(!$levels) {
-                        // If no level found, set to level 1
-                        $levelAtualiza = 1;
-                    } else {
-                        $levelAtualiza = $levels->level;
-                    }
+                if($totalGold <= 0) {
+                    continue; // No donations yet
                 }
                 
-                // Only update if level changed
-                if($value->level != $levelAtualiza) {
-                    $campos = array(
-                        'level' => $levelAtualiza
-                    );
+                // Get the gold COST for next level
+                $nextLevel = $value->level + 1;
+                
+                // Don't exceed max level
+                if($nextLevel > 150) {
+                    continue;
+                }
+                
+                // Get cost for next level
+                $sql = "SELECT goldminimo FROM equipes_levels WHERE level = ?";
+                $stmt = DB::prepare($sql);
+                $stmt->execute([intval($nextLevel)]);
+                $levelData = $stmt->fetch(PDO::FETCH_OBJ);
+                
+                if(!$levelData) {
+                    continue; // No level data found
+                }
+                
+                $goldNecessario = intval($levelData->goldminimo);
+                
+                // Check if team has enough gold to level up
+                if($totalGold >= $goldNecessario) {
+                    // LEVEL UP!
+                    $novoLevel = $nextLevel;
+                    
+                    // Update team level
+                    $campos = array('level' => $novoLevel);
                     $where = "id = " . intval($value->id);
                     $core->update('equipes', $campos, $where);
+                    
+                    // ✅ KEEP donation history - donations stay in database
+                    // Future donations will have level_quando_doado = new level
+                    
+                    error_log("Team {$value->id} leveled up from {$value->level} to {$novoLevel}");
                 }
             }
+            
+            return true;
+            
         } catch (PDOException $e) {
-            error_log("Error in verificaLevel(): " . $e->getMessage());
+            error_log("Error in verificaLevel: " . $e->getMessage());
+            return false;
         }
     }
 
 
     
     public function getStatusExtra($idPersonagem){
-        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem AND aceitou = 1";
+        $sql = "SELECT * FROM equipes_membros WHERE idPersonagem = $idPersonagem AND status = 1";
         $stmt = DB::prepare($sql);
         $stmt->execute();
         
@@ -911,7 +953,7 @@ class Equipes {
                 
                 // Check if level column exists, otherwise return 0
                 if(isset($equipe->level)){
-                    return $equipe->level * 3;
+                    return $equipe->level * 1;
                 } else {
                     return 0;
                 }
@@ -1341,9 +1383,18 @@ class Equipes {
         $stmt->execute();
         $itens = $stmt->fetchAll();
         
+        // ✅ FIX: Get total count of members with donations
+        $total_doadores = count($itens);
+        
         $row = '';
         
+        // ✅ FIX: Add rank counter
+        $posicao = 0;
+        
         foreach ($itens as $key => $value) {
+            // ✅ FIX: Increment position counter
+            $posicao++;
+            
             $sql = 'SELECT ed.*, sum(valor) as total, up.nome, up.foto 
                     FROM equipes_doacoes as ed 
                     INNER JOIN usuarios_personagens as up ON up.id = ed.idPersonagem 
@@ -1360,18 +1411,23 @@ class Equipes {
                 $total = 0;
             }
             
+            // ✅ FIX: Display rank position instead of total gold
             $row .= '<li>
                         <img src="'.BASE.'assets/cards/'.$membros->foto.'" alt="'.$membros->nome.'" />
                         <h3>'.$membros->nome.'</h3>
                         <span class="total-golds">
                             <img src="'.BASE.'assets/icones/gold.png" alt="Golds" />
-                            '.$total.'
+                            '.$posicao.' / '.$total_doadores.'
+                        </span>
+                        <span class="total-donated" style="display:block; font-size:12px; color:#999; margin-top:5px;">
+                            Total Doado: '.$total.' gold
                         </span>
                     </li>';
         }
         
         echo $row;
     }
+
     
     public function getDoacoesSemanal($idEquipe){
         $core = new Core();
