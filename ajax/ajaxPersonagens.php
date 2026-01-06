@@ -86,5 +86,7 @@
         </div>
     </div>
     
-    <button class="bts-form bt-jogar fas fa-play" dataid="<?php echo $personagem->id; ?>"> Jogar</button>
+    <button class="bts-form bt-jogar fas fa-play" dataid="<?php echo $personagem->id; ?>"> Jogar</button> 
+      <button class="bts-form bt-deletar fas fa-solid fa-delete-left" dataid="<?php echo $personagem->id; ?>"> Deletar</button>
+    
 </div>

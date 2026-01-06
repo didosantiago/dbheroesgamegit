@@ -240,10 +240,60 @@ class Personagens {
                         </div>
                     </div>
                     <a href="javascript:void(0);" class="bts-form bt-jogar" data-character-id="'.$this->id.'" onclick="switchCharacter('.$this->id.')">▶ JOGAR</a>
+                    <a href="javascript:void(0)" class="bts-form bt-deletar" data-character-id="'.$this->id.'" onclick="deletarPersonagem('.$this->id.')"> DELETAR</a>
+
                 </div>';
         
         echo $rows;
     }
+
+public function deleteCharacter($characterId) {
+    try {
+        // Start transaction
+        $this->conn->beginTransaction();
+        
+        // 1. Delete inventory items (subquery approach)
+        $sql = "DELETE FROM personagens_inventario_itens 
+                WHERE idSlot IN (
+                    SELECT id FROM (
+                        SELECT id FROM personagens_inventario WHERE idPersonagem = ?
+                    ) AS temp_inv
+                )";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$characterId]);
+        
+        // 2. Delete from core character tables
+        $tables = [
+            'personagens_inventario',
+            'personagens_buffs',
+            'personagens_golpes',
+            'personagensitensequipados'
+        ];
+        
+        foreach($tables as $table) {
+            $sql = "DELETE FROM $table WHERE idPersonagem = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->execute([$characterId]);
+        }
+        
+        // 3. Finally delete the character itself
+        $sql = "DELETE FROM usuarios_personagens WHERE id = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$characterId]);
+        
+        // Commit transaction
+        $this->conn->commit();
+        
+        return true;
+        
+    } catch(PDOException $e) {
+        // Rollback on error
+        $this->conn->rollBack();
+        throw $e;
+    }
+}
+
+
     
     public function getGuerreiro($id){
         

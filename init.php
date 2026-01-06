@@ -23,9 +23,12 @@
     include_once "./core/Missoes.php";
     include_once "./core/Faq.php";
     include_once "./core/Torneio.php";
+    include_once "./core/Veraoexplorando.php";
     include_once "./core/Mercado.php";
     include_once "./core/Batalha.php";
     include_once "./core/Npc.php";
+    include_once "./core/VeraoNpc.php";
+    include_once "./core/Veraoexplorando.php";
     include_once "./core/Equipes.php";
     include_once "./core/Administrar.php";
     include_once "./core/Forum.php";
@@ -55,6 +58,7 @@
     $missoes = new Missoes();
     $faq = new Faq();
     $torneio = new Torneio();
+    $veraoexplorando = new Veraoexplorando();
     $market = new Mercado();
     $batalha = new Batalha();
     $npc = new Npc();

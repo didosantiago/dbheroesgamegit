@@ -2216,6 +2216,7 @@ body.meus-personagens .personagem-atual .info a {
 body.meus-personagens .personagem-atual .bt-jogar {
   width: 220px;
   margin: 30px auto;
+  
   background: #12a821;
   text-align: center;
   font-size: 18px;
@@ -2245,6 +2246,44 @@ body.meus-personagens .personagem-atual .bt-jogar {
 }
 
 body.meus-personagens .personagem-atual .bt-jogar svg {
+  display: inline-block;
+  vertical-align: middle;
+  font-size: 22px;
+  margin-left: 10px
+}
+
+body.meus-personagens .personagem-atual .bt-deletar {
+  width: 220px;
+  margin: 30px auto;
+  background: #b50000;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  line-height: 42px;
+  color: #FFF;
+  -moz-border-radius: 0;
+  -webkit-border-radius: 0;
+  border-radius: 0
+}
+
+@media (max-width: 1024px) {
+  body.meus-personagens .personagem-atual .bt-deletar {
+    display: block;
+    width: 100%;
+    margin: 0;
+    font-size: 18px;
+    line-height: 45px;
+    background: #b50000;
+    -moz-border-radius: 0;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box
+  }
+}
+
+body.meus-personagens .personagem-atual .bt-deletar svg {
   display: inline-block;
   vertical-align: middle;
   font-size: 22px;
@@ -2888,6 +2927,18 @@ body.meus-personagens .lista-meus-personagens {
   margin: 20px auto 0px auto;
   border-radius: 18px;
   background: url("../assets/banners/rank.gif") center center no-repeat;
+  background-size: cover;
+  box-shadow: 0 4px 20px #0007;
+  display: block;
+}
+
+.verao-explorando-banner {
+  width: 100%;
+  max-width: 1000px;       /* Or your desired max */
+  height: 200px;          /* Adjust as needed */
+  margin: 20px 50px 10px 0px;
+  border-radius: 18px;
+  background: url("../assets/banners/verao-explorando.gif") center center no-repeat;
   background-size: cover;
   box-shadow: 0 4px 20px #0007;
   display: block;
@@ -6263,6 +6314,65 @@ body.ranking .lista-ranking td {
 body.ranking .lista-ranking th {
   padding: 15px
 }
+/* ===== PVP HORIZONTAL LAYOUT LIKE NPC ===== */
+
+/* Main container - 3 column grid */
+body.combate .conteudo-npc {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    align-items: start;
+}
+
+/* If your combate page doesn't use .conteudo-npc, use this instead */
+body.combate .batalha {
+    display: grid !important;
+    grid-template-columns: 1fr auto 1fr !important;
+    gap: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 20px;
+    align-items: start;
+}
+
+/* Left warrior */
+body.combate .guerreiros-batalha:nth-of-type(1) {
+    grid-column: 1;
+}
+
+/* Center VS section */
+body.combate .versus {
+    grid-column: 2;
+    min-width: 200px;
+}
+
+/* Right warrior */
+body.combate .guerreiros-batalha:nth-of-type(2) {
+    grid-column: 3;
+}
+
+/* Ensure warriors don't get too wide */
+body.combate .guerreiro {
+    max-width: 700px;
+}
+
+/* Responsive - stack on smaller screens */
+@media (max-width: 1400px) {
+    body.combate .conteudo-npc,
+    body.combate .batalha {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto auto;
+    }
+    
+    body.combate .guerreiros-batalha:nth-of-type(1),
+    body.combate .versus,
+    body.combate .guerreiros-batalha:nth-of-type(2) {
+        grid-column: 1 !important;
+    }
+}
 
 body.combate {
   background: #1B2838
@@ -8253,7 +8363,7 @@ body.equipes .conteudo .perfil-equipe .foto-equipe .editar-dados svg {
 body.equipes .conteudo .perfil-equipe .info-equipe {
   display: inline-block;
   vertical-align: top;
-  width: 715px;
+  width: 705px;
   min-height: 280px;
   background: #0b1521;
   padding: 20px;
@@ -10287,6 +10397,76 @@ body.npc .batalha .versus .placar .log .line .round strong {
   color: #FFF !important;
   font-size: 20px !important
 }
+/* NPC Arena Backgrounds - Use idGuerreiro (131-138, 1001+) */
+
+/* NPC Arena Backgrounds - Using idGuerreiro from database */
+
+/* Creature NPCs (ID 1001+) */
+body.npc .guerreiro[data-npc-id="1001"] {
+    background-image: url(../assets/guerreiros/criatura_1.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+/* Character NPCs (ID 131-138) */
+body.npc .guerreiro[data-npc-id="131"] {
+    background-image: url(../assets/guerreiros/oolong.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="132"] {
+    background-image: url(../assets/guerreiros/pilaf.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="133"] {
+    background-image: url(../assets/guerreiros/pui-pui.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="134"] {
+    background-image: url(../assets/guerreiros/shu.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="135"] {
+    background-image: url(../assets/guerreiros/tao-pai-pai.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="136"] {
+    background-image: url(../assets/guerreiros/tenshinhan.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="137"] {
+    background-image: url(../assets/guerreiros/yacon.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+body.npc .guerreiro[data-npc-id="138"] {
+    background-image: url(../assets/guerreiros/yamcha.jpg);
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
 
 body.npc .guerreiro {
   display: inline-block;
@@ -21876,7 +22056,7 @@ body.forum .conteudo {
   display: inline-block;
   vertical-align: top;
   margin: 10px 0 20px 3px;
-  padding: 10px;
+  padding: 15px;
   background: #000;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;

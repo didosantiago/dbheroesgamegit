@@ -60,6 +60,82 @@ if(isset($_POST['jogar'])){
         $notificationMessage = 'Você precisa selecionar um personagem antes de jogar!';
     }
 }
+
+
+// Handle character deletion - COMPLETE WORKING VERSION
+if(isset($_POST['deletar_personagem'])){
+    error_log("DELETE REQUEST RECEIVED for ID: " . $_POST['deletar_personagem']); // Debug log
+    
+    $idPersonagem = (int)$_POST['deletar_personagem'];
+    
+    // Verify character belongs to user
+    $core = new Core();
+    $check = $core->getDados('usuarios_personagens', "WHERE id = {$idPersonagem} AND idUsuario = {$user->id}");
+    
+    if($check){
+        $characterName = htmlspecialchars($check->nome);
+        error_log("Character found: $characterName"); // Debug log
+        
+        try {
+            // Start transaction
+            $core->conn->beginTransaction();
+            error_log("Transaction started"); // Debug log
+            
+            // 1. Get inventory slot IDs
+            $stmt = $core->conn->prepare("SELECT id FROM personagens_inventario WHERE idPersonagem = ?");
+            $stmt->execute([$idPersonagem]);
+            $inventorySlots = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            error_log("Inventory slots found: " . count($inventorySlots)); // Debug log
+            
+            // 2. Delete inventory items
+            if(!empty($inventorySlots)){
+                $placeholders = implode(',', array_fill(0, count($inventorySlots), '?'));
+                $stmt = $core->conn->prepare("DELETE FROM personagens_inventario_itens WHERE idSlot IN ($placeholders)");
+                $stmt->execute($inventorySlots);
+                error_log("Inventory items deleted"); // Debug log
+            }
+            
+            // 3. Delete from related tables
+            $tables = ['personagens_inventario', 'personagens_buffs', 'personagens_golpes', 'personagensitensequipados'];
+            foreach($tables as $table){
+                $stmt = $core->conn->prepare("DELETE FROM $table WHERE idPersonagem = ?");
+                $stmt->execute([$idPersonagem]);
+                error_log("Deleted from $table"); // Debug log
+            }
+            
+            // 4. Delete character
+            $stmt = $core->conn->prepare("DELETE FROM usuarios_personagens WHERE id = ?");
+            $stmt->execute([$idPersonagem]);
+            error_log("Character deleted"); // Debug log
+            
+            // Commit
+            $core->conn->commit();
+            error_log("Transaction committed"); // Debug log
+            
+            // Success!
+            $showSuccessNotification = true;
+            $notificationMessage = '✅ **' . $characterName . '** foi deletado com sucesso! 🗑️';
+            
+            // Clear session
+            if(isset($_SESSION['PERSONAGEMID']) && $_SESSION['PERSONAGEMID'] == $idPersonagem){
+                unset($_SESSION['PERSONAGEMID']);
+            }
+            
+        } catch(Exception $e) {
+            if(isset($core->conn)) $core->conn->rollBack();
+            $showErrorNotification = true;
+            $notificationMessage = 'Erro: ' . $e->getMessage();
+            error_log("DELETE ERROR: " . $e->getMessage()); // Debug log
+        }
+    } else {
+        $showErrorNotification = true;
+        $notificationMessage = 'Personagem não encontrado!';
+        error_log("Character not found or no permission"); // Debug log
+    }
+}
+
+
+
 ?>
 <?php if($showErrorNotification): ?>
 <div class="notification-error" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%); color: white; padding: 15px 20px; border-radius: 10px; margin: 20px auto; max-width: 600px; text-align: center; box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4); animation: slideDown 0.3s ease;">
@@ -188,3 +264,28 @@ if(isset($_POST['jogar'])){
     }
 }
 </style>
+
+
+<script>
+// Handle delete button clicks from AJAX-loaded content
+$(document).on('click', '.bt-deletar', function(e) {
+    e.preventDefault();
+    const characterId = $(this).data('id');
+    
+    if(confirm('Tem certeza que deseja deletar este personagem? Esta ação não pode ser desfeita!')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '';
+        
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'deletarpersonagem';
+        input.value = characterId;
+        
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+</script>
+

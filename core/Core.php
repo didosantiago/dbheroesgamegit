@@ -136,22 +136,27 @@ class Core {
     }
     
     public function insert($table, $params = array()){
-        $sql = 'INSERT INTO `'.$table.'` (`'.implode('`, `',array_keys($params)).'`) VALUES ("' . implode('", "', $params) . '")';
+        // ✅ SECURE: Use placeholders instead of direct values
+        
+        $columns = implode('`, `', array_keys($params));
+        $placeholders = ':' . implode(', :', array_keys($params));
+        
+        $sql = "INSERT INTO `{$table}` (`{$columns}`) VALUES ({$placeholders})";
+        
         if($table != 'adm_log'){
             $this->gravaLog($sql, 'insert');
         }
+        
         $stmt = DB::prepare($sql);
         
-        if($stmt->execute()){
-            if($stmt->rowCount() > 0){
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
+        // ✅ Bind values - automatically escapes quotes/HTML!
+        foreach($params as $key => $value){
+            $stmt->bindValue(":{$key}", $value, PDO::PARAM_STR);
         }
+        
+        return $stmt->execute() && $stmt->rowCount() > 0;
     }
+
 
     public function delete($table,$where = null){
         if($where == null){
